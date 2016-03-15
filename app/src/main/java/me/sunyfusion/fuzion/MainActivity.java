@@ -42,8 +42,48 @@ public class MainActivity extends Activity {
             u = new mTextView(this, e.getMessage());
             l.addView(u);
         }
+        //TODO move these get and post tests to some other method/class
+        //TODO outside of the UI oncreate method
+        //get Test
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://textfiles.com/ufo/3-19disc.txt", new FileAsyncHttpResponseHandler(getApplicationContext()) {
+        client.get("http://sunyfusion.me", new FileAsyncHttpResponseHandler(getApplicationContext()) {
+
+            @Override
+            public void onStart() {
+                // called before request is started
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, File response) {
+                Toast toast = Toast.makeText(getApplicationContext(), "Success " + statusCode, Toast.LENGTH_LONG);
+                toast.show();
+                try {
+                    FileReader f = new FileReader(response);
+                    BufferedReader r = new BufferedReader(f);
+                    String b = r.readLine();
+                    String c = "";
+                    //while((b = r.readLine()) != null) {
+                        l.addView(new mTextView(getApplicationContext(), b));
+                    //}
+                 }
+                catch(IOException e){}
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
+                Toast toast = Toast.makeText(getApplicationContext(), "Failed" + statusCode, Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            @Override
+            public void onRetry(int retryNo) {
+                // called when request is retried
+            }
+        });
+        //post test
+        RequestParams params = new RequestParams();
+        params.put("test", "working");
+        client.post("http://sunyfusion.me/submit.php", params, new FileAsyncHttpResponseHandler(getApplicationContext()) {
 
             @Override
             public void onStart() {
@@ -62,7 +102,7 @@ public class MainActivity extends Activity {
                     while((b = r.readLine()) != null) {
                         l.addView(new mTextView(getApplicationContext(), b));
                     }
-                 }
+                }
                 catch(IOException e){}
             }
 
