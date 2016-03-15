@@ -28,11 +28,20 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         final LinearLayout l = new LinearLayout(this);
         l.setOrientation(LinearLayout.VERTICAL);
+        final mTextView t,u;
         setContentView(l);
-        final TextView t = new TextView(this);
-        l.addView(t);
-        t.setText("TEst");
-
+        //Insert dynamic layout object into view.
+        try {
+            InputStreamReader f = new InputStreamReader(this.getAssets().open("test.txt"));
+            BufferedReader r = new BufferedReader(f);
+            t = new mTextView(this, r.readLine());
+            l.addView(t);
+        }
+        //If asset does not exist, just put something there
+        catch(IOException e) {
+            u = new mTextView(this, e.getMessage());
+            l.addView(u);
+        }
         AsyncHttpClient client = new AsyncHttpClient();
         client.get("http://textfiles.com/ufo/3-19disc.txt", new FileAsyncHttpResponseHandler(getApplicationContext()) {
 
@@ -46,8 +55,8 @@ public class MainActivity extends Activity {
                 Toast toast = Toast.makeText(getApplicationContext(), "Success " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
                 try {
-                    FileReader i = new FileReader(response);
-                    BufferedReader r = new BufferedReader(i);
+                    FileReader f = new FileReader(response);
+                    BufferedReader r = new BufferedReader(f);
                     String b = "";
                     String c = "";
                     while((b = r.readLine()) != null) {
@@ -59,7 +68,8 @@ public class MainActivity extends Activity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                t.setText("BOOO");
+                Toast toast = Toast.makeText(getApplicationContext(), "Failed" + statusCode, Toast.LENGTH_LONG);
+                toast.show();
             }
 
             @Override
