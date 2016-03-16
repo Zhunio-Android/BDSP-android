@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,14 +28,20 @@ import java.util.Date;
 
 import cz.msebera.android.httpclient.Header;
 
-
 public class MainActivity extends Activity {
+
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     Uri imgUri;
+    LinearLayout l;
+
+    /** Runs on startup, creates the layout when the activity is created.
+     * This is essentially the "main" method.
+     * @param savedInstanceState restores previous state on entry
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final LinearLayout l = new LinearLayout(this);
+        l = new LinearLayout(this);
         l.setOrientation(LinearLayout.VERTICAL);
         final mTextView t,u;
         setContentView(l);
@@ -56,13 +61,7 @@ public class MainActivity extends Activity {
         cameraButton.setText("Camera");
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                File f = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-                File s = new File(f.getPath() + File.separator + timeStamp + ".jpg");
-                Uri uri = Uri.fromFile(s);
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+                getImage();
             }
         });
         l.addView(cameraButton);
@@ -71,91 +70,15 @@ public class MainActivity extends Activity {
         l.addView(button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Do something in response to button click
-
-                //TODO move these get and post tests to some other method/class
-                //TODO outside of the UI oncreate method
-                //get Test
-                AsyncHttpClient client = new AsyncHttpClient();
-                client.get("http://sunyfusion.me", new FileAsyncHttpResponseHandler(getApplicationContext()) {
-
-                    @Override
-                    public void onStart() {
-                        // called before request is started
-                    }
-
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, File response) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Success " + statusCode, Toast.LENGTH_LONG);
-                        toast.show();
-                        try {
-                            FileReader f = new FileReader(response);
-                            BufferedReader r = new BufferedReader(f);
-                            String b = r.readLine();
-                            String c = "";
-                            //while((b = r.readLine()) != null) {
-                                l.addView(new mTextView(getApplicationContext(), b));
-                            //}
-                         }
-                        catch(IOException e){}
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Failed" + statusCode, Toast.LENGTH_LONG);
-                        toast.show();
-                    }
-
-                    @Override
-                    public void onRetry(int retryNo) {
-                        // called when request is retried
-                    }
-                });
-                //post test
-                RequestParams params = new RequestParams();
-                params.put("test", "working");
-                File myFile = new File(imgUri.getPath());
-                try {
-                    params.put("image", myFile);
-                } catch(FileNotFoundException e) {}
-                client.post("http://sunyfusion.me/submit.php", params, new FileAsyncHttpResponseHandler(getApplicationContext()) {
-
-                    @Override
-                    public void onStart() {
-                        // called before request is started
-                    }
-
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, File response) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Success " + statusCode, Toast.LENGTH_LONG);
-                        toast.show();
-                        try {
-                            FileReader f = new FileReader(response);
-                            BufferedReader r = new BufferedReader(f);
-                            String b = "";
-                            String c = "";
-                            while((b = r.readLine()) != null) {
-                                l.addView(new mTextView(getApplicationContext(), b));
-                            }
-                        }
-                        catch(IOException e){}
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                        Toast toast = Toast.makeText(getApplicationContext(), "Failed" + statusCode, Toast.LENGTH_LONG);
-                        toast.show();
-                    }
-
-                    @Override
-                    public void onRetry(int retryNo) {
-                        // called when request is retried
-                    }
-                });
+                doHTTPget();
+                doHTTPpost();
             }
         });
     }
-
+    /**
+     * Wrapper class to create a constructor for TextView that allows text to be set at the
+     * time of creation of the object.
+     */
     class mTextView extends TextView {
         public mTextView(Context c, String t) {
             super(c);
@@ -168,6 +91,15 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
+    /**
+     * Receives all intents returned by activities when returning to this activity.
+     * Right now, this only processes the intent returned by the getImage() method
+     * below
+     * @param requestCode integer that identifies the type of activity that the intent belongs to
+     * @param resultCode status code returned by the exiting activity
+     * @param data the intent that is being returned by the exiting activity
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(resultCode == RESULT_OK) {
@@ -190,5 +122,112 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Creates a file in the application's directory on the device, assigns a timestamped file
+     * name, creates a new Image Capture intent, and starts it. the overridden method
+     * "onActivityResult" handles the data returned by the camera intent.
+     * @return void
+     */
+    private void getImage() {
+        File f = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File s = new File(f.getPath() + File.separator + timeStamp + ".jpg");
+        Uri uri = Uri.fromFile(s);
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
+    }
+
+    /**
+     * Creates and sends an HTTP post request to the server, which includes the image captured
+     * from the getImage() method. Also adds the HTTP response from the server to the UI.
+     */
+    private void doHTTPpost() {
+        AsyncHttpClient client = new AsyncHttpClient();
+        //post test
+        RequestParams params = new RequestParams();
+        params.put("test", "working");
+        File myFile = new File(imgUri.getPath());
+        try {
+            params.put("image", myFile);
+        } catch(FileNotFoundException e) {}
+        client.post("http://sunyfusion.me/submit.php", params, new FileAsyncHttpResponseHandler(getApplicationContext()) {
+
+            @Override
+            public void onStart() {
+                // called before request is started
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, File response) {
+                Toast toast = Toast.makeText(getApplicationContext(), "Success " + statusCode, Toast.LENGTH_LONG);
+                toast.show();
+                try {
+                    FileReader f = new FileReader(response);
+                    BufferedReader r = new BufferedReader(f);
+                    String b = "";
+                    String c = "";
+                    while((b = r.readLine()) != null) {
+                        l.addView(new mTextView(getApplicationContext(), b));
+                    }
+                }
+                catch(IOException e){}
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
+                Toast toast = Toast.makeText(getApplicationContext(), "Failed" + statusCode, Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            @Override
+            public void onRetry(int retryNo) {
+                // called when request is retried
+            }
+        });
+    }
+
+    /**
+     * creates and sends an Async HTTP GET request to our server, and adds the first line
+     * of the server's response to the UI window.
+     */
+    private void doHTTPget() {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get("http://sunyfusion.me", new FileAsyncHttpResponseHandler(getApplicationContext()) {
+
+            @Override
+            public void onStart() {
+                // called before request is started
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, File response) {
+                Toast toast = Toast.makeText(getApplicationContext(), "Success " + statusCode, Toast.LENGTH_LONG);
+                toast.show();
+                try {
+                    FileReader f = new FileReader(response);
+                    BufferedReader r = new BufferedReader(f);
+                    String b = r.readLine();
+                    String c = "";
+                    //while((b = r.readLine()) != null) {
+                    l.addView(new mTextView(getApplicationContext(), b));
+                    //}
+                }
+                catch(IOException e){}
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
+                Toast toast = Toast.makeText(getApplicationContext(), "Failed" + statusCode, Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            @Override
+            public void onRetry(int retryNo) {
+                // called when request is retried
+            }
+        });
     }
 }
