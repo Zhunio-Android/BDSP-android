@@ -27,6 +27,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import cz.msebera.android.httpclient.Header;
+<<<<<<< HEAD
+=======
+//Rob was here
+>>>>>>> master
 
 public class MainActivity extends Activity {
 
