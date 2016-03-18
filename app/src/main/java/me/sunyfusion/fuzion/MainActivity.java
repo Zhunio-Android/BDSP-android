@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,7 @@ public class MainActivity extends Activity {
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     Uri imgUri;
     LinearLayout l;
+    EditText mText;
 
     /** Runs on startup, creates the layout when the activity is created.
      * This is essentially the "main" method.
@@ -75,6 +77,9 @@ public class MainActivity extends Activity {
                 doHTTPpost();
             }
         });
+        mText = new EditText(this);
+        l.addView(mText);
+
     }
     /**
      * Wrapper class to create a constructor for TextView that allows text to be set at the
@@ -149,12 +154,15 @@ public class MainActivity extends Activity {
         AsyncHttpClient client = new AsyncHttpClient();
         //post test
         RequestParams params = new RequestParams();
-        params.put("test", "working");
-        File myFile = new File(imgUri.getPath());
-        try {
-            params.put("image", myFile);
-        } catch(FileNotFoundException e) {}
-        client.post("http://sunyfusion.me/submit.php", params, new FileAsyncHttpResponseHandler(getApplicationContext()) {
+        params.put("test", mText.getText());
+        if(imgUri != null){
+            File myFile = new File(imgUri.getPath());
+            try {
+                params.put("image", myFile);
+            } catch (FileNotFoundException e) {
+            }
+        }
+        client.post("http://sunyfusion.me/ft_test/index.php", params, new FileAsyncHttpResponseHandler(getApplicationContext()) {
 
             @Override
             public void onStart() {
