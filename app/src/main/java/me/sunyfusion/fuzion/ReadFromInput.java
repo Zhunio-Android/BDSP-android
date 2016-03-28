@@ -13,15 +13,14 @@ import java.util.Scanner;
 
 public class ReadFromInput
 {
-    File input = new File("buildApp.txt");
-    Scanner infile = new Scanner(input);
-
     private String Type = null;    // To hold the type of category from the buildApp.txt when read.
     private String Name = null;    // To hold the unique category name from the buildApp.txt when read.
     private int answer = 0;        // To hold the answer to categories such as camera. 1 = yes, 0 = no
 
     public void ReadLineCollectInfo() throws FileNotFoundException
     {
+        File input = new File("buildApp.txt");
+        Scanner infile = new Scanner(input);
         String Line;
 
         if (infile.hasNextLine())
