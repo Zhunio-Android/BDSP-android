@@ -53,6 +53,8 @@ public class ReadFromInput
         Name = null;
         answer = 0;
 
+        //Do I need to line.close() ?
+
     }
 
     public String getCategoryFromFile()
