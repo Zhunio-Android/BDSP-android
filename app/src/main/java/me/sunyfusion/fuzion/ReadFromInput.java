@@ -27,10 +27,11 @@ public class ReadFromInput
         {
             Line = infile.nextLine();   // gets the line
             Scanner line = new Scanner(Line); // sets Scanner to that line
-            if(line.hasNext())
+            if(line.hasNext()) // Checks for blank line
             {
                 Type = line.next(); // Gets the category and assigns to Type
-                if(line.hasNextInt())
+
+                if(line.hasNextInt()) // Checks for an answer, 1 = include, 0 = do not
                 {
                     answer = line.nextInt();
                 }
