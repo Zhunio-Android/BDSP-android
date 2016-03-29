@@ -83,7 +83,7 @@ public class MainActivity extends Activity {
         // build or activate GpsTracker
     }
 
-    public void buildUniqueName()
+    public void buildUniqueName(String name)
     {
         // build unique button
         // add column to SQLite table
