@@ -39,6 +39,8 @@ public class MainActivity extends Activity {
 
     DatabaseHelper database = new DatabaseHelper(); // need to add argument to constructor call
     ReadFromInput readFile = new ReadFromInput();
+    String Type;
+    String Name;
 
 
 
@@ -48,7 +50,7 @@ public class MainActivity extends Activity {
      * @param savedInstanceState restores previous state on entry
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         l = new LinearLayout(this);
         l.setOrientation(LinearLayout.VERTICAL);
@@ -75,37 +77,54 @@ public class MainActivity extends Activity {
       cases will test the type returned.
       */
 
-
-    public void buildCamera()
+    do
     {
-        // build button
-        // add column to SQLite table
-    }
+        try
+        {
+            readFile.ReadLineCollectInfo();
+        }
 
-    public void buildGpsLoc()
-    {
-        // build button
-        // add column to SQLite table
-    }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        }
 
-    public void buildGpsTraker()
-    {
-        // build or activate GpsTracker
-    }
+        Type = readFile.getType();
 
-    public void buildUniqueName(String name)
-    {
-        // build unique button
-        // add column to SQLite table
-    }
+        switch (Type)
+        {
+            case "camera":
+                if(readFile.getAnswer() == 1)
+                {
+                    buildCamera();
+                }
+                break;
 
-        Button cameraButton = new Button(this);
-        cameraButton.setText("Camera");
-        cameraButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                getImage();
-            }
-        });
+            case "gpsLoc":
+                if(readFile.getAnswer() == 1)
+                {
+                    buildGpsLoc();
+                }
+                break;
+
+            case "gpsTracker":
+                if(readFile.getAnswer() == 1)
+                {
+                    buildGpsTraker();
+                }
+                break;
+
+            case "unique":
+                Name = readFile.getUnigueName();
+                buildUniqueName(Name);
+                break;
+        }
+    while(!Type.equals("endFile"));
+
+
+
+
+
         l.addView(cameraButton);
 
         Button button = new Button(this);
@@ -218,11 +237,11 @@ public class MainActivity extends Activity {
                     BufferedReader r = new BufferedReader(f);
                     String b = "";
                     String c = "";
-                    while((b = r.readLine()) != null) {
+                    while ((b = r.readLine()) != null) {
                         l.addView(new mTextView(getApplicationContext(), b));
                     }
+                } catch (IOException e) {
                 }
-                catch(IOException e){}
             }
 
             @Override
@@ -278,5 +297,28 @@ public class MainActivity extends Activity {
                 // called when request is retried
             }
         });
+    }
+
+    public void buildCamera()
+    {
+        // build button
+        // add column to SQLite table
+    }
+
+    public void buildGpsLoc()
+    {
+        // build button
+        // add column to SQLite table
+    }
+
+    public void buildGpsTraker()
+    {
+        // build or activate GpsTracker
+    }
+
+    public void buildUniqueName(String name)
+    {
+        // build unique button
+        // add column to SQLite table
     }
 }
