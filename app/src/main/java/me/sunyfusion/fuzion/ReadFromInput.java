@@ -19,6 +19,11 @@ public class ReadFromInput
 
     public void ReadLineCollectInfo() throws FileNotFoundException
     {
+        // Resets variables to read the next line fresh.
+        Type = null;
+        Name = null;
+        answer = 0;
+
         File input = new File("buildApp.txt");
         Scanner infile = new Scanner(input);
         String Line;
@@ -49,10 +54,7 @@ public class ReadFromInput
 
         }
 
-        // Resets variables to read the next line fresh.
-        Type = null;
-        Name = null;
-        answer = 0;
+
 
         //Do I need to line.close() ?
 
