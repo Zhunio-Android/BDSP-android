@@ -37,6 +37,8 @@ public class MainActivity extends Activity {
     LinearLayout l;
     EditText mText;
 
+
+
     /** Runs on startup, creates the layout when the activity is created.
      * This is essentially the "main" method.
      * @param savedInstanceState restores previous state on entry
@@ -49,8 +51,10 @@ public class MainActivity extends Activity {
         final mTextView t,u;
         setContentView(l);
         //Insert dynamic layout object into view.
+
+        /*
         try {
-            InputStreamReader f = new InputStreamReader(this.getAssets().open("test.txt"));
+            InputStreamReader f = new InputStreamReader(this.getAssets().open("buildApp.txt"));
             BufferedReader r = new BufferedReader(f);
             t = new mTextView(this, r.readLine());
             l.addView(t);
@@ -60,6 +64,31 @@ public class MainActivity extends Activity {
             u = new mTextView(this, e.getMessage());
             l.addView(u);
         }
+*/
+
+    public void buildCamera()
+    {
+        // build button
+        // add column to SQLite table
+    }
+
+    public void buildGpsLoc()
+    {
+        // build button
+        // add column to SQLite table
+    }
+
+    public void buildGpsTraker()
+    {
+        // build or activate GpsTracker
+    }
+
+    public void buildUniqueName()
+    {
+        // build unique button
+        // add column to SQLite table
+    }
+
         Button cameraButton = new Button(this);
         cameraButton.setText("Camera");
         cameraButton.setOnClickListener(new View.OnClickListener() {
@@ -68,6 +97,7 @@ public class MainActivity extends Activity {
             }
         });
         l.addView(cameraButton);
+
         Button button = new Button(this);
         button.setText("DO REQUESTS");
         l.addView(button);
