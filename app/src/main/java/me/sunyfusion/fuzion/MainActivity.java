@@ -37,6 +37,10 @@ public class MainActivity extends Activity {
     LinearLayout l;
     EditText mText;
 
+    DatabaseHelper database = new DatabaseHelper(); // need to add argument to constructor call
+    ReadFromInput readFile = new ReadFromInput();
+
+
 
 
     /** Runs on startup, creates the layout when the activity is created.
@@ -52,7 +56,7 @@ public class MainActivity extends Activity {
         setContentView(l);
         //Insert dynamic layout object into view.
 
-        /*
+
         try {
             InputStreamReader f = new InputStreamReader(this.getAssets().open("buildApp.txt"));
             BufferedReader r = new BufferedReader(f);
@@ -64,7 +68,9 @@ public class MainActivity extends Activity {
             u = new mTextView(this, e.getMessage());
             l.addView(u);
         }
-*/
+
+
+
 
     public void buildCamera()
     {
