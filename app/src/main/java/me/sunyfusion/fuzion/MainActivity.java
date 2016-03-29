@@ -69,7 +69,11 @@ public class MainActivity extends Activity {
             l.addView(u);
         }
 
-
+      /*
+      Loop and case statements go here.
+      Test by having the ReadFromInput object return the Type
+      cases will test the type returned.
+      */
 
 
     public void buildCamera()
