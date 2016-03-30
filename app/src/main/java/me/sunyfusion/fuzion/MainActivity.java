@@ -247,7 +247,6 @@ public class MainActivity extends Activity {
     {
         String Type;
         String Name;
-     //   File input = new File("buildApp.txt"); // build File
         Scanner infile = null;
 
         try
