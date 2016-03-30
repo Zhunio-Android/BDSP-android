@@ -31,7 +31,7 @@ import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
 
-
+//Comment *JESSE* //
 public class MainActivity extends Activity {
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
