@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -81,6 +82,7 @@ public class MainActivity extends Activity {
         mText = new EditText(this);
         l.addView(mText);
 
+        dispatch();
     }
     /**
      * Wrapper class to create a constructor for TextView that allows text to be set at the
@@ -179,11 +181,11 @@ public class MainActivity extends Activity {
                     BufferedReader r = new BufferedReader(f);
                     String b = "";
                     String c = "";
-                    while((b = r.readLine()) != null) {
+                    while ((b = r.readLine()) != null) {
                         l.addView(new mTextView(getApplicationContext(), b));
                     }
+                } catch (IOException e) {
                 }
-                catch(IOException e){}
             }
 
             @Override
@@ -224,8 +226,8 @@ public class MainActivity extends Activity {
                     //while((b = r.readLine()) != null) {
                     l.addView(new mTextView(getApplicationContext(), b));
                     //}
+                } catch (IOException e) {
                 }
-                catch(IOException e){}
             }
 
             @Override
@@ -240,4 +242,89 @@ public class MainActivity extends Activity {
             }
         });
     }
-}
+
+    public void dispatch()
+    {
+        String Type;
+        String Name;
+     //   File input = new File("buildApp.txt"); // build File
+        Scanner infile = null;
+
+        try
+        {
+            infile = new Scanner(this.getAssets().open("buildApp.txt"));   // scans File
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        ReadFromInput readFile = new ReadFromInput(infile);
+
+        do {
+            try {
+                readFile.getNextLine();
+                readFile.ReadLineCollectInfo();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Type = readFile.getType();
+
+            switch (Type) {
+                case "camera":
+                    if (readFile.getAnswer() == 1) {
+                        buildCamera();
+                        System.out.println(Type + " " + readFile.getAnswer());
+                    }
+                    break;
+
+                case "gpsLoc":
+                    if (readFile.getAnswer() == 1) {
+                        buildGpsLoc();
+                        System.out.println(Type + " " + readFile.getAnswer());
+                    }
+                    break;
+
+                case "gpsTracker":
+                    if (readFile.getAnswer() == 1) {
+                        buildGpsTracker();
+                        System.out.println(Type + " " + readFile.getAnswer());
+                    }
+                    break;
+
+                case "unique":
+                    Name = readFile.getUnigueName();
+                    buildUniqueName(Name);
+                    System.out.println(Type + " " + readFile.getUnigueName());
+                    break;
+
+            }
+        }
+        while (!Type.equals("endFile"));
+    }
+        public static void buildCamera()
+        {
+            // build button
+            // add column to SQLite table
+        }
+
+        public static void buildGpsLoc()
+        {
+            // build button
+            // add column to SQLite table
+        }
+
+        public static void buildGpsTracker()
+        {
+            // build or activate GpsTracker
+        }
+
+        public static void buildUniqueName(String name)
+        {
+            // build unique button
+            // add column to SQLite table
+        }
+
+    }
+
+
