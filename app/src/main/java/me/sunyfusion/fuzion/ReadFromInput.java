@@ -58,15 +58,7 @@ public class ReadFromInput
             {
                 Name = line.next(); // Gets unique name of category
             }
-
-            else if(!line.hasNext())    // Final category (endFile)
-            {
-                Name = null;
-                answer = 0;
-            }
-
         }
-
     }
 
     public String getType()
