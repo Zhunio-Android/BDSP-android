@@ -15,7 +15,28 @@ public class ReadFromInput
 {
     private String Type = null;    // To hold the type of category from the buildApp.txt when read.
     private String Name = null;    // To hold the unique category name from the buildApp.txt when read.
+    private Scanner infile;
+    private Scanner line;
+    private String Line;
     private int answer = 0;        // To hold the answer to categories such as camera. 1 = yes, 0 = no
+
+    public ReadFromInput(Scanner sq)
+    {
+        infile = sq; // passes the scanned File
+    }
+
+    public void getNextLine()
+    {
+        Line = infile.nextLine(); // gets Line
+        if(Line.equals("")) // ignores blank lines
+        {
+            while(Line.equals(""))
+            {
+                Line = infile.nextLine();
+            }
+        }
+        line = new Scanner(Line); // scans line
+    }
 
     public void ReadLineCollectInfo() throws FileNotFoundException
     {
@@ -24,43 +45,31 @@ public class ReadFromInput
         Name = null;
         answer = 0;
 
-        File input = new File("buildApp.txt");
-        Scanner infile = new Scanner(input);
-        String Line;
-
-        if (infile.hasNextLine())
+        if(line.hasNext())
         {
-            Line = infile.nextLine();   // gets the line
-            Scanner line = new Scanner(Line); // sets Scanner to that line
-            if(line.hasNext()) // Checks for blank line
+            Type = line.next(); // Gets the category and assigns to Type
+
+            if(line.hasNextInt()) // Checks for an answer, 1 = include, 0 = do not
             {
-                Type = line.next(); // Gets the category and assigns to Type
+                answer = line.nextInt();
+            }
 
-                if(line.hasNextInt()) // Checks for an answer, 1 = include, 0 = do not
-                {
-                    answer = line.nextInt();
-                }
+            else if (line.hasNext())
+            {
+                Name = line.next(); // Gets unique name of category
+            }
 
-                else if(line.hasNext())
-                    Name = line.next(); // Gets unique name of category
-
-                else    // Final category (endFile)
-                {
-                    Name = null;
-                    answer = 0;
-                }
-
+            else if(!line.hasNext())    // Final category (endFile)
+            {
+                Name = null;
+                answer = 0;
             }
 
         }
 
-
-
-        //Do I need to line.close() ?
-
     }
 
-    public String getCategoryFromFile()
+    public String getType()
     {
         return Type;
     }
