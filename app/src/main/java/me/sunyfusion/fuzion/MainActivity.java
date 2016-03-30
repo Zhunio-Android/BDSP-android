@@ -1,3 +1,4 @@
+
 package me.sunyfusion.fuzion;
 
 import android.app.Activity;
@@ -37,30 +38,20 @@ public class MainActivity extends Activity {
     LinearLayout l;
     EditText mText;
 
-    DatabaseHelper database = new DatabaseHelper(); // need to add argument to constructor call
-    ReadFromInput readFile = new ReadFromInput();
-    String Type;
-    String Name;
-
-
-
-
     /** Runs on startup, creates the layout when the activity is created.
      * This is essentially the "main" method.
      * @param savedInstanceState restores previous state on entry
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         l = new LinearLayout(this);
         l.setOrientation(LinearLayout.VERTICAL);
         final mTextView t,u;
         setContentView(l);
         //Insert dynamic layout object into view.
-
-
         try {
-            InputStreamReader f = new InputStreamReader(this.getAssets().open("buildApp.txt"));
+            InputStreamReader f = new InputStreamReader(this.getAssets().open("test.txt"));
             BufferedReader r = new BufferedReader(f);
             t = new mTextView(this, r.readLine());
             l.addView(t);
@@ -70,63 +61,14 @@ public class MainActivity extends Activity {
             u = new mTextView(this, e.getMessage());
             l.addView(u);
         }
-
-      /*
-      Loop and case statements go here.
-      Test by having the ReadFromInput object return the Type
-      cases will test the type returned.
-      */
-
-    do
-    {
-        try
-        {
-            readFile.ReadLineCollectInfo();
-        }
-
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-
-        Type = readFile.getType();
-
-        switch (Type)
-        {
-            case "camera":
-                if(readFile.getAnswer() == 1)
-                {
-                    buildCamera();
-                }
-                break;
-
-            case "gpsLoc":
-                if(readFile.getAnswer() == 1)
-                {
-                    buildGpsLoc();
-                }
-                break;
-
-            case "gpsTracker":
-                if(readFile.getAnswer() == 1)
-                {
-                    buildGpsTraker();
-                }
-                break;
-
-            case "unique":
-                Name = readFile.getUnigueName();
-                buildUniqueName(Name);
-                break;
-        }
-    while(!Type.equals("endFile"));
-
-
-
-
-
+        Button cameraButton = new Button(this);
+        cameraButton.setText("Camera");
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                getImage();
+            }
+        });
         l.addView(cameraButton);
-
         Button button = new Button(this);
         button.setText("DO REQUESTS");
         l.addView(button);
@@ -237,11 +179,11 @@ public class MainActivity extends Activity {
                     BufferedReader r = new BufferedReader(f);
                     String b = "";
                     String c = "";
-                    while ((b = r.readLine()) != null) {
+                    while((b = r.readLine()) != null) {
                         l.addView(new mTextView(getApplicationContext(), b));
                     }
-                } catch (IOException e) {
                 }
+                catch(IOException e){}
             }
 
             @Override
@@ -297,28 +239,5 @@ public class MainActivity extends Activity {
                 // called when request is retried
             }
         });
-    }
-
-    public void buildCamera()
-    {
-        // build button
-        // add column to SQLite table
-    }
-
-    public void buildGpsLoc()
-    {
-        // build button
-        // add column to SQLite table
-    }
-
-    public void buildGpsTraker()
-    {
-        // build or activate GpsTracker
-    }
-
-    public void buildUniqueName(String name)
-    {
-        // build unique button
-        // add column to SQLite table
     }
 }
