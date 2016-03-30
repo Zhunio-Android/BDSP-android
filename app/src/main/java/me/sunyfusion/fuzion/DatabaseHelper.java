@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * Created by Robert Wieland on 3/26/16.
+ * Created by Robert Wieland on 3/26/16. hi
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper
@@ -22,7 +22,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     @Override
     public void onCreate(SQLiteDatabase db)
     {
-        db.execSQL("create table " + TABLE_NAME + " (ID INTEGER PRIMARY KEY)")
+        db.execSQL("create table " + TABLE_NAME + " (ID INTEGER PRIMARY KEY)");
     }
 
     @Override
