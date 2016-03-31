@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     Uri imgUri;
-    LinearLayout l;
+    private static LinearLayout l;
     EditText mText;
 
     /** Runs on startup, creates the layout when the activity is created.
@@ -301,27 +301,36 @@ public class MainActivity extends Activity {
         }
         while (!Type.equals("endFile"));
     }
-        public static void buildCamera()
+        public void buildCamera()
         {
             // build button
             // add column to SQLite table
         }
 
-        public static void buildGpsLoc()
+        public void buildGpsLoc()
         {
             // build button
             // add column to SQLite table
         }
 
-        public static void buildGpsTracker()
+        public void buildGpsTracker()
         {
             // build or activate GpsTracker
         }
 
-        public static void buildUniqueName(String name)
+        public void buildUniqueName(String name)
         {
             // build unique button
             // add column to SQLite table
+
+            Button uniqueButton = new Button(this);
+            uniqueButton.setText(name);
+            uniqueButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    //                   getImage();
+                }
+            });
+            l.addView(uniqueButton);
         }
 
     }
