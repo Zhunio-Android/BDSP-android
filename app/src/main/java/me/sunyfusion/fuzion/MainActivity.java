@@ -62,14 +62,7 @@ public class MainActivity extends Activity {
             u = new mTextView(this, e.getMessage());
             l.addView(u);
         }
-        Button cameraButton = new Button(this);
-        cameraButton.setText("Camera");
-        cameraButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                getImage();
-            }
-        });
-        l.addView(cameraButton);
+
         Button button = new Button(this);
         button.setText("DO REQUESTS");
         l.addView(button);
@@ -305,12 +298,31 @@ public class MainActivity extends Activity {
         {
             // build button
             // add column to SQLite table
+
+            Button cameraButton = new Button(this);
+            cameraButton.setText("Camera");
+            cameraButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    getImage();
+                }
+            });
+            l.addView(cameraButton);
+
         }
 
         public void buildGpsLoc()
         {
             // build button
             // add column to SQLite table
+
+            Button gpsLocButton = new Button(this);
+            gpsLocButton.setText("GPS Location");
+            gpsLocButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    //                   getImage();
+                }
+            });
+            l.addView(gpsLocButton);
         }
 
         public void buildGpsTracker()
