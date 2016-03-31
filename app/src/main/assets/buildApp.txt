@@ -2,6 +2,17 @@ camera 1
 gpsLoc 1
 gpsTracker 1
 unique tree
+
+
 unique age
+
+
 unique height
+
+unique rootsystem
+
+
+camera 0
+gpsLoc 0
+gpsTracker 0
 endFile
