@@ -423,8 +423,8 @@ public class MainActivity extends Activity {
         // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
         Button submitButton = new Button(this);
         submitButton.setText("Submit Data");
-        submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
+       // submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+       //         LayoutParams.WRAP_CONTENT));
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
