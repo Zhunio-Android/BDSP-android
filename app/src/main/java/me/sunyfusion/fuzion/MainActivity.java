@@ -11,12 +11,16 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.loopj.android.http.*;
 
 import java.io.BufferedReader;
@@ -29,6 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
+import android.view.ViewGroup.LayoutParams;
+
 import cz.msebera.android.httpclient.Header;
 
 //Comment *JESSE* //
@@ -37,21 +43,35 @@ public class MainActivity extends Activity {
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     Uri imgUri;
     private static LinearLayout l;
+
     EditText mText;
 
-    /** Runs on startup, creates the layout when the activity is created.
+    private static ViewGroup layout;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client2;
+
+    /**
+     * Runs on startup, creates the layout when the activity is created.
      * This is essentially the "main" method.
+     *
      * @param savedInstanceState restores previous state on entry
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        l = new LinearLayout(this);
-        l.setOrientation(LinearLayout.VERTICAL);
-        final mTextView t,u;
-        setContentView(l);
+        setContentView(R.layout.activity_main);
+        layout = (ViewGroup) findViewById(R.id.layout);
+
+        //     l = new LinearLayout(this);
+        //     l.setOrientation(LinearLayout.VERTICAL);
+        //     final mTextView t,u;
+        // setContentView(l);
+
         //Insert dynamic layout object into view.
-        try {
+   /*     try {
             InputStreamReader f = new InputStreamReader(this.getAssets().open("test.txt"));
             BufferedReader r = new BufferedReader(f);
             t = new mTextView(this, r.readLine());
@@ -74,9 +94,54 @@ public class MainActivity extends Activity {
         });
         mText = new EditText(this);
         l.addView(mText);
-
+*/
+        buildSubmit();
         dispatch();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client2.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://me.sunyfusion.fuzion/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client2, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Main Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://me.sunyfusion.fuzion/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client2, viewAction);
+        client2.disconnect();
+    }
+
     /**
      * Wrapper class to create a constructor for TextView that allows text to be set at the
      * time of creation of the object.
@@ -87,6 +152,7 @@ public class MainActivity extends Activity {
             this.setText(t);
         }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -98,13 +164,14 @@ public class MainActivity extends Activity {
      * Receives all intents returned by activities when returning to this activity.
      * Right now, this only processes the intent returned by the getImage() method
      * below
+     *
      * @param requestCode integer that identifies the type of activity that the intent belongs to
-     * @param resultCode status code returned by the exiting activity
-     * @param data the intent that is being returned by the exiting activity
+     * @param resultCode  status code returned by the exiting activity
+     * @param data        the intent that is being returned by the exiting activity
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             Toast.makeText(this, "Img saved to:\n" +
                     data.getData(), Toast.LENGTH_LONG).show();
             imgUri = data.getData();
@@ -130,6 +197,7 @@ public class MainActivity extends Activity {
      * Creates a file in the application's directory on the device, assigns a timestamped file
      * name, creates a new Image Capture intent, and starts it. the overridden method
      * "onActivityResult" handles the data returned by the camera intent.
+     *
      * @return void
      */
     private void getImage() {
@@ -151,7 +219,7 @@ public class MainActivity extends Activity {
         //post test
         RequestParams params = new RequestParams();
         params.put("test", mText.getText());
-        if(imgUri != null){
+        if (imgUri != null) {
             File myFile = new File(imgUri.getPath());
             try {
                 params.put("image", myFile);
@@ -236,18 +304,14 @@ public class MainActivity extends Activity {
         });
     }
 
-    public void dispatch()
-    {
+    public void dispatch() {
         String Type;
         String Name;
         Scanner infile = null;
 
-        try
-        {
+        try {
             infile = new Scanner(this.getAssets().open("buildApp.txt"));   // scans File
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         ReadFromInput readFile = new ReadFromInput(infile);
@@ -294,57 +358,87 @@ public class MainActivity extends Activity {
         }
         while (!Type.equals("endFile"));
     }
-        public void buildCamera()
-        {
-            // build button
-            // add column to SQLite table
 
-            Button cameraButton = new Button(this);
-            cameraButton.setText("Camera");
-            cameraButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    getImage();
-                }
-            });
-            l.addView(cameraButton);
+    public void buildCamera() {
+        // build button
+        // add column to SQLite table
 
-        }
-
-        public void buildGpsLoc()
-        {
-            // build button
-            // add column to SQLite table
-
-            Button gpsLocButton = new Button(this);
-            gpsLocButton.setText("GPS Location");
-            gpsLocButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    //                   getImage();
-                }
-            });
-            l.addView(gpsLocButton);
-        }
-
-        public void buildGpsTracker()
-        {
-            // build or activate GpsTracker
-        }
-
-        public void buildUniqueName(String name)
-        {
-            // build unique button
-            // add column to SQLite table
-
-            Button uniqueButton = new Button(this);
-            uniqueButton.setText(name);
-            uniqueButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    //                   getImage();
-                }
-            });
-            l.addView(uniqueButton);
-        }
+        Button cameraButton = new Button(this);
+        cameraButton.setText("Camera");
+        cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT));
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                getImage();
+            }
+        });
+           layout.addView(cameraButton);
 
     }
 
+    public void buildGpsLoc() {
+        // build button
+        // add column to SQLite table
 
+        Button buildGPSLocButton = new Button(this);
+        buildGPSLocButton.setText("GPS Location");
+        buildGPSLocButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT));
+
+        buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // action
+            }
+        });
+
+        layout.addView(buildGPSLocButton);
+        //  l.addView(gpsLocButton);
+    }
+
+    public void buildGpsTracker() {
+        // build or activate GpsTracker
+    }
+
+    public void buildUniqueName(String name) {
+        // build unique button
+        // add column to SQLite table
+       // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
+        Button uniqueButton = new Button(this);
+        uniqueButton.setText(name);
+        uniqueButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT));
+
+        uniqueButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // action
+            }
+        });
+
+        layout.addView(uniqueButton);
+    }
+
+    public void buildSubmit() {
+
+
+        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
+        Button submitButton = new Button(this);
+        submitButton.setText("Submit Data");
+        submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT));
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // action
+            }
+        });
+
+        layout.addView(submitButton);
+    }
+}
+
+
+/*
+final Button button = (Button) findViewById(R.id.button_id);
+button.setOnClickListener(new View.OnClickListener() {
+public void onClick(View v) {
+*/
