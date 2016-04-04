@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +38,10 @@ import android.view.ViewGroup.LayoutParams;
 
 import cz.msebera.android.httpclient.Header;
 
+import android.widget.RelativeLayout;
+import android.widget.Button;
+import android.graphics.Color;
+
 //Comment *JESSE* //
 public class MainActivity extends Activity {
 
@@ -44,9 +49,11 @@ public class MainActivity extends Activity {
     Uri imgUri;
     private static LinearLayout l;
 
+   LinearLayout.LayoutParams buttonDetails;
+
     EditText mText;
 
-    private static ViewGroup layout;
+    private static LinearLayout layout;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -62,9 +69,21 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        layout = (ViewGroup) findViewById(R.id.layout);
 
+        layout = new LinearLayout(this);
+
+        layout.setBackgroundColor(Color.CYAN);
+        layout.setGravity(Gravity.CENTER_HORIZONTAL);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        setContentView(layout);
+        buttonDetails = new
+        LinearLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        buttonDetails.setMargins(10, 10, 10, 10);
+
+
+      //  setContentView(R.layout.activity_main);
         //     l = new LinearLayout(this);
         //     l.setOrientation(LinearLayout.VERTICAL);
         //     final mTextView t,u;
@@ -364,15 +383,17 @@ public class MainActivity extends Activity {
         // add column to SQLite table
 
         Button cameraButton = new Button(this);
+        cameraButton.setBackgroundColor(Color.BLACK);
+        cameraButton.setTextColor(Color.WHITE);
         cameraButton.setText("Camera");
-        cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
+       // cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+       //         LayoutParams.WRAP_CONTENT));
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getImage();
             }
         });
-           layout.addView(cameraButton);
+           layout.addView(cameraButton, buttonDetails);
 
     }
 
@@ -382,8 +403,11 @@ public class MainActivity extends Activity {
 
         Button buildGPSLocButton = new Button(this);
         buildGPSLocButton.setText("GPS Location");
-        buildGPSLocButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
+        buildGPSLocButton.setBackgroundColor(Color.BLACK);
+        buildGPSLocButton.setTextColor(Color.WHITE);
+
+        //buildGPSLocButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+        //        LayoutParams.WRAP_CONTENT));
 
         buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -391,7 +415,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        layout.addView(buildGPSLocButton);
+        layout.addView(buildGPSLocButton, buttonDetails);
         //  l.addView(gpsLocButton);
     }
 
@@ -405,8 +429,10 @@ public class MainActivity extends Activity {
        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
         Button uniqueButton = new Button(this);
         uniqueButton.setText(name);
-        uniqueButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                LayoutParams.WRAP_CONTENT));
+        uniqueButton.setBackgroundColor(Color.BLACK);
+        uniqueButton.setTextColor(Color.WHITE);
+       // uniqueButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+       //         LayoutParams.WRAP_CONTENT));
 
         uniqueButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -414,7 +440,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        layout.addView(uniqueButton);
+        layout.addView(uniqueButton, buttonDetails);
     }
 
     public void buildSubmit() {
@@ -423,6 +449,8 @@ public class MainActivity extends Activity {
         // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
         Button submitButton = new Button(this);
         submitButton.setText("Submit Data");
+        submitButton.setBackgroundColor(Color.BLACK);
+        submitButton.setTextColor(Color.WHITE);
        // submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
        //         LayoutParams.WRAP_CONTENT));
 
@@ -432,7 +460,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        layout.addView(submitButton);
+        layout.addView(submitButton, buttonDetails);
     }
 }
 
