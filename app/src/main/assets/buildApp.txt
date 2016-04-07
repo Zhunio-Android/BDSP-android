@@ -1,8 +1,8 @@
 camera 1
-gpsLoc 1
+//gpsLoc options - true/false, frequency
+gpsLoc 1 1000
 gpsTracker 1
 unique tree
-
 
 unique age
 

@@ -4,6 +4,9 @@ package me.sunyfusion.fuzion;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -42,11 +45,16 @@ import android.widget.RelativeLayout;
 import android.widget.Button;
 import android.graphics.Color;
 
-//Comment *JESSE* //
 public class MainActivity extends Activity {
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     Uri imgUri;
+    boolean sendGPS = false;
+    double latitude = -1;
+    double longitude = -1;
+    double gps_acc = -1000;
+    int GPS_FREQ = 2000;
+    LocationManager locationManager;
     private static LinearLayout l;
 
    LinearLayout.LayoutParams buttonDetails;
@@ -355,7 +363,7 @@ public class MainActivity extends Activity {
 
                 case "gpsLoc":
                     if (readFile.getAnswer() == 1) {
-                        buildGpsLoc();
+                        buildGpsLoc(readFile.getArgs());
                         System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
@@ -397,15 +405,17 @@ public class MainActivity extends Activity {
 
     }
 
-    public void buildGpsLoc() {
+    public void buildGpsLoc(String[] args) {
         // build button
         // add column to SQLite table
-
+        GPS_FREQ = Integer.parseInt(args[0]);
         Button buildGPSLocButton = new Button(this);
         buildGPSLocButton.setText("GPS Location");
         buildGPSLocButton.setBackgroundColor(Color.BLACK);
         buildGPSLocButton.setTextColor(Color.WHITE);
-
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 400, 1, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
         //buildGPSLocButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
         //        LayoutParams.WRAP_CONTENT));
 
@@ -462,6 +472,31 @@ public class MainActivity extends Activity {
 
         layout.addView(submitButton, buttonDetails);
     }
+    //GPS CODE
+    LocationListener locationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            // Called when a new location is found by the network location provider.
+            makeUseOfNewLocation(location);
+        }
+        public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+        public void onProviderEnabled(String provider) {}
+
+        public void onProviderDisabled(String provider) {}
+    };
+
+    private void makeUseOfNewLocation(Location l){
+        latitude = l.getLatitude();
+        longitude = l.getLongitude();
+        gps_acc = l.getAccuracy();
+
+        if(sendGPS && gps_acc < 10) {
+            //doHTTPpost(); //When uncommented, pushes GPS data to server
+        }
+        //mOutAcc.setText("Accuracy : " + String.valueOf(gps_acc) + " at " + getTime());
+
+    }
+    //END GPS CODE
 }
 
 

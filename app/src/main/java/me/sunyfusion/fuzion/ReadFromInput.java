@@ -2,6 +2,7 @@ package me.sunyfusion.fuzion;
 
 import java.io.*;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -28,9 +29,9 @@ public class ReadFromInput
     public void getNextLine()
     {
         Line = infile.nextLine(); // gets Line
-        if(Line.equals("")) // ignores blank lines
+        if(Line.equals("") || Line.startsWith("//")) // ignores blank lines and comments
         {
-            while(Line.equals(""))
+            while(Line.equals("") || Line.startsWith("//"))
             {
                 Line = infile.nextLine();
             }
@@ -69,6 +70,19 @@ public class ReadFromInput
     public int getAnswer()
     {
         return answer;
+    }
+
+
+    /*
+        Returns an array of all parameters of a
+     */
+    public String[] getArgs() {
+        String[] args = null;
+        String[] ls = Line.split(" ");
+        if(ls.length > 2) {
+            Arrays.copyOfRange(Line.split(" "), 2, Line.split(" ").length - 1);
+        }
+        return args;
     }
 
     public String getUnigueName()
