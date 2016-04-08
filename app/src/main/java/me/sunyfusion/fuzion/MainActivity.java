@@ -37,6 +37,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -58,7 +59,7 @@ public class MainActivity extends Activity {
     double gps_acc = -1000;
     int GPS_FREQ = 2000;
     LocationManager locationManager;
-
+    ArrayList<View> fields;
     LinearLayout.LayoutParams buttonDetails;
     DatabaseHelper dbHelper;
     SQLiteDatabase db;
@@ -104,7 +105,7 @@ public class MainActivity extends Activity {
     @Override
     public void onStart() {
         super.onStart();
-
+        fields = new ArrayList<View>();
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client2.connect();
@@ -325,6 +326,7 @@ public class MainActivity extends Activity {
                 // action
             }
         });
+        fields.add(uniqueText);
 
         layout.addView(uniqueText, buttonDetails);
     }
@@ -343,6 +345,7 @@ public class MainActivity extends Activity {
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 HTTPFunc.doHTTPget(getApplicationContext());
+                //TODO add code to write fields and fields.value to cursor
             }
         });
 
