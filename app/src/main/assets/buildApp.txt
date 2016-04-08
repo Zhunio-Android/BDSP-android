@@ -1,18 +1,13 @@
 camera 1
 //gpsLoc options - true/false, frequency
-gpsLoc 1 1000
+gpsLoc 1 10000
 gpsTracker 1
+
 unique tree
-
 unique age
-
-
 unique height
-
 unique rootsystem
+unique file
+unique bacon
 
-
-camera 0
-gpsLoc 0
-gpsTracker 0
 endFile

@@ -17,7 +17,7 @@ public class ReadFromInput
     private String Type = null;    // To hold the type of category from the buildApp.txt when read.
     private String Name = null;    // To hold the unique category name from the buildApp.txt when read.
     private Scanner infile;
-    private Scanner line;
+    private Scanner in;
     private String Line;
     private int answer = 0;        // To hold the answer to categories such as camera. 1 = yes, 0 = no
 
@@ -36,7 +36,7 @@ public class ReadFromInput
                 Line = infile.nextLine();
             }
         }
-        line = new Scanner(Line); // scans line
+        in = new Scanner(Line); // scans line
     }
 
     public void ReadLineCollectInfo() throws FileNotFoundException
@@ -46,18 +46,18 @@ public class ReadFromInput
         Name = null;
         answer = 0;
 
-        if(line.hasNext())
+        if(in.hasNext())
         {
-            Type = line.next(); // Gets the category and assigns to Type
+            Type = in.next(); // Gets the category and assigns to Type
 
-            if(line.hasNextInt()) // Checks for an answer, 1 = include, 0 = do not
+            if(in.hasNextInt()) // Checks for an answer, 1 = include, 0 = do not
             {
-                answer = line.nextInt();
+                answer = in.nextInt();
             }
 
-            else if (line.hasNext())
+            else if (in.hasNext())
             {
-                Name = line.next(); // Gets unique name of category
+                Name = in.next(); // Gets unique name of category
             }
         }
     }
@@ -79,13 +79,14 @@ public class ReadFromInput
     public String[] getArgs() {
         String[] args = null;
         String[] ls = Line.split(" ");
+        System.out.println(ls[2]);
         if(ls.length > 2) {
-            Arrays.copyOfRange(Line.split(" "), 2, Line.split(" ").length - 1);
+            //args = Arrays.copyOfRange(Line.split(" "), 2, Line.split(" ").length - 1);
         }
-        return args;
+        return ls;
     }
 
-    public String getUnigueName()
+    public String getUniqueName()
     {
         return Name;
     }

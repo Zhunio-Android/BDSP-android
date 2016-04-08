@@ -4,10 +4,13 @@ package me.sunyfusion.fuzion;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.os.Bundle;
@@ -55,9 +58,10 @@ public class MainActivity extends Activity {
     double gps_acc = -1000;
     int GPS_FREQ = 2000;
     LocationManager locationManager;
-    private static LinearLayout l;
 
-   LinearLayout.LayoutParams buttonDetails;
+    LinearLayout.LayoutParams buttonDetails;
+    DatabaseHelper dbHelper;
+    SQLiteDatabase db;
 
     EditText mText;
 
@@ -89,39 +93,7 @@ public class MainActivity extends Activity {
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
         buttonDetails.setMargins(10, 10, 10, 10);
-
-
-      //  setContentView(R.layout.activity_main);
-        //     l = new LinearLayout(this);
-        //     l.setOrientation(LinearLayout.VERTICAL);
-        //     final mTextView t,u;
-        // setContentView(l);
-
-        //Insert dynamic layout object into view.
-   /*     try {
-            InputStreamReader f = new InputStreamReader(this.getAssets().open("test.txt"));
-            BufferedReader r = new BufferedReader(f);
-            t = new mTextView(this, r.readLine());
-            l.addView(t);
-        }
-        //If asset does not exist, just put something there
-        catch(IOException e) {
-            u = new mTextView(this, e.getMessage());
-            l.addView(u);
-        }
-
-        Button button = new Button(this);
-        button.setText("DO REQUESTS");
-        l.addView(button);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                doHTTPget();
-                doHTTPpost();
-            }
-        });
-        mText = new EditText(this);
-        l.addView(mText);
-*/
+        dbHelper = new DatabaseHelper(this);
         buildSubmit();
         dispatch();
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -167,17 +139,6 @@ public class MainActivity extends Activity {
         );
         AppIndex.AppIndexApi.end(client2, viewAction);
         client2.disconnect();
-    }
-
-    /**
-     * Wrapper class to create a constructor for TextView that allows text to be set at the
-     * time of creation of the object.
-     */
-    class mTextView extends TextView {
-        public mTextView(Context c, String t) {
-            super(c);
-            this.setText(t);
-        }
     }
 
     @Override
@@ -237,104 +198,13 @@ public class MainActivity extends Activity {
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
 
-    /**
-     * Creates and sends an HTTP post request to the server, which includes the image captured
-     * from the getImage() method. Also adds the HTTP response from the server to the UI.
-     */
-    private void doHTTPpost() {
-        AsyncHttpClient client = new AsyncHttpClient();
-        //post test
-        RequestParams params = new RequestParams();
-        params.put("test", mText.getText());
-        if (imgUri != null) {
-            File myFile = new File(imgUri.getPath());
-            try {
-                params.put("image", myFile);
-            } catch (FileNotFoundException e) {
-            }
-        }
-        client.post("http://sunyfusion.me/ft_test/index.php", params, new FileAsyncHttpResponseHandler(getApplicationContext()) {
 
-            @Override
-            public void onStart() {
-                // called before request is started
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, File response) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Success " + statusCode, Toast.LENGTH_LONG);
-                toast.show();
-                try {
-                    FileReader f = new FileReader(response);
-                    BufferedReader r = new BufferedReader(f);
-                    String b = "";
-                    String c = "";
-                    while ((b = r.readLine()) != null) {
-                        l.addView(new mTextView(getApplicationContext(), b));
-                    }
-                } catch (IOException e) {
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Failed" + statusCode, Toast.LENGTH_LONG);
-                toast.show();
-            }
-
-            @Override
-            public void onRetry(int retryNo) {
-                // called when request is retried
-            }
-        });
-    }
-
-    /**
-     * creates and sends an Async HTTP GET request to our server, and adds the first line
-     * of the server's response to the UI window.
-     */
-    private void doHTTPget() {
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://sunyfusion.me", new FileAsyncHttpResponseHandler(getApplicationContext()) {
-
-            @Override
-            public void onStart() {
-                // called before request is started
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, File response) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Success " + statusCode, Toast.LENGTH_LONG);
-                toast.show();
-                try {
-                    FileReader f = new FileReader(response);
-                    BufferedReader r = new BufferedReader(f);
-                    String b = r.readLine();
-                    String c = "";
-                    //while((b = r.readLine()) != null) {
-                    l.addView(new mTextView(getApplicationContext(), b));
-                    //}
-                } catch (IOException e) {
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                Toast toast = Toast.makeText(getApplicationContext(), "Failed" + statusCode, Toast.LENGTH_LONG);
-                toast.show();
-            }
-
-            @Override
-            public void onRetry(int retryNo) {
-                // called when request is retried
-            }
-        });
-    }
 
     public void dispatch() {
         String Type;
         String Name;
         Scanner infile = null;
+        db = dbHelper.getWritableDatabase();
 
         try {
             infile = new Scanner(this.getAssets().open("buildApp.txt"));   // scans File
@@ -376,14 +246,20 @@ public class MainActivity extends Activity {
                     break;
 
                 case "unique":
-                    Name = readFile.getUnigueName();
+                    Name = readFile.getUniqueName();
                     buildUniqueName(Name);
-                    System.out.println(Type + " " + readFile.getUnigueName());
+                    dbHelper.addColumn(db,Name,"TEXT");
+                    System.out.println(Type + " " + readFile.getUniqueName());
                     break;
 
             }
         }
         while (!Type.equals("endFile"));
+        Cursor dbCursor = db.query("tasksTable", null, null, null, null, null, null);
+        String[] columnNames = dbCursor.getColumnNames();
+        for(String s : columnNames){
+            System.out.println(s);
+        }
     }
 
     public void buildCamera() {
@@ -401,20 +277,21 @@ public class MainActivity extends Activity {
                 getImage();
             }
         });
-           layout.addView(cameraButton, buttonDetails);
+        layout.addView(cameraButton, buttonDetails);
 
     }
 
     public void buildGpsLoc(String[] args) {
         // build button
         // add column to SQLite table
-        GPS_FREQ = Integer.parseInt(args[0]);
+        if (args[2] != null) {
+            GPS_FREQ = Integer.parseInt(args[2]);
+        }
         Button buildGPSLocButton = new Button(this);
         buildGPSLocButton.setText("GPS Location");
         buildGPSLocButton.setBackgroundColor(Color.BLACK);
         buildGPSLocButton.setTextColor(Color.WHITE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 400, 1, locationListener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
         //buildGPSLocButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
         //        LayoutParams.WRAP_CONTENT));
@@ -426,31 +303,30 @@ public class MainActivity extends Activity {
         });
 
         layout.addView(buildGPSLocButton, buttonDetails);
-        //  l.addView(gpsLocButton);
     }
 
     public void buildGpsTracker() {
-        // build or activate GpsTracker
+        sendGPS = true;
     }
 
     public void buildUniqueName(String name) {
         // build unique button
         // add column to SQLite table
        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
-        Button uniqueButton = new Button(this);
-        uniqueButton.setText(name);
-        uniqueButton.setBackgroundColor(Color.BLACK);
-        uniqueButton.setTextColor(Color.WHITE);
+        EditText uniqueText = new EditText(this);
+        uniqueText.setText(name);
+        uniqueText.setBackgroundColor(Color.BLACK);
+        uniqueText.setTextColor(Color.WHITE);
        // uniqueButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
        //         LayoutParams.WRAP_CONTENT));
 
-        uniqueButton.setOnClickListener(new View.OnClickListener() {
+        uniqueText.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // action
             }
         });
 
-        layout.addView(uniqueButton, buttonDetails);
+        layout.addView(uniqueText, buttonDetails);
     }
 
     public void buildSubmit() {
@@ -466,7 +342,7 @@ public class MainActivity extends Activity {
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // action
+                HTTPFunc.doHTTPget(getApplicationContext());
             }
         });
 
@@ -490,11 +366,9 @@ public class MainActivity extends Activity {
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
 
-        if(sendGPS && gps_acc < 10) {
-            //doHTTPpost(); //When uncommented, pushes GPS data to server
+        if(sendGPS) {
+            System.out.printf("Accuracy=%f,Longitude=%f,Latitude=%f\n",gps_acc,longitude,latitude); //Debug
         }
-        //mOutAcc.setText("Accuracy : " + String.valueOf(gps_acc) + " at " + getTime());
-
     }
     //END GPS CODE
 }
