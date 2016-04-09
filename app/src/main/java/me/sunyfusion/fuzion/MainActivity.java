@@ -2,6 +2,7 @@
 package me.sunyfusion.fuzion;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,7 +11,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.os.Bundle;
@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,12 +31,8 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.loopj.android.http.*;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,7 +62,7 @@ public class MainActivity extends Activity {
     SQLiteDatabase db;
 
     EditText mText;
-
+    ContentValues values;
     private static LinearLayout layout;
 
     /**
@@ -77,7 +74,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        values = new ContentValues();
         layout = new LinearLayout(this);
         fields = new ArrayList<View>();
         layout.setBackgroundColor(Color.CYAN);
@@ -89,7 +86,7 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
-        buttonDetails.setMargins(10, 10, 10, 10);
+        buttonDetails.setMargins(0, 10, 0, 10);
         dbHelper = new DatabaseHelper(this);
         buildSubmit();
         dispatch();
@@ -214,7 +211,6 @@ public class MainActivity extends Activity {
                 case "unique":
                     Name = readFile.getUniqueName();
                     buildUniqueName(Name);
-                    dbHelper.addColumn(db,Name,"TEXT");
                     System.out.println(Type + " " + readFile.getUniqueName());
                     break;
 
@@ -285,7 +281,9 @@ public class MainActivity extends Activity {
         // build unique button
         // add column to SQLite table
        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
-        EditText uniqueText = new EditText(this);
+        LinearLayout l = new LinearLayout(this);
+        dbHelper.addColumn(db,name,"TEXT");
+        Button uniqueText = new Button(this);
         uniqueText.setText(name);
         uniqueText.setBackgroundColor(Color.BLACK);
         uniqueText.setTextColor(Color.WHITE);
@@ -297,14 +295,20 @@ public class MainActivity extends Activity {
                 // action
             }
         });
-        fields.add(uniqueText);
-
-        layout.addView(uniqueText, buttonDetails);
+        //fields.add(uniqueText);
+        values.put(name, "maple");
+        System.out.println("t1 " + values.get(name).toString());
+        l.addView(uniqueText, buttonDetails);
+        EditText t = new EditText(this);
+        l.addView(t,buttonDetails);
+        t.setBackgroundColor(Color.WHITE);
+        t.setSingleLine();
+        t.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT,1f));
+        l.setOrientation(LinearLayout.HORIZONTAL);
+        layout.addView(l,buttonDetails);
     }
 
     public void buildSubmit() {
-
-
         // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
         Button submitButton = new Button(this);
         submitButton.setText("Submit Data");
@@ -315,7 +319,8 @@ public class MainActivity extends Activity {
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                HTTPFunc.doHTTPget(getApplicationContext(),"http://sunyfusion.me/test.html");
+                //HTTPFunc.doHTTPget(getApplicationContext(),"http://sunyfusion.me/test.html")
+                db.insert("tasksTable", null, values);
                 //TODO add code to write fields and fields.value to cursor
             }
         });
