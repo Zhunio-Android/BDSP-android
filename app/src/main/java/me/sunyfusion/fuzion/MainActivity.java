@@ -257,13 +257,19 @@ public class MainActivity extends Activity {
         buildGPSLocButton.setBackgroundColor(Color.BLACK);
         buildGPSLocButton.setTextColor(Color.WHITE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
+        }
+        catch(SecurityException e){
+
+        }
         //buildGPSLocButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
         //        LayoutParams.WRAP_CONTENT));
 
         buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // action
+                Toast toast = Toast.makeText(getApplicationContext(),"Long:" + longitude + " Lat:" + latitude,Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
 
@@ -308,7 +314,7 @@ public class MainActivity extends Activity {
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                HTTPFunc.doHTTPget(getApplicationContext());
+                HTTPFunc.doHTTPget(getApplicationContext(),"http://sunyfusion.me/test.html");
                 //TODO add code to write fields and fields.value to cursor
             }
         });
