@@ -28,11 +28,11 @@ public class HTTPFunc {
      * Creates and sends an HTTP post request to the server, which includes the image captured
      * from the getImage() method. Also adds the HTTP response from the server to the UI.
      */
-    public static void doHTTPpost(final Context c, EditText t, Uri imgUri) {
+    public static void doHTTPpost(final Context c, String url, RequestParams params, Uri imgUri) {
         AsyncHttpClient client = new AsyncHttpClient();
         //post test
-        RequestParams params = new RequestParams();
-        params.put("test", t.getText());
+
+        /* SAVE: code for adding image as param
         if (imgUri != null) {
             File myFile = new File(imgUri.getPath());
             try {
@@ -40,7 +40,8 @@ public class HTTPFunc {
             } catch (FileNotFoundException e) {
             }
         }
-        client.post("http://sunyfusion.me/ft_test/index.php", params, new FileAsyncHttpResponseHandler(c) {
+        */
+        client.post(url, params, new FileAsyncHttpResponseHandler(c) {
 
             @Override
             public void onStart() {
@@ -51,15 +52,6 @@ public class HTTPFunc {
             public void onSuccess(int statusCode, Header[] headers, File response) {
                 Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
-                try {
-                    FileReader f = new FileReader(response);
-                    BufferedReader r = new BufferedReader(f);
-                    String b = "";
-                    String c = "";
-                    while ((b = r.readLine()) != null) {
-                    }
-                } catch (IOException e) {
-                }
             }
 
             @Override
@@ -79,9 +71,9 @@ public class HTTPFunc {
      * creates and sends an Async HTTP GET request to our server, and adds the first line
      * of the server's response to the UI window.
      */
-    public static void doHTTPget(final Context c) {
+    public static void doHTTPget(final Context c, String getUrl) {
         AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://sunyfusion.me/test.html", new FileAsyncHttpResponseHandler(c) {
+        client.get(getUrl, new FileAsyncHttpResponseHandler(c) {
 
             @Override
             public void onStart() {
@@ -95,10 +87,8 @@ public class HTTPFunc {
                     FileReader f = new FileReader(response);
                     BufferedReader r = new BufferedReader(f);
                     b = r.readLine();
-                    String c = "";
-                    //while((b = r.readLine()) != null) {
-                    //}
                 } catch (IOException e) {
+                    b = e.getMessage();
                 }
                 Toast toast = Toast.makeText(c, "Success " + statusCode + " " + b, Toast.LENGTH_LONG);
                 toast.show();
