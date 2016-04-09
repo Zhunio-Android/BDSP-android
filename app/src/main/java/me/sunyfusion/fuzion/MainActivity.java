@@ -79,7 +79,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         layout = new LinearLayout(this);
-
+        fields = new ArrayList<View>();
+        layout.setBackgroundColor(Color.CYAN);
         layout.setBackgroundColor(Color.CYAN);
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -97,7 +98,7 @@ public class MainActivity extends Activity {
     @Override
     public void onStart() {
         super.onStart();
-        fields = new ArrayList<View>();
+
     }
 
     @Override
