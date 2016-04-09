@@ -7,6 +7,7 @@ public class UniqueObject
 {
     private String Name = null;
     private String Catagory = null;
+    private String UserEntry = null;
 
     public UniqueObject(String cat, String name)
     {
