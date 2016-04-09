@@ -77,12 +77,7 @@ public class ReadFromInput
         Returns an array of all parameters of a
      */
     public String[] getArgs() {
-        String[] args = null;
         String[] ls = Line.split(" ");
-        System.out.println(ls[2]);
-        if(ls.length > 2) {
-            //args = Arrays.copyOfRange(Line.split(" "), 2, Line.split(" ").length - 1);
-        }
         return ls;
     }
 
