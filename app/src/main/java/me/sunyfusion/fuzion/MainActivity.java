@@ -295,20 +295,22 @@ public class MainActivity extends Activity {
 
         LinearLayout box = new LinearLayout(this);   // layout to wrap the whole thing
         box.setOrientation(LinearLayout.VERTICAL);
-        box.setBackgroundColor(Color.BLACK);
+        box.setBackgroundColor(Color.BLACK);    // Can use transparent if you want for the background color.
         box.setPadding(0, 10, 0, 10);
 
         LinearLayout l = new LinearLayout(this);   // layout for the text entry and the enter button
         l.setOrientation(LinearLayout.HORIZONTAL);
         //l.setPadding(10, 10, 10, 10);
 
-        Button enterButton = new Button(this);    // Enter Button creation
+        final Button enterButton = new Button(this);    // Enter Button creation
         enterButton.setText("ENTER");
         enterButton.setBackgroundColor(Color.GREEN);
 
         enterButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // action
+                enterButton.setBackgroundColor(Color.YELLOW);
+                enterButton.setText("REDO");
             }
         });
 
