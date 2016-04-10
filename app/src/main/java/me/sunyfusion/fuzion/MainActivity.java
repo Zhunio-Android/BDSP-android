@@ -296,7 +296,7 @@ public class MainActivity extends Activity {
         LinearLayout box = new LinearLayout(this);   // layout to wrap the whole thing
         box.setOrientation(LinearLayout.VERTICAL);
         box.setBackgroundColor(Color.BLACK);
-        box.setPadding(0, 10, 0, 0);
+        box.setPadding(0, 10, 0, 10);
 
         LinearLayout l = new LinearLayout(this);   // layout for the text entry and the enter button
         l.setOrientation(LinearLayout.HORIZONTAL);
