@@ -66,6 +66,13 @@ public class MainActivity extends Activity {
     ContentValues values;
     private static LinearLayout layout;
 
+
+    Boolean cameraInUse = false;
+    Boolean gpsLocationInUse = false;
+    Button camera;
+    Button gpsLocation;
+    ArrayList<TextView> uniqueButtonsReferences = new ArrayList<TextView>();
+
     /**
      * Runs on startup, creates the layout when the activity is created.
      * This is essentially the "main" method.
@@ -238,7 +245,11 @@ public class MainActivity extends Activity {
         // build button
         // add column to SQLite table
 
-        Button cameraButton = new Button(this);
+        final Button cameraButton = new Button(this);
+
+        camera = cameraButton;
+        cameraInUse = true;
+
         cameraButton.setBackgroundColor(Color.BLACK);
         cameraButton.setTextColor(Color.WHITE);
         cameraButton.setText("Camera");
@@ -247,6 +258,9 @@ public class MainActivity extends Activity {
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getImage();
+                cameraButton.setBackgroundColor(Color.YELLOW);
+                cameraButton.setTextColor(Color.BLACK);
+                cameraButton.setText("REDO CAMERA");
             }
         });
         layout.addView(cameraButton, buttonDetails);
@@ -260,6 +274,10 @@ public class MainActivity extends Activity {
             GPS_FREQ = Integer.parseInt(args[2]);
         }
         final Button buildGPSLocButton = new Button(this);
+
+        gpsLocation = buildGPSLocButton;
+        gpsLocationInUse = true;
+
         buildGPSLocButton.setText("GPS Location");
         buildGPSLocButton.setBackgroundColor(Color.BLACK);
         buildGPSLocButton.setTextColor(Color.WHITE);
@@ -307,6 +325,9 @@ public class MainActivity extends Activity {
         //l.setPadding(10, 10, 10, 10);
 
         final Button enterButton = new Button(this);    // Enter Button creation
+
+        uniqueButtonsReferences.add(enterButton);
+
         enterButton.setText("ENTER");
         enterButton.setBackgroundColor(Color.GREEN);
 
@@ -319,6 +340,8 @@ public class MainActivity extends Activity {
         });
 
         TextView uniqueText = new TextView(this);   // Unique label
+
+
         uniqueText.setText(name);
     //    uniqueText.setBackgroundColor(Color.BLACK);
         uniqueText.setTextColor(Color.WHITE);
@@ -400,7 +423,7 @@ public class MainActivity extends Activity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // submit to SQLITE database
-
+                resetButtonsAfterSave();
 
 
 
@@ -409,6 +432,30 @@ public class MainActivity extends Activity {
         });
 
         layout.addView(saveButton, buttonDetails);
+    }
+
+    public void resetButtonsAfterSave()
+    {
+        if (cameraInUse == true)
+        {
+            camera.setBackgroundColor(Color.BLACK);
+            camera.setTextColor(Color.WHITE);
+            camera.setText("CAMERA");
+        }
+
+        if (gpsLocationInUse == true)
+        {
+            gpsLocation.setBackgroundColor(Color.BLACK);
+            gpsLocation.setTextColor(Color.WHITE);
+            gpsLocation.setText("GPS LOCATION");
+        }
+
+        for (int i = 0; i < uniqueButtonsReferences.size(); i++)
+        {
+            uniqueButtonsReferences.get(i).setBackgroundColor(Color.GREEN);
+            uniqueButtonsReferences.get(i).setText("ENTER");
+        }
+
     }
 }
 
