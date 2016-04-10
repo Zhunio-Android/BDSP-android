@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
     LocationManager locationManager;
     ArrayList<View> fields;
     LinearLayout.LayoutParams buttonDetails;
+    LinearLayout.LayoutParams editTextParams;
     DatabaseHelper dbHelper;
     SQLiteDatabase db;
 
@@ -82,11 +83,19 @@ public class MainActivity extends Activity {
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
         layout.setOrientation(LinearLayout.VERTICAL);
         setContentView(layout);
+
         buttonDetails = new
         LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
-        buttonDetails.setMargins(0, 10, 0, 10);
+        buttonDetails.setMargins(10, 10, 10, 10);
+
+        editTextParams = new
+                LinearLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        editTextParams.setMargins(0, 10, 0, 10);
+
         dbHelper = new DatabaseHelper(this);
         buildSubmit();
         dispatch();
@@ -286,9 +295,12 @@ public class MainActivity extends Activity {
 
         LinearLayout box = new LinearLayout(this);   // layout to wrap the whole thing
         box.setOrientation(LinearLayout.VERTICAL);
+        box.setBackgroundColor(Color.BLACK);
+        box.setPadding(0, 10, 0, 0);
 
         LinearLayout l = new LinearLayout(this);   // layout for the text entry and the enter button
         l.setOrientation(LinearLayout.HORIZONTAL);
+        //l.setPadding(10, 10, 10, 10);
 
         Button enterButton = new Button(this);    // Enter Button creation
         enterButton.setText("ENTER");
@@ -302,14 +314,15 @@ public class MainActivity extends Activity {
 
         TextView uniqueText = new TextView(this);   // Unique label
         uniqueText.setText(name);
-        uniqueText.setBackgroundColor(Color.BLACK);
+    //    uniqueText.setBackgroundColor(Color.BLACK);
         uniqueText.setTextColor(Color.WHITE);
+        uniqueText.setPadding(15, 0, 0, 0);
 
         EditText t = new EditText(this);    // makes the edit text field
-        l.addView(t, buttonDetails);
+        l.addView(t);
         t.setBackgroundColor(Color.WHITE);
         t.setSingleLine();
-        t.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f));
+        t.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1f));
 
 
         //fields.add(uniqueText);
@@ -323,7 +336,7 @@ public class MainActivity extends Activity {
         l.addView(enterButton);
 
 
-        layout.addView(box);
+        layout.addView(box, editTextParams);
     }
 
     public void buildSubmit() {
