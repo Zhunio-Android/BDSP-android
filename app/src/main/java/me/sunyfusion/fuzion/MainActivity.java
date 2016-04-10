@@ -86,9 +86,9 @@ public class MainActivity extends Activity {
 
         buttonDetails = new
         LinearLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
-        buttonDetails.setMargins(10, 10, 10, 10);
+        buttonDetails.setMargins(0, 10, 0, 10);
 
         editTextParams = new
                 LinearLayout.LayoutParams(
@@ -98,6 +98,7 @@ public class MainActivity extends Activity {
 
         dbHelper = new DatabaseHelper(this);
         buildSubmit();
+        buildSave();
         dispatch();
     }
 
@@ -386,6 +387,29 @@ public class MainActivity extends Activity {
         }
     }
     //END GPS CODE
+
+    public void buildSave() {
+        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
+        Button saveButton = new Button(this);
+        saveButton.setText("Save");
+        saveButton.setBackgroundColor(Color.GREEN);
+        saveButton.setTextColor(Color.BLACK);
+        // submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+        //         LayoutParams.WRAP_CONTENT));
+
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // submit to SQLITE database
+
+
+
+
+
+            }
+        });
+
+        layout.addView(saveButton, buttonDetails);
+    }
 }
 
 
