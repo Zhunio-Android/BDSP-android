@@ -258,7 +258,7 @@ public class MainActivity extends Activity {
         if (args[2] != null) {
             GPS_FREQ = Integer.parseInt(args[2]);
         }
-        Button buildGPSLocButton = new Button(this);
+        final Button buildGPSLocButton = new Button(this);
         buildGPSLocButton.setText("GPS Location");
         buildGPSLocButton.setBackgroundColor(Color.BLACK);
         buildGPSLocButton.setTextColor(Color.WHITE);
@@ -274,6 +274,9 @@ public class MainActivity extends Activity {
 
         buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                buildGPSLocButton.setBackgroundColor(Color.YELLOW);
+                buildGPSLocButton.setText("REDO GPS LOCATION");
+                buildGPSLocButton.setTextColor(Color.BLACK);
                 Toast toast = Toast.makeText(getApplicationContext(),"Long:" + longitude + " Lat:" + latitude,Toast.LENGTH_SHORT);
                 toast.show();
             }
