@@ -281,37 +281,55 @@ public class MainActivity extends Activity {
         // build unique button
         // add column to SQLite table
        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
-        LinearLayout l = new LinearLayout(this);
-        dbHelper.addColumn(db,name,"TEXT");
-        Button uniqueText = new Button(this);
-        uniqueText.setText(name);
-        uniqueText.setBackgroundColor(Color.BLACK);
-        uniqueText.setTextColor(Color.WHITE);
-       // uniqueButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-       //         LayoutParams.WRAP_CONTENT));
 
-        uniqueText.setOnClickListener(new View.OnClickListener() {
+        dbHelper.addColumn(db, name, "TEXT");
+
+        LinearLayout box = new LinearLayout(this);   // layout to wrap the whole thing
+        box.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout l = new LinearLayout(this);   // layout for the text entry and the enter button
+        l.setOrientation(LinearLayout.HORIZONTAL);
+
+        Button enterButton = new Button(this);    // Enter Button creation
+        enterButton.setText("ENTER");
+        enterButton.setBackgroundColor(Color.GREEN);
+
+        enterButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // action
             }
         });
-        //fields.add(uniqueText);
-        values.put(name, "maple");
-        System.out.println("t1 " + values.get(name).toString());
-        l.addView(uniqueText, buttonDetails);
-        EditText t = new EditText(this);
-        l.addView(t,buttonDetails);
+
+        TextView uniqueText = new TextView(this);   // Unique label
+        uniqueText.setText(name);
+        uniqueText.setBackgroundColor(Color.BLACK);
+        uniqueText.setTextColor(Color.WHITE);
+
+        EditText t = new EditText(this);    // makes the edit text field
+        l.addView(t, buttonDetails);
         t.setBackgroundColor(Color.WHITE);
         t.setSingleLine();
-        t.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT,1f));
-        l.setOrientation(LinearLayout.HORIZONTAL);
-        layout.addView(l,buttonDetails);
+        t.setLayoutParams(new TableLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 1f));
+
+
+        //fields.add(uniqueText);
+
+        // test to write to ContentsValue object
+        values.put(name, "maple");
+        System.out.println("t1 " + values.get(name).toString());
+
+        box.addView(uniqueText);
+        box.addView(l);
+        l.addView(enterButton);
+
+
+        layout.addView(box);
     }
 
     public void buildSubmit() {
         // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
         Button submitButton = new Button(this);
-        submitButton.setText("Submit Data");
+        submitButton.setText("Submit All Data");
         submitButton.setBackgroundColor(Color.BLACK);
         submitButton.setTextColor(Color.WHITE);
        // submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
