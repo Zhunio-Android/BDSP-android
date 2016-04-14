@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -89,7 +90,17 @@ public class MainActivity extends Activity {
         layout.setBackgroundColor(Color.CYAN);
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
         layout.setOrientation(LinearLayout.VERTICAL);
-        setContentView(layout);
+
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.setBackgroundColor(Color.TRANSPARENT);
+        scroll.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+        LayoutParams.MATCH_PARENT));
+        scroll.addView(layout);
+
+
+        setContentView(scroll);
+
 
         buttonDetails = new
         LinearLayout.LayoutParams(
@@ -343,7 +354,7 @@ public class MainActivity extends Activity {
 
 
         uniqueText.setText(name);
-    //    uniqueText.setBackgroundColor(Color.BLACK);
+        uniqueText.setBackgroundColor(Color.TRANSPARENT);
         uniqueText.setTextColor(Color.WHITE);
         uniqueText.setPadding(15, 0, 0, 0);
 
