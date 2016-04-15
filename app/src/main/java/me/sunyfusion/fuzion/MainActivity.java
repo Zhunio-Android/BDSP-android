@@ -1,4 +1,9 @@
-
+//TODO have datatypes option for unique fields
+//TODO autoincrement field
+//TODO section function - auto increment by date on field
+//TODO flagged fields - allow binary
+//TODO manual or incremental field - trigger = field, reset = how you want to reset (daily or no reset)
+//TODO housekeeping, separate manual and automatically collected
 package me.sunyfusion.fuzion;
 
 import android.app.Activity;
@@ -188,8 +193,6 @@ public class MainActivity extends Activity {
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
-
-
 
     public void dispatch() {
         String Type;
@@ -441,10 +444,6 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 // submit to SQLITE database
                 resetButtonsAfterSave();
-
-
-
-
             }
         });
 
