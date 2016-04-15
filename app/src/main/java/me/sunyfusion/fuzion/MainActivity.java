@@ -319,7 +319,7 @@ public class MainActivity extends Activity {
         sendGPS = true;
     }
 
-    public void buildUniqueName(String name) {
+    public void buildUniqueName(final String name) {
         // build unique button
         // add column to SQLite table
        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
@@ -335,6 +335,8 @@ public class MainActivity extends Activity {
         l.setOrientation(LinearLayout.HORIZONTAL);
         //l.setPadding(10, 10, 10, 10);
 
+        final EditText t = new EditText(this);    // makes the edit text field
+
         final Button enterButton = new Button(this);    // Enter Button creation
 
         uniqueButtonsReferences.add(enterButton);
@@ -347,6 +349,12 @@ public class MainActivity extends Activity {
                 // action
                 enterButton.setBackgroundColor(Color.YELLOW);
                 enterButton.setText("REDO");
+
+                // test to write to ContentsValue object
+                values.put(name, t.getText().toString());
+                System.out.println(name + " " + values.get(name).toString());
+
+                t.getText().clear();
             }
         });
 
@@ -358,7 +366,7 @@ public class MainActivity extends Activity {
         uniqueText.setTextColor(Color.WHITE);
         uniqueText.setPadding(15, 0, 0, 0);
 
-        EditText t = new EditText(this);    // makes the edit text field
+
         l.addView(t);
         t.setBackgroundColor(Color.WHITE);
         t.setSingleLine();
@@ -367,9 +375,7 @@ public class MainActivity extends Activity {
 
         //fields.add(uniqueText);
 
-        // test to write to ContentsValue object
-        values.put(name, "maple");
-        System.out.println("t1 " + values.get(name).toString());
+
 
         box.addView(uniqueText);
         box.addView(l);
