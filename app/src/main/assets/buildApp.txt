@@ -3,11 +3,11 @@ camera 1
 gpsLoc 1 10000
 gpsTracker 1
 
+unique camels
 unique tree
 unique age
 unique height
 unique rootsystem
 unique file
 unique bacon
-
 endFile
