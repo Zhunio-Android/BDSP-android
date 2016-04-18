@@ -1,6 +1,7 @@
 package me.sunyfusion.fuzion;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -39,5 +40,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
             db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + columnName + " " + columnType);
         }
         catch(SQLiteException e) {}
+    }
+    public Cursor queueAll(SQLiteDatabase db) {
+        String[] columns = new String[] { "*" };
+
+        Cursor cursor = db.query("tasksTable", null, null,
+                null, null, null, null);
+        return cursor;
     }
 }

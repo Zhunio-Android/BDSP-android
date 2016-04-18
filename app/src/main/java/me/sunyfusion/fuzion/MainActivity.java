@@ -4,6 +4,7 @@
 //TODO flagged fields - allow binary
 //TODO manual or incremental field - trigger = field, reset = how you want to reset (daily or no reset)
 //TODO housekeeping, separate manual and automatically collected
+//TODO chase down bug that causes multiple entries when save is pressed
 package me.sunyfusion.fuzion;
 
 import android.app.Activity;
@@ -55,6 +56,7 @@ import android.graphics.Color;
 public class MainActivity extends Activity {
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+    private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
     Uri imgUri;
     boolean sendGPS = false;
     double latitude = -1;
@@ -399,8 +401,27 @@ public class MainActivity extends Activity {
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //HTTPFunc.doHTTPget(getApplicationContext(),"http://sunyfusion.me/test.html")
-                db.insert("tasksTable", null, values);
+                RequestParams params = new RequestParams();
+                Cursor c = dbHelper.queueAll(db);
+                c.moveToNext();
+                String[] cNames = c.getColumnNames();
+                for(String s : cNames){
+                    System.out.print(s + ", ");
+                }
+                System.out.println();
+                int cCount = c.getColumnCount();
+                while(!c.isAfterLast()){
+                    params = new RequestParams();
+                    for(int i = 0; i < cCount; i++) {
+                        params.add(cNames[i],c.getString(i));
+                        System.out.print(c.getString(i) + ", ");
+                    }
+                    System.out.println();
+                    HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,null);
+                    c.moveToNext();
+                }
+
+
                 //TODO add code to write fields and fields.value to cursor
             }
         });
@@ -452,6 +473,7 @@ public class MainActivity extends Activity {
 
     public void resetButtonsAfterSave()
     {
+        db.insert("tasksTable", null, values);
         if (cameraInUse == true)
         {
             camera.setBackgroundColor(Color.BLACK);
