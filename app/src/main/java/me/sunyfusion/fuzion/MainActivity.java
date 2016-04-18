@@ -418,6 +418,8 @@ public class MainActivity extends Activity {
                     }
                     System.out.println();
                     HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,null);
+                    //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
+                    db.delete("tasksTable","ID=" + c.getString(0),null);
                     c.moveToNext();
                 }
 
