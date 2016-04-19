@@ -1,6 +1,6 @@
-camera 1
-//gpsLoc options - true/false, frequency
-gpsLoc 1 10000
+camera 1 camera
+//gpsLoc options - true/false, frequency, latitude column, longitude column
+gpsLoc 1 10000 lat long
 gpsTracker 1
 
 unique camels

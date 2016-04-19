@@ -7,12 +7,20 @@
 //TODO chase down bug that causes multiple entries when save is pressed
 package me.sunyfusion.fuzion;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
+import android.graphics.drawable.shapes.Shape;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,15 +28,25 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ActionMenuView;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
+import android.widget.SpinnerAdapter;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,8 +70,9 @@ import cz.msebera.android.httpclient.Header;
 import android.widget.RelativeLayout;
 import android.widget.Button;
 import android.graphics.Color;
+import android.widget.Toolbar;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
@@ -73,14 +92,29 @@ public class MainActivity extends Activity {
     EditText mText;
     ContentValues values;
     private static LinearLayout layout;
+    private static LinearLayout a_view;
 
 
     Boolean cameraInUse = false;
     Boolean gpsLocationInUse = false;
-    Button camera;
+    ImageButton camera;
     Button gpsLocation;
-    ArrayList<TextView> uniqueButtonsReferences = new ArrayList<TextView>();
-
+    ArrayList<ImageButton> uniqueButtonsReferences = new ArrayList<ImageButton>();
+    private final int MenuItem_EditId = 1, MenuItem_DeleteId = 0;
+/*
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        menu.add("HELLO");
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            default:
+                return false;
+        }
+    }
+*/
     /**
      * Runs on startup, creates the layout when the activity is created.
      * This is essentially the "main" method.
@@ -90,9 +124,23 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActionBar a = getSupportActionBar();
+        a_view = new LinearLayout(this);
+        a_view.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
+        a_view.setOrientation(LinearLayout.HORIZONTAL);
+        a_view.setGravity(Gravity.RIGHT);
+        ShapeDrawable rectangle = new ShapeDrawable ();
+        rectangle.setShape(new RectShape());
+        rectangle.setIntrinsicHeight(100);
+        rectangle.setIntrinsicWidth(100);
+        rectangle.getPaint().setColor(Color.GREEN);
+        TextView menu_title = new TextView(this);
+        a.setCustomView(a_view);
+        a.setDisplayShowCustomEnabled(true);
         values = new ContentValues();
         layout = new LinearLayout(this);
         fields = new ArrayList<View>();
+        layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
         layout.setBackgroundColor(Color.CYAN);
         layout.setBackgroundColor(Color.CYAN);
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -139,13 +187,6 @@ public class MainActivity extends Activity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
     /**
      * Receives all intents returned by activities when returning to this activity.
      * Right now, this only processes the intent returned by the getImage() method
@@ -162,21 +203,6 @@ public class MainActivity extends Activity {
                     data.getData(), Toast.LENGTH_LONG).show();
             imgUri = data.getData();
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -222,7 +248,7 @@ public class MainActivity extends Activity {
             switch (Type) {
                 case "camera":
                     if (readFile.getAnswer() == 1) {
-                        buildCamera();
+                        buildCamera(readFile.getArgs());
                         System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
@@ -257,29 +283,30 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void buildCamera() {
+    public void buildCamera(String[] args) {
         // build button
         // add column to SQLite table
-
-        final Button cameraButton = new Button(this);
-
+        String name = args[2];
+        final ImageButton cameraButton = new ImageButton(this);
+        dbHelper.addColumn(db, name, "TEXT");
         camera = cameraButton;
         cameraInUse = true;
 
-        cameraButton.setBackgroundColor(Color.BLACK);
-        cameraButton.setTextColor(Color.WHITE);
-        cameraButton.setText("Camera");
-       // cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-       //         LayoutParams.WRAP_CONTENT));
+        //cameraButton.setBackgroundColor(Color.BLACK);
+        //cameraButton.setTextColor(Color.WHITE);
+        //cameraButton.setText("Camera");
+        cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+              LayoutParams.WRAP_CONTENT));
+        //cameraButton.setGravity(Gravity.CENTER);
+        cameraButton.setImageResource(android.R.drawable.ic_menu_camera);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getImage();
                 cameraButton.setBackgroundColor(Color.YELLOW);
-                cameraButton.setTextColor(Color.BLACK);
-                cameraButton.setText("REDO CAMERA");
+                //cameraButton.setTextColor(Color.BLACK);
             }
         });
-        layout.addView(cameraButton, buttonDetails);
+        a_view.addView(cameraButton);
 
     }
 
@@ -295,7 +322,9 @@ public class MainActivity extends Activity {
         gpsLocationInUse = true;
 
         buildGPSLocButton.setText("GPS Location");
-        buildGPSLocButton.setBackgroundColor(Color.BLACK);
+        //buildGPSLocButton.setBackgroundColor(Color.BLACK);
+        //buildGPSLocButton.setGravity(Gravity.CENTER);
+
         buildGPSLocButton.setTextColor(Color.WHITE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         try {
@@ -317,7 +346,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        layout.addView(buildGPSLocButton, buttonDetails);
+        a_view.addView(buildGPSLocButton);
     }
 
     public void buildGpsTracker() {
@@ -342,18 +371,18 @@ public class MainActivity extends Activity {
 
         final EditText t = new EditText(this);    // makes the edit text field
 
-        final Button enterButton = new Button(this);    // Enter Button creation
+        final ImageButton enterButton = new ImageButton(this);    // Enter Button creation
 
         uniqueButtonsReferences.add(enterButton);
 
-        enterButton.setText("ENTER");
-        enterButton.setBackgroundColor(Color.GREEN);
+        enterButton.setImageResource(android.R.drawable.ic_input_add);
+        //enterButton.setBackgroundColor(Color.GREEN);
 
         enterButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // action
-                enterButton.setBackgroundColor(Color.YELLOW);
-                enterButton.setText("REDO");
+                //enterButton.setBackgroundColor(Color.YELLOW);
+                enterButton.setImageResource(android.R.drawable.ic_menu_edit);
 
                 // test to write to ContentsValue object
                 values.put(name, t.getText().toString());
@@ -417,7 +446,7 @@ public class MainActivity extends Activity {
                         System.out.print(c.getString(i) + ", ");
                     }
                     System.out.println();
-                    HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,null);
+                    HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,imgUri);
                     //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
                     db.delete("tasksTable","ID=" + c.getString(0),null);
                     c.moveToNext();
@@ -479,8 +508,8 @@ public class MainActivity extends Activity {
         if (cameraInUse == true)
         {
             camera.setBackgroundColor(Color.BLACK);
-            camera.setTextColor(Color.WHITE);
-            camera.setText("CAMERA");
+            //camera.setTextColor(Color.WHITE);
+            camera.setImageResource(android.R.drawable.ic_menu_camera);
         }
 
         if (gpsLocationInUse == true)
@@ -492,8 +521,8 @@ public class MainActivity extends Activity {
 
         for (int i = 0; i < uniqueButtonsReferences.size(); i++)
         {
-            uniqueButtonsReferences.get(i).setBackgroundColor(Color.GREEN);
-            uniqueButtonsReferences.get(i).setText("ENTER");
+            //uniqueButtonsReferences.get(i).setBackgroundColor(Color.GREEN);
+            uniqueButtonsReferences.get(i).setImageResource(android.R.drawable.ic_input_add);
         }
 
     }

@@ -24,15 +24,16 @@ import cz.msebera.android.httpclient.auth.AuthScope;
 public class HTTPFunc {
     private static final String BASE_URL = "http://sunyfusion.me";
     private static AsyncHttpClient client = new AsyncHttpClient();
+
     /**
      * Creates and sends an HTTP post request to the server, which includes the image captured
      * from the getImage() method. Also adds the HTTP response from the server to the UI.
      */
-    public static void doHTTPpost(final Context c, String url, RequestParams params, Uri imgUri) {
+    public static boolean doHTTPpost(final Context c, String url, RequestParams params, Uri imgUri) {
         AsyncHttpClient client = new AsyncHttpClient();
+        final boolean status = false;
         //post test
 
-        /* SAVE: code for adding image as param
         if (imgUri != null) {
             File myFile = new File(imgUri.getPath());
             try {
@@ -40,7 +41,7 @@ public class HTTPFunc {
             } catch (FileNotFoundException e) {
             }
         }
-        */
+
         client.post(url, params, new FileAsyncHttpResponseHandler(c) {
 
             @Override
@@ -65,6 +66,7 @@ public class HTTPFunc {
                 // called when request is retried
             }
         });
+        return status;
     }
 
     /**
