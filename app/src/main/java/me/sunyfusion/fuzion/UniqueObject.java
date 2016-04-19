@@ -25,6 +25,4 @@ public class UniqueObject
         return Catagory;
     }
 
-
-
 }

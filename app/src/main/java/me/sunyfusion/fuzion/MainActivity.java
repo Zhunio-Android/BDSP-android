@@ -4,7 +4,7 @@
 //TODO flagged fields - allow binary
 //TODO manual or incremental field - trigger = field, reset = how you want to reset (daily or no reset)
 //TODO housekeeping, separate manual and automatically collected
-//TODO chase down bug that causes multiple entries when save is pressed
+
 package me.sunyfusion.fuzion;
 
 import android.content.ContentValues;
@@ -12,49 +12,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.ClipDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
-import android.graphics.drawable.shapes.Shape;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ActionMenuView;
 import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.SubMenu;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.SpinnerAdapter;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.loopj.android.http.*;
+import com.loopj.android.http.RequestParams;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,19 +43,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
-import android.view.ViewGroup.LayoutParams;
-
-import cz.msebera.android.httpclient.Header;
-
-import android.widget.RelativeLayout;
-import android.widget.Button;
-import android.graphics.Color;
-import android.widget.Toolbar;
-
 public class MainActivity extends AppCompatActivity {
 
+    // CONSTANTS
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
+
+    //GLOBAL VARS
     Uri imgUri;
     boolean sendGPS = false;
     double latitude = -1;
@@ -88,33 +62,20 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout.LayoutParams editTextParams;
     DatabaseHelper dbHelper;
     SQLiteDatabase db;
-
-    EditText mText;
     ContentValues values;
+
+    //LAYOUTS
     private static LinearLayout layout;
     private static LinearLayout a_view;
 
-
+    //GLOBAL BOOLEANS FOR FEATURES
     Boolean cameraInUse = false;
     Boolean gpsLocationInUse = false;
     ImageButton camera;
     Button gpsLocation;
     ArrayList<ImageButton> uniqueButtonsReferences = new ArrayList<ImageButton>();
     private final int MenuItem_EditId = 1, MenuItem_DeleteId = 0;
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        menu.add("HELLO");
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            default:
-                return false;
-        }
-    }
-*/
+
     /**
      * Runs on startup, creates the layout when the activity is created.
      * This is essentially the "main" method.
@@ -124,38 +85,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActionBar a = getSupportActionBar();
-        a_view = new LinearLayout(this);
-        a_view.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
-        a_view.setOrientation(LinearLayout.HORIZONTAL);
-        a_view.setGravity(Gravity.RIGHT);
-        ShapeDrawable rectangle = new ShapeDrawable ();
-        rectangle.setShape(new RectShape());
-        rectangle.setIntrinsicHeight(100);
-        rectangle.setIntrinsicWidth(100);
-        rectangle.getPaint().setColor(Color.GREEN);
-        TextView menu_title = new TextView(this);
-        a.setCustomView(a_view);
-        a.setDisplayShowCustomEnabled(true);
+
+        //initialize globals
         values = new ContentValues();
-        layout = new LinearLayout(this);
         fields = new ArrayList<View>();
-        layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
-        layout.setBackgroundColor(Color.CYAN);
-        layout.setBackgroundColor(Color.CYAN);
-        layout.setGravity(Gravity.CENTER_HORIZONTAL);
-        layout.setOrientation(LinearLayout.VERTICAL);
 
-
-        ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(Color.TRANSPARENT);
-        scroll.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-        LayoutParams.MATCH_PARENT));
-        scroll.addView(layout);
-
-
+        //setup layouts
+        a_view = (LinearLayout) Layout.createActionBar(this, getSupportActionBar());
+        layout = (LinearLayout) Layout.createMainLayout(this);
+        ScrollView scroll = Layout.makeScroll(this,layout);
         setContentView(scroll);
-
 
         buttonDetails = new
         LinearLayout.LayoutParams(
@@ -292,18 +231,13 @@ public class MainActivity extends AppCompatActivity {
         camera = cameraButton;
         cameraInUse = true;
 
-        //cameraButton.setBackgroundColor(Color.BLACK);
-        //cameraButton.setTextColor(Color.WHITE);
-        //cameraButton.setText("Camera");
         cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
               LayoutParams.WRAP_CONTENT));
-        //cameraButton.setGravity(Gravity.CENTER);
         cameraButton.setImageResource(android.R.drawable.ic_menu_camera);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getImage();
                 cameraButton.setBackgroundColor(Color.YELLOW);
-                //cameraButton.setTextColor(Color.BLACK);
             }
         });
         a_view.addView(cameraButton);
@@ -322,8 +256,6 @@ public class MainActivity extends AppCompatActivity {
         gpsLocationInUse = true;
 
         buildGPSLocButton.setText("GPS Location");
-        //buildGPSLocButton.setBackgroundColor(Color.BLACK);
-        //buildGPSLocButton.setGravity(Gravity.CENTER);
 
         buildGPSLocButton.setTextColor(Color.WHITE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
@@ -333,9 +265,6 @@ public class MainActivity extends AppCompatActivity {
         catch(SecurityException e){
 
         }
-        //buildGPSLocButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-        //        LayoutParams.WRAP_CONTENT));
-
         buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 buildGPSLocButton.setBackgroundColor(Color.YELLOW);
@@ -356,7 +285,6 @@ public class MainActivity extends AppCompatActivity {
     public void buildUniqueName(final String name) {
         // build unique button
         // add column to SQLite table
-       // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
 
         dbHelper.addColumn(db, name, "TEXT");
 
@@ -367,7 +295,6 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout l = new LinearLayout(this);   // layout for the text entry and the enter button
         l.setOrientation(LinearLayout.HORIZONTAL);
-        //l.setPadding(10, 10, 10, 10);
 
         final EditText t = new EditText(this);    // makes the edit text field
 
@@ -380,14 +307,11 @@ public class MainActivity extends AppCompatActivity {
 
         enterButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // action
-                //enterButton.setBackgroundColor(Color.YELLOW);
                 enterButton.setImageResource(android.R.drawable.ic_menu_edit);
 
                 // test to write to ContentsValue object
                 values.put(name, t.getText().toString());
                 System.out.println(name + " " + values.get(name).toString());
-
                 t.getText().clear();
             }
         });
@@ -420,17 +344,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void buildSubmit() {
-        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
         Button submitButton = new Button(this);
         submitButton.setText("Submit All Data");
         submitButton.setBackgroundColor(Color.BLACK);
         submitButton.setTextColor(Color.WHITE);
-       // submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-       //         LayoutParams.WRAP_CONTENT));
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                RequestParams params = new RequestParams();
+                RequestParams params;
                 Cursor c = dbHelper.queueAll(db);
                 c.moveToNext();
                 String[] cNames = c.getColumnNames();
@@ -451,9 +372,6 @@ public class MainActivity extends AppCompatActivity {
                     db.delete("tasksTable","ID=" + c.getString(0),null);
                     c.moveToNext();
                 }
-
-
-                //TODO add code to write fields and fields.value to cursor
             }
         });
 
@@ -484,14 +402,10 @@ public class MainActivity extends AppCompatActivity {
     //END GPS CODE
 
     public void buildSave() {
-        // Button uniqueButton = (Button) findViewById(R.id.inputButtons);
         Button saveButton = new Button(this);
         saveButton.setText("Save");
         saveButton.setBackgroundColor(Color.GREEN);
         saveButton.setTextColor(Color.BLACK);
-        // submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-        //         LayoutParams.WRAP_CONTENT));
-
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // submit to SQLITE database
@@ -505,10 +419,10 @@ public class MainActivity extends AppCompatActivity {
     public void resetButtonsAfterSave()
     {
         db.insert("tasksTable", null, values);
+        values = new ContentValues();
         if (cameraInUse == true)
         {
             camera.setBackgroundColor(Color.BLACK);
-            //camera.setTextColor(Color.WHITE);
             camera.setImageResource(android.R.drawable.ic_menu_camera);
         }
 
@@ -521,16 +435,8 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 0; i < uniqueButtonsReferences.size(); i++)
         {
-            //uniqueButtonsReferences.get(i).setBackgroundColor(Color.GREEN);
             uniqueButtonsReferences.get(i).setImageResource(android.R.drawable.ic_input_add);
         }
 
     }
 }
-
-
-/*
-final Button button = (Button) findViewById(R.id.button_id);
-button.setOnClickListener(new View.OnClickListener() {
-public void onClick(View v) {
-*/

@@ -2,21 +2,16 @@ package me.sunyfusion.fuzion;
 
 import android.content.Context;
 import android.net.Uri;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.auth.AuthScope;
 
 /**
  * Created by jesse on 3/15/16.
@@ -68,45 +63,4 @@ public class HTTPFunc {
         });
         return status;
     }
-
-    /**
-     * creates and sends an Async HTTP GET request to our server, and adds the first line
-     * of the server's response to the UI window.
-     */
-    public static void doHTTPget(final Context c, String getUrl) {
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get(getUrl, new FileAsyncHttpResponseHandler(c) {
-
-            @Override
-            public void onStart() {
-                // called before request is started
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, File response) {
-                String b = "";
-                try {
-                    FileReader f = new FileReader(response);
-                    BufferedReader r = new BufferedReader(f);
-                    b = r.readLine();
-                } catch (IOException e) {
-                    b = e.getMessage();
-                }
-                Toast toast = Toast.makeText(c, "Success " + statusCode + " " + b, Toast.LENGTH_LONG);
-                toast.show();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                Toast toast = Toast.makeText(c, "Failed" + statusCode, Toast.LENGTH_LONG);
-                toast.show();
-            }
-
-            @Override
-            public void onRetry(int retryNo) {
-                // called when request is retried
-            }
-        });
-    }
-
 }
