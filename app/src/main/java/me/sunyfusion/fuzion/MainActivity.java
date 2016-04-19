@@ -332,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         l.addView(t);
+        t.setTextColor(Color.BLACK);
         t.setBackgroundColor(Color.WHITE);
         t.setSingleLine();
         t.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1f));
