@@ -97,7 +97,6 @@ public class MainActivity extends Activity {
 
 
         ScrollView scroll = new ScrollView(this);
-     //   scroll.setBackgroundColor(Color.TRANSPARENT);
         scroll.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT));
         scroll.addView(layout);
