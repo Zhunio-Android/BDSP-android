@@ -19,12 +19,14 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -53,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
 
     //GLOBAL VARS
-    Uri imgUri;
-    boolean sendGPS = false;
+    static Uri imgUri;
+    static boolean sendGPS = false;
     double latitude = -1;
     double longitude = -1;
     double gps_acc = -1000;
@@ -63,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<View> fields;
     LinearLayout.LayoutParams buttonDetails;
     LinearLayout.LayoutParams editTextParams;
-    DatabaseHelper dbHelper;
-    SQLiteDatabase db;
+    static DatabaseHelper dbHelper;
+    public static HTTPFunc httpFunc;
+    static SQLiteDatabase db;
     ContentValues values;
 
     //LAYOUTS
@@ -88,13 +91,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*        BroadcastReceiver br = new UpdateReceiver();
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(br, intentFilter);*/
+
         //initialize globals
         values = new ContentValues();
         fields = new ArrayList<View>();
+        httpFunc = new HTTPFunc(getApplicationContext());
 
         //setup layouts
         a_view = (LinearLayout) Layout.createActionBar(this, getSupportActionBar());
@@ -115,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         editTextParams.setMargins(0, 10, 0, 10);
 
         dbHelper = new DatabaseHelper(this);
-        buildSubmit();
+        //buildSubmit();
         buildSave();
         dispatch();
     }
@@ -123,7 +124,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                this.getSystemService(Context.CONNECTIVITY_SERVICE );
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+        UpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
+        Log.i("NET", "Network Connected: " + UpdateReceiver.netConnected);
+        if(UpdateReceiver.netConnected){
+            upload();
+        }
     }
 
     @Override
@@ -324,12 +332,10 @@ public class MainActivity extends AppCompatActivity {
 
         TextView uniqueText = new TextView(this);   // Unique label
 
-
         uniqueText.setText(name);
         uniqueText.setBackgroundColor(Color.TRANSPARENT);
         uniqueText.setTextColor(Color.WHITE);
         uniqueText.setPadding(15, 0, 0, 0);
-
 
         l.addView(t);
         t.setTextColor(Color.BLACK);
@@ -337,15 +343,9 @@ public class MainActivity extends AppCompatActivity {
         t.setSingleLine();
         t.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1f));
 
-
-        //fields.add(uniqueText);
-
-
-
         box.addView(uniqueText);
         box.addView(l);
         l.addView(enterButton);
-
 
         layout.addView(box, editTextParams);
     }
@@ -358,27 +358,7 @@ public class MainActivity extends AppCompatActivity {
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                RequestParams params;
-                Cursor c = dbHelper.queueAll(db);
-                c.moveToNext();
-                String[] cNames = c.getColumnNames();
-                for(String s : cNames){
-                    System.out.print(s + ", ");
-                }
-                System.out.println();
-                int cCount = c.getColumnCount();
-                while(!c.isAfterLast()){
-                    params = new RequestParams();
-                    for(int i = 0; i < cCount; i++) {
-                        params.add(cNames[i],c.getString(i));
-                        System.out.print(c.getString(i) + ", ");
-                    }
-                    System.out.println();
-                    HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,imgUri);
-                    //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
-                    db.delete("tasksTable","ID=" + c.getString(0),null);
-                    c.moveToNext();
-                }
+
             }
         });
 
@@ -445,5 +425,28 @@ public class MainActivity extends AppCompatActivity {
             uniqueButtonsReferences.get(i).setImageResource(android.R.drawable.ic_input_add);
         }
 
+    }
+    public static void upload() {
+        RequestParams params;
+        Cursor c = dbHelper.queueAll(db);
+        c.moveToNext();
+        String[] cNames = c.getColumnNames();
+        for(String s : cNames){
+            System.out.print(s + ", ");
+        }
+        System.out.println();
+        int cCount = c.getColumnCount();
+        while(!c.isAfterLast()){
+            params = new RequestParams();
+            for(int i = 0; i < cCount; i++) {
+                params.add(cNames[i],c.getString(i));
+                System.out.print(c.getString(i) + ", ");
+            }
+            System.out.println();
+            httpFunc.doHTTPpost(SUBMIT_URL,params,imgUri);
+            //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
+            db.delete("tasksTable","ID=" + c.getString(0),null);
+            c.moveToNext();
+        }
     }
 }

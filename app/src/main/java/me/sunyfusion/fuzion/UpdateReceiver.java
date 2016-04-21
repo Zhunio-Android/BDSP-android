@@ -25,6 +25,7 @@ public class UpdateReceiver extends BroadcastReceiver {
             if(!netConnected) {
                 netConnected = true;
                 Log.i("NET", "connected " + isConnected);
+                MainActivity.upload();
             }
         }
         else {
