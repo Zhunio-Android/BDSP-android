@@ -88,10 +88,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        BroadcastReceiver br = new UpdateReceiver();
+/*        BroadcastReceiver br = new UpdateReceiver();
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(br, intentFilter);
+        registerReceiver(br, intentFilter);*/
         //initialize globals
         values = new ContentValues();
         fields = new ArrayList<View>();
