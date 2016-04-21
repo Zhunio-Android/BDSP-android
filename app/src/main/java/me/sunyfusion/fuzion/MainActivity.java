@@ -60,12 +60,15 @@ public class MainActivity extends Activity {
     ArrayList<View> fields;
     LinearLayout.LayoutParams buttonDetails;
     LinearLayout.LayoutParams editTextParams;
+    LinearLayout.LayoutParams bottomButtonDetails;
+    LinearLayout.LayoutParams scrollParameters;
     DatabaseHelper dbHelper;
     SQLiteDatabase db;
 
     EditText mText;
     ContentValues values;
     private static LinearLayout layout;
+    private static LinearLayout mainFrame;
 
 
     Boolean cameraInUse = false;
@@ -87,20 +90,27 @@ public class MainActivity extends Activity {
         values = new ContentValues();
         layout = new LinearLayout(this);
         fields = new ArrayList<View>();
-        layout.setBackgroundColor(Color.CYAN);
-        layout.setBackgroundColor(Color.CYAN);
+
+
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
         layout.setOrientation(LinearLayout.VERTICAL);
 
 
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(Color.TRANSPARENT);
+     //   scroll.setBackgroundColor(Color.TRANSPARENT);
         scroll.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
-        LayoutParams.MATCH_PARENT));
+                LayoutParams.MATCH_PARENT));
         scroll.addView(layout);
 
+        mainFrame = new LinearLayout(this);
+        mainFrame.setOrientation(LinearLayout.VERTICAL);
+      //  mainFrame.setBackgroundColor(Color.TRANSPARENT);
+       // mainFrame.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
+        //        LayoutParams.MATCH_PARENT));
 
-        setContentView(scroll);
+
+
+
 
 
         buttonDetails = new
@@ -115,10 +125,32 @@ public class MainActivity extends Activity {
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
         editTextParams.setMargins(0, 10, 0, 10);
 
+        bottomButtonDetails = new
+                LinearLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        bottomButtonDetails.setMargins(0, 10, 0, 10);
+
+
+        scrollParameters = new
+                LinearLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        scrollParameters.setMargins(0, 10, 0, 10);
+        scrollParameters.weight = 1;         //if not added the scroll will push the save button off screen
+
         dbHelper = new DatabaseHelper(this);
+
+        mainFrame.addView(scroll, scrollParameters);
         buildSubmit();
-        buildSave();
+
         dispatch();
+
+
+
+        buildSave();
+        setContentView(mainFrame);
+
     }
 
     @Override
@@ -275,7 +307,7 @@ public class MainActivity extends Activity {
                 cameraButton.setText("REDO CAMERA");
             }
         });
-        layout.addView(cameraButton, buttonDetails);
+        mainFrame.addView(cameraButton, buttonDetails);
 
     }
 
@@ -312,8 +344,7 @@ public class MainActivity extends Activity {
                 toast.show();
             }
         });
-
-        layout.addView(buildGPSLocButton, buttonDetails);
+        mainFrame.addView(buildGPSLocButton, bottomButtonDetails);
     }
 
     public void buildGpsTracker() {
@@ -344,16 +375,21 @@ public class MainActivity extends Activity {
         uniqueButtonsReferences.add(enterButton);
 
         enterButton.setText("ENTER");
+        enterButton.setTextColor(Color.BLACK);
         enterButton.setBackgroundColor(Color.GREEN);
+
+        t.setTextColor(Color.BLACK);
 
         enterButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // action
                 enterButton.setBackgroundColor(Color.YELLOW);
+                enterButton.setTextColor(Color.BLACK);
                 enterButton.setText("REDO");
 
 // will gray out the text entered and when typed over the original text will disappear
                 t.setHint(t.getText());
+                t.setHintTextColor(Color.GRAY);
                 t.getText().clear();
 
                 // test to write to ContentsValue object
@@ -440,8 +476,6 @@ public class MainActivity extends Activity {
         saveButton.setText("Save");
         saveButton.setBackgroundColor(Color.GREEN);
         saveButton.setTextColor(Color.BLACK);
-        // submitButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-        //         LayoutParams.WRAP_CONTENT));
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -454,8 +488,7 @@ public class MainActivity extends Activity {
 
             }
         });
-
-        layout.addView(saveButton, buttonDetails);
+        mainFrame.addView(saveButton, bottomButtonDetails);
     }
 
     public void resetButtonsAfterSave()
