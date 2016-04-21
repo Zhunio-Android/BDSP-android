@@ -12,14 +12,26 @@ import android.util.Log;
  */
 public class UpdateReceiver extends BroadcastReceiver {
 
+    protected static boolean netConnected = false;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         ConnectivityManager connectivityManager = (ConnectivityManager)
                 context.getSystemService(Context.CONNECTIVITY_SERVICE );
-        NetworkInfo activeNetInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+
         boolean isConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
-        if (isConnected)
-            Log.i("NET", "connected" +isConnected);
-        else Log.i("NET", "not connected" +isConnected);
+        if (isConnected) {
+            if(!netConnected) {
+                netConnected = true;
+                Log.i("NET", "connected " + isConnected);
+            }
+        }
+        else {
+            if(netConnected) {
+                netConnected = false;
+                Log.i("NET", "not connected " + isConnected);
+            }
+        }
     }
 }
