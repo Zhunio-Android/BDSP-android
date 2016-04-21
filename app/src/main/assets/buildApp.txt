@@ -3,7 +3,7 @@ camera 1 camera
 gpsLoc 1 10000 lat long
 gpsTracker 1
 
-unique camels
+unique camels 
 unique tree
 unique age
 unique height
