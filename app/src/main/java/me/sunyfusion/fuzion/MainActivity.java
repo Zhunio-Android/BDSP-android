@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
         //initialize globals
         values = new ContentValues();
-        fields = new ArrayList<View>();
+        fields = new ArrayList<View>();    //?
 
         //setup layouts
         a_view = (LinearLayout) Layout.createActionBar(this, getSupportActionBar());
