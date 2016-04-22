@@ -331,6 +331,9 @@ public class MainActivity extends AppCompatActivity {
                 enterButton.setImageResource(android.R.drawable.ic_menu_edit);
 
                 // test to write to ContentsValue object
+                t.setHint(t.getText());
+                t.setHintTextColor(Color.GRAY);
+
                 values.put(name, t.getText().toString());
                 System.out.println(name + " " + values.get(name).toString());
                 t.getText().clear();
@@ -345,9 +348,11 @@ public class MainActivity extends AppCompatActivity {
         uniqueText.setTextColor(Color.WHITE);
         uniqueText.setPadding(15, 0, 0, 0);
 
+        t.setTextColor(Color.BLACK);
 
         l.addView(t);
         t.setBackgroundColor(Color.WHITE);
+
         t.setSingleLine();
         t.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1f));
 
@@ -441,6 +446,7 @@ public class MainActivity extends AppCompatActivity {
     {
         db.insert("tasksTable", null, values);
         values = new ContentValues();
+
         if (cameraInUse == true)
         {
             camera.setBackgroundColor(Color.BLACK);
