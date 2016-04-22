@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton camera;
     Button gpsLocation;
     ArrayList<ImageButton> uniqueButtonsReferences = new ArrayList<ImageButton>();
+    ArrayList<EditText> uniqueButtonsEnterReferences = new ArrayList<EditText>();
     private final int MenuItem_EditId = 1, MenuItem_DeleteId = 0;
 
     /**
@@ -318,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
         l.setOrientation(LinearLayout.HORIZONTAL);
 
         final EditText t = new EditText(this);    // makes the edit text field
-
+        uniqueButtonsEnterReferences.add(t);
         final ImageButton enterButton = new ImageButton(this);    // Enter Button creation
 
         uniqueButtonsReferences.add(enterButton);
@@ -463,6 +464,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < uniqueButtonsReferences.size(); i++)
         {
             uniqueButtonsReferences.get(i).setImageResource(android.R.drawable.ic_input_add);
+            uniqueButtonsEnterReferences.get(i).setHint("");
         }
 
     }
