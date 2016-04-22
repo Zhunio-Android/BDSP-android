@@ -2,6 +2,7 @@ package me.sunyfusion.fuzion;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -17,6 +18,10 @@ import cz.msebera.android.httpclient.Header;
  * Created by jesse on 3/15/16.
  */
 public class HTTPFunc {
+    public HTTPFunc(Context context){
+        c = context;
+    }
+    private Context c;
     private static final String BASE_URL = "http://sunyfusion.me";
     private static AsyncHttpClient client = new AsyncHttpClient();
 
@@ -24,7 +29,7 @@ public class HTTPFunc {
      * Creates and sends an HTTP post request to the server, which includes the image captured
      * from the getImage() method. Also adds the HTTP response from the server to the UI.
      */
-    public static boolean doHTTPpost(final Context c, String url, RequestParams params, Uri imgUri) {
+    public boolean doHTTPpost(String url, RequestParams params, Uri imgUri) {
         AsyncHttpClient client = new AsyncHttpClient();
         final boolean status = false;
         //post test
@@ -46,8 +51,9 @@ public class HTTPFunc {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File response) {
-                Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
-                toast.show();
+                //Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
+                //toast.show();
+                Log.i("UPLOAD", "SUCCESS");
             }
 
             @Override
