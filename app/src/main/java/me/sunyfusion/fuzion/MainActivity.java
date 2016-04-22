@@ -60,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<View> fields;
     LinearLayout.LayoutParams buttonDetails;
     LinearLayout.LayoutParams editTextParams;
+    LinearLayout.LayoutParams bottomButtonDetails;
+    LinearLayout.LayoutParams scrollParameters;
     DatabaseHelper dbHelper;
     SQLiteDatabase db;
     ContentValues values;
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     //LAYOUTS
     private static LinearLayout layout;
     private static LinearLayout a_view;
+    private static LinearLayout mainFrame;;
 
     //GLOBAL BOOLEANS FOR FEATURES
     Boolean cameraInUse = false;
@@ -94,7 +97,9 @@ public class MainActivity extends AppCompatActivity {
         a_view = (LinearLayout) Layout.createActionBar(this, getSupportActionBar());
         layout = (LinearLayout) Layout.createMainLayout(this);
         ScrollView scroll = Layout.makeScroll(this,layout);
-        setContentView(scroll);
+        mainFrame = new LinearLayout(this);
+        mainFrame.setOrientation(LinearLayout.VERTICAL);
+        setContentView(mainFrame);
 
         buttonDetails = new
         LinearLayout.LayoutParams(
@@ -108,10 +113,26 @@ public class MainActivity extends AppCompatActivity {
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
         editTextParams.setMargins(0, 10, 0, 10);
 
+        bottomButtonDetails = new
+                LinearLayout.LayoutParams(
+                RelativeLayout.LayoutParams.MATCH_PARENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+                bottomButtonDetails.setMargins(0, 10, 0, 10);
+
+        scrollParameters = new
+                LinearLayout.LayoutParams(
+                                RelativeLayout.LayoutParams.MATCH_PARENT,
+                                RelativeLayout.LayoutParams.WRAP_CONTENT);
+                scrollParameters.setMargins(0, 10, 0, 10);
+                scrollParameters.weight = 1;         //if not added the scroll will push the save button off screen
+
+        mainFrame.addView(scroll, scrollParameters);
+
         dbHelper = new DatabaseHelper(this);
+
         buildSubmit();
-        buildSave();
         dispatch();
+        buildSave();
     }
 
     @Override
@@ -367,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
                         System.out.print(c.getString(i) + ", ");
                     }
                     System.out.println();
-                    HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,imgUri);
+       //             HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,imgUri);
                     //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
                     db.delete("tasksTable","ID=" + c.getString(0),null);
                     c.moveToNext();
@@ -396,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
         gps_acc = l.getAccuracy();
 
         if(sendGPS) {
-            System.out.printf("Accuracy=%f,Longitude=%f,Latitude=%f\n",gps_acc,longitude,latitude); //Debug
+            System.out.printf("Accuracy=%f,Longitude=%f,Latitude=%f\n",gps_acc,longitude, latitude); //Debug
         }
     }
     //END GPS CODE
@@ -413,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        layout.addView(saveButton, buttonDetails);
+        mainFrame.addView(saveButton, bottomButtonDetails);
     }
 
     public void resetButtonsAfterSave()
