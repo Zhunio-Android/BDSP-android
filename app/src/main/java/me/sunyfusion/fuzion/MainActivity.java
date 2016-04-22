@@ -465,6 +465,7 @@ public class MainActivity extends AppCompatActivity {
         {
             uniqueButtonsReferences.get(i).setImageResource(android.R.drawable.ic_input_add);
             uniqueButtonsEnterReferences.get(i).setHint("");
+            uniqueButtonsEnterReferences.get(i).getText().clear();
         }
 
     }
