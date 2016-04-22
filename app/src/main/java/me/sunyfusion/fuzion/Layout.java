@@ -17,7 +17,7 @@ public class Layout {
         LinearLayout a_view = new LinearLayout(c);
         a_view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         a_view.setOrientation(LinearLayout.HORIZONTAL);
-        a_view.setGravity(Gravity.RIGHT);
+        a_view.setGravity(Gravity.CENTER);
         a.setCustomView(a_view);
         a.setDisplayShowCustomEnabled(true);
         return a_view;
@@ -25,8 +25,8 @@ public class Layout {
     public static View createMainLayout(Context c) {
         LinearLayout layout = new LinearLayout(c);
         layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT));
-        layout.setBackgroundColor(Color.CYAN);
-        layout.setBackgroundColor(Color.CYAN);
+     //   layout.setBackgroundColor(Color.CYAN);
+     //   layout.setBackgroundColor(Color.CYAN);
         layout.setGravity(Gravity.CENTER_HORIZONTAL);
         layout.setOrientation(LinearLayout.VERTICAL);
         return layout;
