@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                                 RelativeLayout.LayoutParams.MATCH_PARENT,
                                 RelativeLayout.LayoutParams.WRAP_CONTENT);
                 scrollParameters.setMargins(0, 10, 0, 10);
-                scrollParameters.weight = 1;         //if not added the scroll will push the save button off screen
+                scrollParameters.weight = 1; //if not added the scroll will push the save button off screen
 
         mainFrame.addView(scroll, scrollParameters);
 
@@ -394,7 +394,7 @@ public class MainActivity extends AppCompatActivity {
                         System.out.print(c.getString(i) + ", ");
                     }
                     System.out.println();
-       //             HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,imgUri);
+             //       HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,imgUri);
                     //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
                     db.delete("tasksTable","ID=" + c.getString(0),null);
                     c.moveToNext();
