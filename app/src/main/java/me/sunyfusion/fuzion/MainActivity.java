@@ -5,6 +5,12 @@
 //TODO manual or incremental field - trigger = field, reset = how you want to reset (daily or no reset)
 //TODO housekeeping, separate manual and automatically collected
 
+//TODO read run from input file, reset run to 0 at midnight
+//TODO in buildApp.txt, specify fields for GPS\
+//TODO Untangle GPS Location and GPS Tracker - >
+
+
+
 package me.sunyfusion.fuzion;
 
 import android.content.ContentValues;
@@ -93,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //TODO user enters ID
 
         //initialize globals
         values = new ContentValues();
@@ -226,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
-
+                //TODO re-separate tracker and locator
                 case "gpsLoc":
                     if (readFile.getAnswer() == 1) {
                         buildGpsLoc(readFile.getArgs());
@@ -500,8 +507,9 @@ public class MainActivity extends AppCompatActivity {
             }
             System.out.println();
             httpFunc.doHTTPpost(SUBMIT_URL,params,imgUri);
-            //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
-                    db.delete("tasksTable","ID=" + c.getString(0),null);
+            //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE, MD5?
+            //OR DELETE AT END
+            db.delete("tasksTable","ID=" + c.getString(0),null);
             c.moveToNext();
         }
     }
