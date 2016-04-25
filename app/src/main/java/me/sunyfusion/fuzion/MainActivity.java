@@ -16,12 +16,15 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -50,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
 
     //GLOBAL VARS
-    Uri imgUri;
-    boolean sendGPS = false;
+    static Uri imgUri;
+    static boolean sendGPS = false;
     double latitude = -1;
     double longitude = -1;
     double gps_acc = -1000;
@@ -62,8 +65,9 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout.LayoutParams editTextParams;
     LinearLayout.LayoutParams bottomButtonDetails;
     LinearLayout.LayoutParams scrollParameters;
-    DatabaseHelper dbHelper;
-    SQLiteDatabase db;
+    static DatabaseHelper dbHelper;
+    static SQLiteDatabase db;
+    static HTTPFunc httpFunc;
     ContentValues values;
 
     //LAYOUTS
@@ -93,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         //initialize globals
         values = new ContentValues();
         fields = new ArrayList<View>();    //?
+        httpFunc = new HTTPFunc(this);
 
         //setup layouts
         a_view = (LinearLayout) Layout.createActionBar(this, getSupportActionBar());
@@ -139,6 +144,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+            this.getSystemService(Context.CONNECTIVITY_SERVICE );
+        NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
+        UpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
+        Log.i("NET", "Network Connected: " + UpdateReceiver.netConnected);
+        if(UpdateReceiver.netConnected) {
+            upload();
+        }
 
     }
 
@@ -468,5 +481,28 @@ public class MainActivity extends AppCompatActivity {
             uniqueButtonsEnterReferences.get(i).getText().clear();
         }
 
+    }
+    public static void upload() {
+        RequestParams params;
+        Cursor c = dbHelper.queueAll(db);
+        c.moveToNext();
+        String[] cNames = c.getColumnNames();
+        for(String s : cNames){
+            System.out.print(s + ", ");
+        }
+        System.out.println();
+        int cCount = c.getColumnCount();
+        while(!c.isAfterLast()){
+            params = new RequestParams();
+            for(int i = 0; i < cCount; i++) {
+                params.add(cNames[i],c.getString(i));
+                System.out.print(c.getString(i) + ", ");
+            }
+            System.out.println();
+            httpFunc.doHTTPpost(SUBMIT_URL,params,imgUri);
+            //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
+                    db.delete("tasksTable","ID=" + c.getString(0),null);
+            c.moveToNext();
+        }
     }
 }
