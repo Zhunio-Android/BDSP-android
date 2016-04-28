@@ -46,6 +46,10 @@ import android.widget.Toast;
 
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
@@ -57,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
 
     // CONSTANTS
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
-    private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
+    private static final String SUBMIT_URL = "https://sunyfusion-franzvz.c9users.io/ft_test/update.php";
+    //private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
 
     //GLOBAL VARS
     static Uri imgUri;
@@ -156,7 +161,12 @@ public class MainActivity extends AppCompatActivity {
         UpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
         Log.i("NET", "Network Connected: " + UpdateReceiver.netConnected);
         if(UpdateReceiver.netConnected) {
-            upload();
+            try {
+                upload();
+            }
+            catch(Exception e) {
+                Log.d("UPLOADER", "THAT DIDN'T WORK");
+            }
         }
 
     }
@@ -425,7 +435,12 @@ public class MainActivity extends AppCompatActivity {
                         System.out.print(c.getString(i) + ", ");
                     }
                     System.out.println();
-             //       HTTPFunc.doHTTPpost(getApplicationContext(),SUBMIT_URL,params,imgUri);
+                    try {
+                        upload();
+                    }
+                    catch(Exception e) {
+                        Log.d("UPLOADER", "THAT DIDN'T WORK");
+                    }
                     //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
                     db.delete("tasksTable","ID=" + c.getString(0),null);
                     c.moveToNext();
@@ -500,8 +515,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-    public static void upload() {
-        RequestParams params;
+    public static void upload() throws JSONException {
+        JSONArray j = new JSONArray();
+        JSONObject jsonObject;
         Cursor c = dbHelper.queueAll(db);
         c.moveToNext();
         String[] cNames = c.getColumnNames();
@@ -511,17 +527,20 @@ public class MainActivity extends AppCompatActivity {
         System.out.println();
         int cCount = c.getColumnCount();
         while(!c.isAfterLast()){
-            params = new RequestParams();
+            jsonObject = new JSONObject();
             for(int i = 0; i < cCount; i++) {
-                params.add(cNames[i],c.getString(i));
-                System.out.print(c.getString(i) + ", ");
+                //params.add(cNames[i],c.getString(i));
+                jsonObject.put(cNames[i],c.getString(i));
             }
-            System.out.println();
-            httpFunc.doHTTPpost(SUBMIT_URL,params,imgUri);
+            j.put(jsonObject);
             //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE, MD5?
             //OR DELETE AT END
             db.delete("tasksTable","ID=" + c.getString(0),null);
             c.moveToNext();
         }
+        JSONObject params = new JSONObject();
+        params.put("data",j);
+        httpFunc.doHTTPpost(SUBMIT_URL,j,imgUri);
+
     }
 }
