@@ -7,14 +7,14 @@
 
 //TODO read run from input file, reset run to 0 at midnight
 //TODO in buildApp.txt, specify fields for GPS\
-//TODO Untangle GPS Location and GPS Tracker - >
-
+//TODO route ID prompt to FT
 
 
 package me.sunyfusion.fuzion;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -64,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     double latitude = -1;
     double longitude = -1;
     double gps_acc = -1000;
-    int GPS_FREQ = 2000;
+    int GPS_FREQ = 10000;
     LocationManager locationManager;
     ArrayList<View> fields;
     LinearLayout.LayoutParams buttonDetails;
@@ -99,8 +100,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //TODO user enters ID
-
         //initialize globals
         values = new ContentValues();
         fields = new ArrayList<View>();    //?
@@ -227,6 +226,9 @@ public class MainActivity extends AppCompatActivity {
             Type = readFile.getType();
 
             switch (Type) {
+                case "id":
+                        showIdEntry(readFile.getArgs(),this);
+                    break;
                 case "camera":
                     if (readFile.getAnswer() == 1) {
                         buildCamera(readFile.getArgs());
@@ -243,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
                 case "gpsTracker":
                     if (readFile.getAnswer() == 1) {
-                        buildGpsTracker();
+                        buildGpsTracker(readFile.getArgs());
                         System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
@@ -264,6 +266,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void showIdEntry(String[] args, Context c) {
+        EditText idTxt = new EditText(this);
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("HELLO");
+        adb.setMessage("Enter ID");
+        adb.setView(idTxt);
+        adb.setPositiveButton("OKAY", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        adb.show();
+    }
     public void buildCamera(String[] args) {
         // build button
         // add column to SQLite table
@@ -289,9 +305,7 @@ public class MainActivity extends AppCompatActivity {
     public void buildGpsLoc(String[] args) {
         // build button
         // add column to SQLite table
-        if (args[2] != null) {
-            GPS_FREQ = Integer.parseInt(args[2]);
-        }
+
         final Button buildGPSLocButton = new Button(this);
 
         gpsLocation = buildGPSLocButton;
@@ -302,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
         buildGPSLocButton.setTextColor(Color.WHITE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 1, locationListener);
         }
         catch(SecurityException e){
 
@@ -320,7 +334,10 @@ public class MainActivity extends AppCompatActivity {
         a_view.addView(buildGPSLocButton);
     }
 
-    public void buildGpsTracker() {
+    public void buildGpsTracker(String[] args) {
+        if (args.length > 1 && args[2] != null) {
+            GPS_FREQ = Integer.parseInt(args[2]);
+        }
         sendGPS = true;
     }
 
@@ -377,15 +394,9 @@ public class MainActivity extends AppCompatActivity {
         t.setSingleLine();
         t.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1f));
 
-
-        //fields.add(uniqueText);
-
-
-
         box.addView(uniqueText);
         box.addView(l);
         l.addView(enterButton);
-
 
         layout.addView(box, editTextParams);
     }
