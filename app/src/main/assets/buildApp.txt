@@ -4,11 +4,11 @@ camera 1 camera
 
 // gpsLoc 1/0, latitude column, longitude column
 
-gpsLoc 1/0
+gpsLoc 1
 
 // gpsTracker 1/0, frequency, manual/automatic, latitude column, longitude column
 
-gpsTracker 1
+gpsTracker 1 2000
 
 // id, value of column
 id this
