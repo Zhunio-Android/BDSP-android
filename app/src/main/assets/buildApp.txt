@@ -1,14 +1,16 @@
 camera 1 camera
-//gpsLoc options - true/false, frequency, latitude column, longitude column
-gpsLoc 1 10000 lat long
 
-//gps tracker t/f, manual/automatic
+gpsLoc 1
+
+// gpsTracker t/f, frequency, manual/automatic, latitude column, longitude column
 gpsTracker 1
 
-//id, value of column
+// id, value of column
 id this
 
-//unique options - "unique", type, name
+// run
+
+// unique options - "unique", type, name
 unique camels
 unique tree
 unique age
