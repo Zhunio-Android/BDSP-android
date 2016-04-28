@@ -1,14 +1,19 @@
+// camera, 1, camera column
+
 camera 1 camera
 
-gpsLoc 1
+// gpsLoc 1/0, latitude column, longitude column
 
-// gpsTracker t/f, frequency, manual/automatic, latitude column, longitude column
+gpsLoc 1/0
+
+// gpsTracker 1/0, frequency, manual/automatic, latitude column, longitude column
+
 gpsTracker 1
 
 // id, value of column
 id this
 
-// run
+// run 1/0
 
 // unique options - "unique", type, name
 unique camels
