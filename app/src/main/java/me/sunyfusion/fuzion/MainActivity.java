@@ -292,6 +292,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 id_key = args[1];
                 id_value = idTxt.getText().toString();
+                System.out.printf("id_key=%s, id_value=%s\n",id_key,id_value);
             }
         });
         System.out.printf("key=%s, value=%s",id_key,id_value);
@@ -476,6 +477,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void resetButtonsAfterSave()
     {
+        values.put(id_key,id_value);
         db.insert("tasksTable", null, values);
         values = new ContentValues();
 
@@ -513,7 +515,6 @@ public class MainActivity extends AppCompatActivity {
         int cCount = c.getColumnCount();
         while(!c.isAfterLast()){
             jsonObject = new JSONObject();
-            jsonObject.put(id_key,id_value);
             for(int i = 0; i < cCount; i++) {
                 jsonObject.put(cNames[i],c.getString(i));
             }
