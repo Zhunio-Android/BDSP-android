@@ -6,7 +6,7 @@
 //TODO housekeeping, separate manual and automatically collected
 
 //TODO read run from input file, reset run to 0 at midnight
-//TODO in buildApp.txt, specify fields for GPS\
+//TODO in buildApp.txt, specify fields for GPS
 //TODO route ID prompt to FT
 
 
@@ -16,6 +16,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -31,6 +32,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -61,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
 
     // CONSTANTS
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
-    private static final String SUBMIT_URL = "https://sunyfusion-franzvz.c9users.io/ft_test/update.php";
-    //private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
+    //private static final String SUBMIT_URL = "https://sunyfusion-franzvz.c9users.io/ft_test/update.php";
+    private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
 
     //GLOBAL VARS
     static Uri imgUri;
@@ -71,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
     double longitude = -1;
     double gps_acc = -1000;
     int GPS_FREQ = 10000;
+    static String id_value;
+    static String id_key;
+    EditText idTxt;
     LocationManager locationManager;
     ArrayList<View> fields;
     LinearLayout.LayoutParams buttonDetails;
@@ -237,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
 
             switch (Type) {
                 case "id":
-                        showIdEntry(readFile.getArgs(),this);
+                    showIdEntry(readFile.getArgs(),this);
                     break;
                 case "camera":
                     if (readFile.getAnswer() == 1) {
@@ -262,10 +267,9 @@ public class MainActivity extends AppCompatActivity {
 
                 case "unique":
                     Name = readFile.getUniqueName();
-                    buildUniqueName(Name);
+                    buildUniqueName(readFile.getArgs(),Name);
                     System.out.println(Type + " " + readFile.getUniqueName());
                     break;
-
             }
         }
         while (!Type.equals("endFile"));
@@ -276,18 +280,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void showIdEntry(String[] args, Context c) {
-        EditText idTxt = new EditText(this);
+    public void showIdEntry(final String[] args, Context c) {
+        idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setTitle("HELLO");
-        adb.setMessage("Enter ID");
+        adb.setTitle("Fuzion");
+        adb.setMessage("Enter " + args[1]);
         adb.setView(idTxt);
-        adb.setPositiveButton("OKAY", new DialogInterface.OnClickListener() {
+        dbHelper.addColumn(db,args[1],"TEXT");
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
+                id_key = args[1];
+                id_value = idTxt.getText().toString();
             }
         });
+        System.out.printf("key=%s, value=%s",id_key,id_value);
         adb.show();
     }
     public void buildCamera(String[] args) {
@@ -351,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
         sendGPS = true;
     }
 
-    public void buildUniqueName(final String name) {
+    public void buildUniqueName(String[] args, final String name) {
         // build unique button
         // add column to SQLite table
 
@@ -389,8 +396,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         TextView uniqueText = new TextView(this);   // Unique label
-
-
         uniqueText.setText(name);
         uniqueText.setBackgroundColor(Color.TRANSPARENT);
         uniqueText.setTextColor(Color.WHITE);
@@ -419,31 +424,11 @@ public class MainActivity extends AppCompatActivity {
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                RequestParams params;
-                Cursor c = dbHelper.queueAll(db);
-                c.moveToNext();
-                String[] cNames = c.getColumnNames();
-                for(String s : cNames){
-                    System.out.print(s + ", ");
+                try {
+                    upload();
                 }
-                System.out.println();
-                int cCount = c.getColumnCount();
-                while(!c.isAfterLast()){
-                    params = new RequestParams();
-                    for(int i = 0; i < cCount; i++) {
-                        params.add(cNames[i],c.getString(i));
-                        System.out.print(c.getString(i) + ", ");
-                    }
-                    System.out.println();
-                    try {
-                        upload();
-                    }
-                    catch(Exception e) {
-                        Log.d("UPLOADER", "THAT DIDN'T WORK");
-                    }
-                    //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE
-                    db.delete("tasksTable","ID=" + c.getString(0),null);
-                    c.moveToNext();
+                catch(Exception e) {
+                    Log.d("UPLOADER", "THAT DIDN'T WORK");
                 }
             }
         });
@@ -528,8 +513,8 @@ public class MainActivity extends AppCompatActivity {
         int cCount = c.getColumnCount();
         while(!c.isAfterLast()){
             jsonObject = new JSONObject();
+            jsonObject.put(id_key,id_value);
             for(int i = 0; i < cCount; i++) {
-                //params.add(cNames[i],c.getString(i));
                 jsonObject.put(cNames[i],c.getString(i));
             }
             j.put(jsonObject);

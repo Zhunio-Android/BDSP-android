@@ -11,7 +11,7 @@ gpsLoc 1
 gpsTracker 1 2000
 
 // id, value of column
-id this
+id Truck
 
 // run 1/0
 
