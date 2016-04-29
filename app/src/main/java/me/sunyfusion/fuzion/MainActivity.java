@@ -468,7 +468,13 @@ public class MainActivity extends AppCompatActivity {
         saveButton.setTextColor(Color.BLACK);
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // submit to SQLITE database
+                values.put(id_key,id_value);
+                try {
+                    db.insert("tasksTable", null, values);
+                }
+                catch (SQLiteException e) {
+                    Log.d("Database", "ERROR inserting: " + e.toString());
+                }
                 resetButtonsAfterSave();
             }
         });
@@ -478,13 +484,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void resetButtonsAfterSave()
     {
-        values.put(id_key,id_value);
-        try {
-            db.insert("tasksTable", null, values);
-        }
-        catch (SQLiteException e) {
-            Log.d("Database", "ERROR inserting: " + e.toString());
-        }
         values = new ContentValues();
 
         if (cameraInUse == true)
