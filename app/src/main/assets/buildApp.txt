@@ -16,6 +16,6 @@ id this
 // run 1/0
 
 // unique options - "unique", type, name
-unique longitude
-unique latitude
+unique longitude number
+unique latitude text
 endFile
