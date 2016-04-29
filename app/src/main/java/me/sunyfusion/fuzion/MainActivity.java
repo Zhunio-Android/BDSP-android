@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -478,7 +479,12 @@ public class MainActivity extends AppCompatActivity {
     public void resetButtonsAfterSave()
     {
         values.put(id_key,id_value);
-        db.insert("tasksTable", null, values);
+        try {
+            db.insert("tasksTable", null, values);
+        }
+        catch (SQLiteException e) {
+            Log.d("Database", "ERROR inserting: " + e.toString());
+        }
         values = new ContentValues();
 
         if (cameraInUse == true)
