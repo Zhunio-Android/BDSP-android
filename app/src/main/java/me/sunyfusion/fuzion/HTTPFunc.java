@@ -50,7 +50,7 @@ public class HTTPFunc {
         catch(Exception e){
 
         }
-
+        client.setBasicAuth("SUNY","GreenTreeTables");
         client.post(c, url, entity, "application/json", new FileAsyncHttpResponseHandler(c) {
 
             @Override

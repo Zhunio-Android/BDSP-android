@@ -8,7 +8,7 @@ gpsLoc 1
 
 // gpsTracker 1/0, frequency, manual/automatic, latitude column, longitude column
 
-gpsTracker 1 2000
+gpsTracker 1 2000 test1 test2
 
 // id, value of column
 id Truck
@@ -16,6 +16,6 @@ id Truck
 // run 1/0
 
 // unique options - "unique", type, name
-unique longitude number
-unique latitude text
+unique latitude number
+unique longitude text
 endFile

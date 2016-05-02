@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     // CONSTANTS
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     //private static final String SUBMIT_URL = "https://sunyfusion-franzvz.c9users.io/ft_test/update.php";
-    private static final String SUBMIT_URL = "http://www.sunyfusion.me/sub_test/index.php";
+    private static final String SUBMIT_URL = "http://www.sunyfusion.me/ft_test/update.php";
 
     //GLOBAL VARS
     static Uri imgUri;
@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     int GPS_FREQ = 10000;
     static String id_value;
     static String id_key;
+    static String gps_tracker_lat;
+    static String gps_tracker_long;
     EditText idTxt;
     LocationManager locationManager;
     ArrayList<View> fields;
@@ -357,6 +359,12 @@ public class MainActivity extends AppCompatActivity {
         if (args.length > 1 && args[2] != null) {
             GPS_FREQ = Integer.parseInt(args[2]);
         }
+        if (args.length > 3) {
+            dbHelper.addColumn(db, args[3], "TEXT");
+            gps_tracker_lat = args[3];
+            gps_tracker_long = args[4];
+            dbHelper.addColumn(db, args[4], "TEXT");
+        }
         sendGPS = true;
     }
 
@@ -456,6 +464,13 @@ public class MainActivity extends AppCompatActivity {
         gps_acc = l.getAccuracy();
 
         if(sendGPS) {
+            if(gps_tracker_lat != null && gps_tracker_long != null) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(gps_tracker_lat, latitude);
+                contentValues.put(gps_tracker_long, longitude);
+                contentValues.put(id_key,id_value);
+                db.insert("tasksTable",null,contentValues);
+            }
             System.out.printf("Accuracy=%f,Longitude=%f,Latitude=%f\n",gps_acc,longitude, latitude); //Debug
         }
     }
