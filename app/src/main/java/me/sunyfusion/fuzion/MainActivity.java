@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     // CONSTANTS
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
     //private static final String SUBMIT_URL = "https://sunyfusion-franzvz.c9users.io/ft_test/update.php";
-    private static final String SUBMIT_URL = "http://www.sunyfusion.me/ft_test/update.php";
+    private static String SUBMIT_URL = "http://www.sunyfusion.me/ft_test/update.php";
 
     //GLOBAL VARS
     static Uri imgUri;
@@ -296,6 +296,8 @@ public class MainActivity extends AppCompatActivity {
                 id_key = args[1];
                 id_value = idTxt.getText().toString();
                 System.out.printf("id_key=%s, id_value=%s\n",id_key,id_value);
+                SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value;
+                System.out.println(SUBMIT_URL);
             }
         });
         System.out.printf("key=%s, value=%s",id_key,id_value);
@@ -337,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
         buildGPSLocButton.setTextColor(Color.WHITE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 1, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
         }
         catch(SecurityException e){
 
@@ -526,17 +528,18 @@ public class MainActivity extends AppCompatActivity {
         JSONArray j = new JSONArray();
         JSONObject jsonObject;
         Cursor c = dbHelper.queueAll(db);
+        if(c.getCount() == 0)   //Does not submit if database is empty
+            return;
         c.moveToNext();
         String[] cNames = c.getColumnNames();
-        for(String s : cNames){
-            System.out.print(s + ", ");
-        }
+
         System.out.println();
         int cCount = c.getColumnCount();
         while(!c.isAfterLast()){
             jsonObject = new JSONObject();
             for(int i = 0; i < cCount; i++) {
-                jsonObject.put(cNames[i],c.getString(i));
+                if(!cNames[i].equals("ID"))
+                    jsonObject.put(cNames[i],c.getString(i));
             }
             j.put(jsonObject);
             //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE, MD5?
@@ -547,6 +550,6 @@ public class MainActivity extends AppCompatActivity {
         JSONObject params = new JSONObject();
         params.put("data",j);
         httpFunc.doHTTPpost(SUBMIT_URL,j,imgUri);
-
+        c.close();
     }
 }

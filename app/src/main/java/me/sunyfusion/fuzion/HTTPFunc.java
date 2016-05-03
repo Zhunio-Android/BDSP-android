@@ -62,6 +62,8 @@ public class HTTPFunc {
             public void onSuccess(int statusCode, Header[] headers, File response) {
                 //Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
                 //toast.show();
+                Toast toast = Toast.makeText(c, "Success" + statusCode, Toast.LENGTH_LONG);
+                toast.show();
                 Log.i("UPLOAD", "SUCCESS");
             }
 
