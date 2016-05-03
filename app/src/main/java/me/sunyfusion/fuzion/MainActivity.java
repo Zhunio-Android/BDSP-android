@@ -276,6 +276,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case "datetime":
                     date = new DateHelper(readFile.getArgs()[1]);
+                    dbHelper.addColumn(db,readFile.getArgs()[1],"TEXT");
                     break;
             }
         }
