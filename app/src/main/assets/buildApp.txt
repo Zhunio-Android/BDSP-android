@@ -15,6 +15,8 @@ id Text
 
 // run 1/0
 
+datetime Date
+
 // unique options - "unique", type, name
 unique Number number
 //unique longitude text

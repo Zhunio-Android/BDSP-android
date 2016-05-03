@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     static DatabaseHelper dbHelper;
     static SQLiteDatabase db;
     static HTTPFunc httpFunc;
+    DateHelper date;
     ContentValues values;
 
     //LAYOUTS
@@ -272,6 +273,9 @@ public class MainActivity extends AppCompatActivity {
                     Name = readFile.getUniqueName();
                     buildUniqueName(readFile.getArgs(),Name);
                     System.out.println(Type + " " + readFile.getUniqueName());
+                    break;
+                case "datetime":
+                    date = new DateHelper(readFile.getArgs()[1]);
                     break;
             }
         }
@@ -470,6 +474,7 @@ public class MainActivity extends AppCompatActivity {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(gps_tracker_lat, latitude);
                 contentValues.put(gps_tracker_long, longitude);
+                date.insertDate(contentValues);
                 contentValues.put(id_key,id_value);
                 db.insert("tasksTable",null,contentValues);
             }
@@ -486,6 +491,7 @@ public class MainActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 values.put(id_key,id_value);
+                date.insertDate(values);
                 try {
                     db.insert("tasksTable", null, values);
                 }
