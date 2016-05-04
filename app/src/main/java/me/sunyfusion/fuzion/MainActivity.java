@@ -1,4 +1,4 @@
-//TODO have datatypes option for unique fields
+//TODO have datatypes option for unique fields - shelved
 //TODO autoincrement field
 //TODO section function - auto increment by date on field
 //TODO flagged fields - allow binary
@@ -6,8 +6,8 @@
 //TODO housekeeping, separate manual and automatically collected
 
 //TODO read run from input file, reset run to 0 at midnight
-//TODO in buildApp.txt, specify fields for GPS
-//TODO route ID prompt to FT
+//TODO add fields for GPS feedback
+//TODO possible background service for GPS tracking
 
 
 package me.sunyfusion.fuzion;
@@ -16,6 +16,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -29,6 +30,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -88,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     static DatabaseHelper dbHelper;
     static SQLiteDatabase db;
     static HTTPFunc httpFunc;
+    PowerManager.WakeLock wakelock;
     DateHelper date;
     ContentValues values;
 
@@ -104,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<ImageButton> uniqueButtonsReferences = new ArrayList<ImageButton>();
     ArrayList<EditText> uniqueButtonsEnterReferences = new ArrayList<EditText>();
     private final int MenuItem_EditId = 1, MenuItem_DeleteId = 0;
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor prefEditor;
 
     /**
      * Runs on startup, creates the layout when the activity is created.
@@ -114,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        prefEditor = sharedPref.edit();
         //initialize globals
         values = new ContentValues();
         fields = new ArrayList<View>();    //?
@@ -185,6 +192,12 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
 
     }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        db.close();
+        wakelock.release();
+    }
 
     /**
      * Receives all intents returned by activities when returning to this activity.
@@ -197,9 +210,9 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode,resultCode,data);
         if (resultCode == RESULT_OK) {
-            Toast.makeText(this, "Img saved to:\n" +
-                    data.getData(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Img saved successfully", Toast.LENGTH_LONG).show();
             imgUri = data.getData();
         }
     }
@@ -217,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
         File s = new File(f.getPath() + File.separator + timeStamp + ".jpg");
         Uri uri = Uri.fromFile(s);
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
@@ -254,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
-                //TODO re-separate tracker and locator
                 case "gpsLoc":
                     if (readFile.getAnswer() == 1) {
                         buildGpsLoc(readFile.getArgs());
@@ -288,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void showIdEntry(final String[] args, Context c) {
+    public void showIdEntry(final String[] args, final Context c) {
         idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle("Fuzion");
@@ -298,13 +311,19 @@ public class MainActivity extends AppCompatActivity {
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                id_key = args[1];
-                id_value = idTxt.getText().toString();
-                System.out.printf("id_key=%s, id_value=%s\n",id_key,id_value);
-                SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value;
-                System.out.println(SUBMIT_URL);
+                if(idTxt.getText().toString().equals("")){
+                    showIdEntry(args,c);
+                }
+                else {
+                    id_key = args[1];
+                    id_value = idTxt.getText().toString();
+                    System.out.printf("id_key=%s, id_value=%s\n", id_key, id_value);
+                    SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value;
+                    System.out.println(SUBMIT_URL);
+                }
             }
         });
+        adb.setCancelable(false);
         System.out.printf("key=%s, value=%s",id_key,id_value);
         adb.show();
     }
@@ -363,6 +382,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void buildGpsTracker(String[] args) {
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Fuzion");
+        wakelock.acquire();
         if (args.length > 1 && args[2] != null) {
             GPS_FREQ = Integer.parseInt(args[2]);
         }
@@ -470,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
 
-        if(sendGPS) {
+        if(sendGPS && id_key != null) {
             if(gps_tracker_lat != null && gps_tracker_long != null) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(gps_tracker_lat, latitude);
@@ -559,4 +581,5 @@ public class MainActivity extends AppCompatActivity {
         httpFunc.doHTTPpost(SUBMIT_URL,j,imgUri);
         c.close();
     }
+
 }
