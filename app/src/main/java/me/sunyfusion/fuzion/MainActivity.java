@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     //GLOBAL VARS
     static Uri imgUri;
     static boolean sendGPS = false;
+    static boolean sendRun = false;
     double latitude = -1;
     double longitude = -1;
     double gps_acc = 1000;
@@ -115,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         prefEditor = sharedPref.edit();
+
         //initialize globals
         values = new ContentValues();
         httpFunc = new HTTPFunc(this);
@@ -156,7 +158,9 @@ public class MainActivity extends AppCompatActivity {
 
         mainFrame.addView(scroll, scrollParameters);
 
+        //Setup environment
         dbHelper = new DatabaseHelper(this);
+        Run.checkDate(this, sharedPref);
 
         //buildSubmit();
         dispatch();
@@ -171,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         UpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
         Log.i("NET", "Network Connected: " + UpdateReceiver.netConnected);
+        Run.checkDate(this, sharedPref);
     }
 
     @Override
@@ -278,6 +283,12 @@ public class MainActivity extends AppCompatActivity {
                 case "datetime":
                     date = new DateHelper(readFile.getArgs()[1]);
                     dbHelper.addColumn(db,readFile.getArgs()[1],"TEXT");
+                    break;
+                case "run":
+                    dbHelper.addColumn(db, readFile.getArgs()[2], "TEXT");
+                    sendRun = true;
+                    break;
+                default:
                     break;
             }
         }
@@ -428,13 +439,15 @@ public class MainActivity extends AppCompatActivity {
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
 
-        if(sendGPS && id_key != null && gps_acc <= 50) {
+        if(sendGPS && id_key != null && gps_acc <= 50f) {
             if(gps_tracker_lat != null && gps_tracker_long != null) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(gps_tracker_lat, latitude);
                 contentValues.put(gps_tracker_long, longitude);
                 date.insertDate(contentValues);
                 contentValues.put(id_key,id_value);
+                Run.checkDate(getApplication(), sharedPref);
+                Run.insert(getApplication(), sharedPref, contentValues);
                 db.insert("tasksTable",null,contentValues);
             }
             System.out.printf("Accuracy=%f,Longitude=%f,Latitude=%f\n",gps_acc,longitude, latitude); //Debug
@@ -448,6 +461,11 @@ public class MainActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 values.put(id_key,id_value);
+
+                Run.checkDate(getApplication(), sharedPref);          // Compares dates for persistent variables
+                Run.insert(getApplication(), sharedPref, values);   // Inserts persistent into ContentValue object
+                Run.increment(sharedPref);                          // Increments persistent variable
+
                 for(Unique u : uniqueButtonsReferences){
                     String uText = u.getText();
                     if(!uText.isEmpty()) {
