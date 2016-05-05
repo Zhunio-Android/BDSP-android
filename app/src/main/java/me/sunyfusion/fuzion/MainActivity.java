@@ -17,8 +17,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.XmlResourceParser;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -35,15 +33,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.MediaStore;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -51,10 +44,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -81,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     static boolean sendGPS = false;
     double latitude = -1;
     double longitude = -1;
-    double gps_acc = -1000;
+    double gps_acc = 1000;
     int GPS_FREQ = 10000;
     static String id_value;
     static String id_key;
@@ -89,10 +79,7 @@ public class MainActivity extends AppCompatActivity {
     static String gps_tracker_long;
     EditText idTxt;
     LocationManager locationManager;
-    ArrayList<View> fields;
-    LinearLayout.LayoutParams buttonDetails;
-    LinearLayout.LayoutParams editTextParams;
-    LinearLayout.LayoutParams bottomButtonDetails;
+    LinearLayout.LayoutParams defaultLayoutParams;
     LinearLayout.LayoutParams scrollParameters;
     static DatabaseHelper dbHelper;
     static SQLiteDatabase db;
@@ -130,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
         prefEditor = sharedPref.edit();
         //initialize globals
         values = new ContentValues();
-        fields = new ArrayList<View>();    //?
         httpFunc = new HTTPFunc(this);
 
         //setup layouts
@@ -156,23 +142,10 @@ public class MainActivity extends AppCompatActivity {
         }
         catch(IOException e){}
 
-        buttonDetails = new
-        LinearLayout.LayoutParams(
+        defaultLayoutParams = new LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
-        buttonDetails.setMargins(0, 10, 0, 10);
-
-        editTextParams = new
-                LinearLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        editTextParams.setMargins(0, 10, 0, 10);
-
-        bottomButtonDetails = new
-                LinearLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-                bottomButtonDetails.setMargins(0, 10, 0, 10);
+        defaultLayoutParams.setMargins(0, 10, 0, 10);
 
         scrollParameters = new
                 LinearLayout.LayoutParams(
@@ -435,7 +408,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        layout.addView(submitButton, buttonDetails);
+        layout.addView(submitButton, defaultLayoutParams);
     }
     //GPS CODE
     LocationListener locationListener = new LocationListener() {
@@ -455,7 +428,7 @@ public class MainActivity extends AppCompatActivity {
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
 
-        if(sendGPS && id_key != null) {
+        if(sendGPS && id_key != null && gps_acc <= 50) {
             if(gps_tracker_lat != null && gps_tracker_long != null) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(gps_tracker_lat, latitude);
@@ -500,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mainFrame.addView(saveButton, bottomButtonDetails);
+        mainFrame.addView(saveButton, defaultLayoutParams);
     }
 
     public void resetButtonsAfterSave()
