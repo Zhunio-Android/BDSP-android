@@ -18,9 +18,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.XmlResourceParser;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -39,10 +42,12 @@ import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -57,6 +62,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -97,15 +104,15 @@ public class MainActivity extends AppCompatActivity {
     //LAYOUTS
     private static LinearLayout layout;
     private static LinearLayout a_view;
-    private static LinearLayout mainFrame;;
+    private static LinearLayout mainFrame;
+    private static RelativeLayout logoLayout;
 
     //GLOBAL BOOLEANS FOR FEATURES
     Boolean cameraInUse = false;
     Boolean gpsLocationInUse = false;
     ImageButton camera;
     Button gpsLocation;
-    ArrayList<ImageButton> uniqueButtonsReferences = new ArrayList<ImageButton>();
-    ArrayList<EditText> uniqueButtonsEnterReferences = new ArrayList<EditText>();
+    ArrayList<Unique> uniqueButtonsReferences = new ArrayList<Unique>();
     private final int MenuItem_EditId = 1, MenuItem_DeleteId = 0;
     SharedPreferences sharedPref;
     SharedPreferences.Editor prefEditor;
@@ -133,6 +140,21 @@ public class MainActivity extends AppCompatActivity {
         mainFrame = new LinearLayout(this);
         mainFrame.setOrientation(LinearLayout.VERTICAL);
         setContentView(mainFrame);
+        logoLayout = new RelativeLayout(this);
+        ImageView logoView = new ImageView(this);
+        try {
+            InputStream logoAsset = this.getAssets().open("logo.png");
+            Bitmap logo = BitmapFactory.decodeStream(logoAsset);
+            logoView.setImageBitmap(logo);
+            logoLayout.addView(logoView);
+            logoView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT));
+            RelativeLayout.LayoutParams logoParams = (RelativeLayout.LayoutParams)logoView.getLayoutParams();
+            logoParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            logoView.setLayoutParams(logoParams);
+            a_view.addView(logoLayout);
+            logoLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT,1f));
+        }
+        catch(IOException e){}
 
         buttonDetails = new
         LinearLayout.LayoutParams(
@@ -163,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
 
         dbHelper = new DatabaseHelper(this);
 
-        buildSubmit();
+        //buildSubmit();
         dispatch();
         buildSave();
     }
@@ -176,15 +198,6 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         UpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
         Log.i("NET", "Network Connected: " + UpdateReceiver.netConnected);
-        if(UpdateReceiver.netConnected) {
-            try {
-                upload();
-            }
-            catch(Exception e) {
-                Log.d("UPLOADER", "THAT DIDN'T WORK");
-            }
-        }
-
     }
 
     @Override
@@ -284,8 +297,10 @@ public class MainActivity extends AppCompatActivity {
 
                 case "unique":
                     Name = readFile.getUniqueName();
-                    buildUniqueName(readFile.getArgs(),Name);
-                    System.out.println(Type + " " + readFile.getUniqueName());
+                    Unique u = new Unique(this,readFile.getArgs());
+                    layout.addView(u.getView());
+                    dbHelper.addColumn(db, Name, "TEXT");
+                    uniqueButtonsReferences.add(u);
                     break;
                 case "datetime":
                     date = new DateHelper(readFile.getArgs()[1]);
@@ -335,18 +350,20 @@ public class MainActivity extends AppCompatActivity {
         dbHelper.addColumn(db, name, "TEXT");
         camera = cameraButton;
         cameraInUse = true;
+        cameraButton.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT));
 
-        cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-              LayoutParams.WRAP_CONTENT));
+        //cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
+              //LayoutParams.WRAP_CONTENT));
         cameraButton.setImageResource(android.R.drawable.ic_menu_camera);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getImage();
-                cameraButton.setBackgroundColor(Color.YELLOW);
             }
         });
-        a_view.addView(cameraButton);
-
+        logoLayout.addView(cameraButton);
+        RelativeLayout.LayoutParams cameraParams = (RelativeLayout.LayoutParams)cameraButton.getLayoutParams();
+        cameraParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+        cameraButton.setLayoutParams(cameraParams);
     }
 
     public void buildGpsLoc(String[] args) {
@@ -357,9 +374,12 @@ public class MainActivity extends AppCompatActivity {
 
         gpsLocation = buildGPSLocButton;
         gpsLocationInUse = true;
-
+        final String latColumn = args[2];
+        final String longColumn = args[3];
+        dbHelper.addColumn(db,latColumn,"TEXT");
+        dbHelper.addColumn(db,longColumn,"TEXT");
         buildGPSLocButton.setText("GPS Location");
-
+        buildGPSLocButton.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT));
         buildGPSLocButton.setTextColor(Color.WHITE);
         locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         try {
@@ -370,15 +390,17 @@ public class MainActivity extends AppCompatActivity {
         }
         buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                buildGPSLocButton.setBackgroundColor(Color.YELLOW);
-                buildGPSLocButton.setText("REDO GPS LOCATION");
-                buildGPSLocButton.setTextColor(Color.BLACK);
+                buildGPSLocButton.setText("REDO GPS");
+                values.put(latColumn,latitude);
+                values.put(longColumn,longitude);
                 Toast toast = Toast.makeText(getApplicationContext(),"Long:" + longitude + " Lat:" + latitude,Toast.LENGTH_SHORT);
                 toast.show();
             }
         });
-
-        a_view.addView(buildGPSLocButton);
+        logoLayout.addView(buildGPSLocButton);
+        RelativeLayout.LayoutParams gpsParams = (RelativeLayout.LayoutParams)buildGPSLocButton.getLayoutParams();
+        gpsParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        buildGPSLocButton.setLayoutParams(gpsParams);
     }
 
     public void buildGpsTracker(String[] args) {
@@ -397,70 +419,11 @@ public class MainActivity extends AppCompatActivity {
         sendGPS = true;
     }
 
-    public void buildUniqueName(String[] args, final String name) {
-        // build unique button
-        // add column to SQLite table
-
-        dbHelper.addColumn(db, name, "TEXT");
-
-        LinearLayout box = new LinearLayout(this);   // layout to wrap the whole thing
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setBackgroundColor(Color.BLACK);    // Can use transparent if you want for the background color.
-        box.setPadding(0, 10, 0, 10);
-
-        LinearLayout l = new LinearLayout(this);   // layout for the text entry and the enter button
-        l.setOrientation(LinearLayout.HORIZONTAL);
-
-        final EditText t = new EditText(this);    // makes the edit text field
-        uniqueButtonsEnterReferences.add(t);
-        final ImageButton enterButton = new ImageButton(this);    // Enter Button creation
-
-        uniqueButtonsReferences.add(enterButton);
-
-        enterButton.setImageResource(android.R.drawable.ic_input_add);
-        //enterButton.setBackgroundColor(Color.GREEN);
-
-        enterButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                enterButton.setImageResource(android.R.drawable.ic_menu_edit);
-
-                // test to write to ContentsValue object
-                t.setHint(t.getText());
-                t.setHintTextColor(Color.GRAY);
-
-                values.put(name, t.getText().toString());
-                System.out.println(name + " " + values.get(name).toString());
-                t.getText().clear();
-            }
-        });
-
-        TextView uniqueText = new TextView(this);   // Unique label
-        uniqueText.setText(name);
-        uniqueText.setBackgroundColor(Color.TRANSPARENT);
-        uniqueText.setTextColor(Color.WHITE);
-        uniqueText.setPadding(15, 0, 0, 0);
-
-        t.setTextColor(Color.BLACK);
-
-        l.addView(t);
-        t.setBackgroundColor(Color.WHITE);
-
-        t.setSingleLine();
-        t.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1f));
-
-        box.addView(uniqueText);
-        box.addView(l);
-        l.addView(enterButton);
-
-        layout.addView(box, editTextParams);
-    }
-
     public void buildSubmit() {
         Button submitButton = new Button(this);
         submitButton.setText("Submit All Data");
         submitButton.setBackgroundColor(Color.BLACK);
         submitButton.setTextColor(Color.WHITE);
-
         submitButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 try {
@@ -509,11 +472,15 @@ public class MainActivity extends AppCompatActivity {
     public void buildSave() {
         Button saveButton = new Button(this);
         saveButton.setText("Save");
-        saveButton.setBackgroundColor(Color.GREEN);
-        saveButton.setTextColor(Color.BLACK);
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 values.put(id_key,id_value);
+                for(Unique u : uniqueButtonsReferences){
+                    String uText = u.getText();
+                    if(!uText.isEmpty()) {
+                        values.put(u.getName(), u.getText());
+                    }
+                }
                 date.insertDate(values);
                 try {
                     db.insert("tasksTable", null, values);
@@ -522,6 +489,14 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("Database", "ERROR inserting: " + e.toString());
                 }
                 resetButtonsAfterSave();
+                if(UpdateReceiver.netConnected) {
+                    try {
+                        upload();
+                    }
+                    catch(Exception e) {
+                        Log.d("UPLOADER", "THAT DIDN'T WORK");
+                    }
+                }
             }
         });
 
@@ -534,22 +509,16 @@ public class MainActivity extends AppCompatActivity {
 
         if (cameraInUse == true)
         {
-            camera.setBackgroundColor(Color.BLACK);
             camera.setImageResource(android.R.drawable.ic_menu_camera);
         }
 
         if (gpsLocationInUse == true)
         {
-            gpsLocation.setBackgroundColor(Color.BLACK);
-            gpsLocation.setTextColor(Color.WHITE);
             gpsLocation.setText("GPS LOCATION");
         }
 
-        for (int i = 0; i < uniqueButtonsReferences.size(); i++)
-        {
-            uniqueButtonsReferences.get(i).setImageResource(android.R.drawable.ic_input_add);
-            uniqueButtonsEnterReferences.get(i).setHint("");
-            uniqueButtonsEnterReferences.get(i).getText().clear();
+        for(Unique u : uniqueButtonsReferences) {
+            u.clearText();
         }
 
     }

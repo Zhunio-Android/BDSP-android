@@ -22,4 +22,10 @@ public class DateHelper {
 
         v.put(dateColumnName,cdt);
     }
+    public String getDate() {
+        SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd H:m:s");
+        d.setTimeZone(TimeZone.getDefault());
+        String cdt = d.format(new Date());
+        return cdt;
+    }
 }
