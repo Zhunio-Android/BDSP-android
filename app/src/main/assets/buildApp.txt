@@ -11,10 +11,12 @@ gpsLoc 1 latitude longitude
 gpsTracker 1 2000 latTrack longTrack
 
 // id, value of column
-id Text
+id ID
 
 //run 1/0
 run 1 run
+table FT2
+email jett925@gmail.com
 
 datetime Date
 

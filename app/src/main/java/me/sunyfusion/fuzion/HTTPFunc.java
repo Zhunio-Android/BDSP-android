@@ -48,7 +48,7 @@ public class HTTPFunc {
             entity = new StringEntity(jsonParams.toString());
         }
         catch(Exception e){
-
+            System.out.println(e);
         }
         client.setBasicAuth("SUNY","GreenTreeTables");
         client.post(c, url, entity, "application/json", new FileAsyncHttpResponseHandler(c) {

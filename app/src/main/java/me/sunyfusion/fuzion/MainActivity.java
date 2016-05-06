@@ -78,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     static String id_key;
     static String gps_tracker_lat;
     static String gps_tracker_long;
+    static String email;
+    static String table;
     EditText idTxt;
     LocationManager locationManager;
     LinearLayout.LayoutParams defaultLayoutParams;
@@ -250,6 +252,9 @@ public class MainActivity extends AppCompatActivity {
             Type = readFile.getType();
 
             switch (Type) {
+                case "email":
+                    email = readFile.getArgs()[1];
+                    break;
                 case "id":
                     showIdEntry(readFile.getArgs(),this);
                     break;
@@ -283,6 +288,9 @@ public class MainActivity extends AppCompatActivity {
                 case "datetime":
                     date = new DateHelper(readFile.getArgs()[1]);
                     dbHelper.addColumn(db,readFile.getArgs()[1],"TEXT");
+                    break;
+                case "table":
+                    table = readFile.getArgs()[1];
                     break;
                 case "run":
                     dbHelper.addColumn(db, readFile.getArgs()[2], "TEXT");
@@ -318,6 +326,7 @@ public class MainActivity extends AppCompatActivity {
                     id_value = idTxt.getText().toString();
                     System.out.printf("id_key=%s, id_value=%s\n", id_key, id_value);
                     SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value;
+                    SUBMIT_URL += "&email=" + email + "&table=" + table;
                     System.out.println(SUBMIT_URL);
                 }
             }
@@ -393,6 +402,13 @@ public class MainActivity extends AppCompatActivity {
         wakelock.acquire();
         if (args.length > 1 && args[2] != null) {
             GPS_FREQ = Integer.parseInt(args[2]);
+            try {
+                locationManager.removeUpdates(locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
+            }
+            catch(SecurityException e){
+
+            }
         }
         if (args.length > 3) {
             dbHelper.addColumn(db, args[3], "TEXT");
@@ -527,13 +543,13 @@ public class MainActivity extends AppCompatActivity {
         while(!c.isAfterLast()){
             jsonObject = new JSONObject();
             for(int i = 0; i < cCount; i++) {
-                if(!cNames[i].equals("ID"))
+                if(!cNames[i].equals("unique_table_id"))
                     jsonObject.put(cNames[i],c.getString(i));
             }
             j.put(jsonObject);
             //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE, MD5?
             //OR DELETE AT END
-            db.delete("tasksTable","ID=" + c.getString(0),null);
+            db.delete("tasksTable","unique_table_id=" + c.getString(0),null);
             c.moveToNext();
         }
         JSONObject params = new JSONObject();

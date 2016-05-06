@@ -23,7 +23,7 @@ public class DateHelper {
         v.put(dateColumnName,cdt);
     }
     public static String getDate() {
-        SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd H:m");
+        SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd");
         d.setTimeZone(TimeZone.getDefault());
         String cdt = d.format(new Date());
         return cdt;
