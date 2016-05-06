@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         prefEditor = sharedPref.edit();
-
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //initialize globals
         values = new ContentValues();
         httpFunc = new HTTPFunc(this);
@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
                     id_key = args[1];
-                    id_value = idTxt.getText().toString();
+                    id_value = idTxt.getText().toString().replace(' ','_');
                     System.out.printf("id_key=%s, id_value=%s\n", id_key, id_value);
                     SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value;
                     SUBMIT_URL += "&email=" + email + "&table=" + table;
@@ -374,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         buildGPSLocButton.setText("GPS Location");
         buildGPSLocButton.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT));
         buildGPSLocButton.setTextColor(Color.WHITE);
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
         try {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
         }
