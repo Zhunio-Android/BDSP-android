@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     static Uri imgUri;
     static boolean sendGPS = false;
     static boolean sendRun = false;
+    static boolean locOnSub = false;
     double latitude = -1;
     double longitude = -1;
     double gps_acc = 1000;
@@ -252,6 +253,9 @@ public class MainActivity extends AppCompatActivity {
             Type = readFile.getType();
 
             switch (Type) {
+                case "locOnSub" :
+                    locOnSub = true;
+                    break;
                 case "email":
                     email = readFile.getArgs()[1];
                     break;
@@ -270,14 +274,12 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
-
                 case "gpsTracker":
                     if (readFile.getAnswer() == 1) {
                         buildGpsTracker(readFile.getArgs());
                         System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
-
                 case "unique":
                     Name = readFile.getUniqueName();
                     Unique u = new Unique(this,readFile.getArgs());
@@ -403,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
         if (args.length > 1 && args[2] != null) {
             GPS_FREQ = Integer.parseInt(args[2]);
             try {
-                locationManager.removeUpdates(locationListener);
+                //locationManager.removeUpdates(locationListener);
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
             }
             catch(SecurityException e){
@@ -417,6 +419,7 @@ public class MainActivity extends AppCompatActivity {
             dbHelper.addColumn(db, args[4], "TEXT");
         }
         sendGPS = true;
+        System.out.println("SENDGPS = " + sendGPS);
     }
 
     public void buildSubmit() {
@@ -441,6 +444,7 @@ public class MainActivity extends AppCompatActivity {
     LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             // Called when a new location is found by the network location provider.
+            System.out.println("enter onLocationChanged");
             makeUseOfNewLocation(location);
         }
         public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -454,6 +458,7 @@ public class MainActivity extends AppCompatActivity {
         latitude = l.getLatitude();
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
+        System.out.println("sent to db pre if");
 
         if(sendGPS && id_key != null && gps_acc <= 50f) {
             if(gps_tracker_lat != null && gps_tracker_long != null) {
@@ -462,6 +467,7 @@ public class MainActivity extends AppCompatActivity {
                 contentValues.put(gps_tracker_long, longitude);
                 date.insertDate(contentValues);
                 contentValues.put(id_key,id_value);
+                System.out.println("sent to db");
                 Run.checkDate(getApplication(), sharedPref);
                 Run.insert(getApplication(), sharedPref, contentValues);
                 db.insert("tasksTable",null,contentValues);
@@ -481,7 +487,10 @@ public class MainActivity extends AppCompatActivity {
                 Run.checkDate(getApplication(), sharedPref);          // Compares dates for persistent variables
                 Run.insert(getApplication(), sharedPref, values);   // Inserts persistent into ContentValue object
                 Run.increment(sharedPref);                          // Increments persistent variable
-
+                if(locOnSub) {
+                    values.put("longitude",longitude);
+                    values.put("latitude",latitude);
+                }
                 for(Unique u : uniqueButtonsReferences){
                     String uText = u.getText();
                     if(!uText.isEmpty()) {
