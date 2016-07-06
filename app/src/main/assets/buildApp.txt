@@ -1,26 +1,30 @@
 // camera, 1, camera column
 
-camera 1 camera
+camera 0 camera
 
 // gpsLoc 1/0, latitude column, longitude column
 
-gpsLoc 1 latitude longitude
+gpsLoc 0 latitude longitude
 
 // gpsTracker 1/0, frequency, manual/automatic, latitude column, longitude column
 
 gpsTracker 1 2000 latTrack longTrack
 
 // id, value of column
-id ID
+id truck_number
 
 //run 1/0
+
 run 1 run
-table FT2
+table HelloFusion
 email jett925@gmail.com
 
-datetime Date
+datetime date
 
 // unique options - "unique", type, name
-unique Number number
+unique Cat
+unique Dog
+unique Bird
+locOnSub 1
 //unique longitude text
 endFile

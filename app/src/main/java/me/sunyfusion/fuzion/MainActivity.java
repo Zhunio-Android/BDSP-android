@@ -5,10 +5,16 @@
 //TODO manual or incremental field - trigger = field, reset = how you want to reset (daily or no reset)
 //TODO housekeeping, separate manual and automatically collected
 
-//TODO read run from input file, reset run to 0 at midnight
 //TODO add fields for GPS feedback
 //TODO possible background service for GPS tracking
+/*
 
+Bugfixes todo
+no manual entry causes issue
+not syncing every day causes issue
+move to one line per run on FT
+
+ */
 
 package me.sunyfusion.fuzion;
 
@@ -91,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     PowerManager.WakeLock wakelock;
     DateHelper date;
     ContentValues values;
+    RelativeLayout.LayoutParams wrapContent_matchParent = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT);
 
     //LAYOUTS
     private static LinearLayout layout;
@@ -253,8 +260,10 @@ public class MainActivity extends AppCompatActivity {
             Type = readFile.getType();
 
             switch (Type) {
-                case "locOnSub" :
+                case "locOnSub":
                     locOnSub = true;
+                    dbHelper.addColumn(db,"latitude","TEXT");
+                    dbHelper.addColumn(db,"longitude","TEXT");
                     break;
                 case "email":
                     email = readFile.getArgs()[1];
@@ -303,17 +312,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         while (!Type.equals("endFile"));
-        Cursor dbCursor = db.query("tasksTable", null, null, null, null, null, null);
-        String[] columnNames = dbCursor.getColumnNames();
-        for(String s : columnNames){
-            System.out.println(s);
-        }
     }
 
     public void showIdEntry(final String[] args, final Context c) {
         idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setTitle("Fuzion");
+        adb.setTitle("Login");
         adb.setMessage("Enter " + args[1]);
         adb.setView(idTxt);
         dbHelper.addColumn(db,args[1],"TEXT");
@@ -345,10 +349,7 @@ public class MainActivity extends AppCompatActivity {
         dbHelper.addColumn(db, name, "TEXT");
         camera = cameraButton;
         cameraInUse = true;
-        cameraButton.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT));
-
-        //cameraButton.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-              //LayoutParams.WRAP_CONTENT));
+        cameraButton.setLayoutParams(wrapContent_matchParent);
         cameraButton.setImageResource(android.R.drawable.ic_menu_camera);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -374,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
         dbHelper.addColumn(db,latColumn,"TEXT");
         dbHelper.addColumn(db,longColumn,"TEXT");
         buildGPSLocButton.setText("GPS Location");
-        buildGPSLocButton.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT));
+        buildGPSLocButton.setLayoutParams(wrapContent_matchParent);
         buildGPSLocButton.setTextColor(Color.WHITE);
 
         try {
@@ -405,7 +406,6 @@ public class MainActivity extends AppCompatActivity {
         if (args.length > 1 && args[2] != null) {
             GPS_FREQ = Integer.parseInt(args[2]);
             try {
-                //locationManager.removeUpdates(locationListener);
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
             }
             catch(SecurityException e){
@@ -458,7 +458,6 @@ public class MainActivity extends AppCompatActivity {
         latitude = l.getLatitude();
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
-        System.out.println("sent to db pre if");
 
         if(sendGPS && id_key != null && gps_acc <= 50f) {
             if(gps_tracker_lat != null && gps_tracker_long != null) {
@@ -467,12 +466,10 @@ public class MainActivity extends AppCompatActivity {
                 contentValues.put(gps_tracker_long, longitude);
                 date.insertDate(contentValues);
                 contentValues.put(id_key,id_value);
-                System.out.println("sent to db");
                 Run.checkDate(getApplication(), sharedPref);
                 Run.insert(getApplication(), sharedPref, contentValues);
                 db.insert("tasksTable",null,contentValues);
             }
-            System.out.printf("Accuracy=%f,Longitude=%f,Latitude=%f\n",gps_acc,longitude, latitude); //Debug
         }
     }
     //END GPS CODE
