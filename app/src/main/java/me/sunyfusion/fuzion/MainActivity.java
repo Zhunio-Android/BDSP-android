@@ -74,21 +74,17 @@ public class MainActivity extends AppCompatActivity {
 
     //GLOBAL VARS
     static Uri imgUri;
-    static boolean sendGPS = false;
+
     static boolean sendRun = false;
     static boolean locOnSub = false;
-    double latitude = -1;
-    double longitude = -1;
-    double gps_acc = 1000;
-    int GPS_FREQ = 10000;
+
     static String id_value;
     static String id_key;
-    static String gps_tracker_lat;
-    static String gps_tracker_long;
+
     static String email;
     static String table;
     EditText idTxt;
-    LocationManager locationManager;
+
     LinearLayout.LayoutParams defaultLayoutParams;
     LinearLayout.LayoutParams scrollParameters;
     static DatabaseHelper dbHelper;
@@ -126,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
         prefEditor = sharedPref.edit();
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //initialize globals
         values = new ContentValues();
         httpFunc = new HTTPFunc(this);
@@ -274,19 +269,16 @@ public class MainActivity extends AppCompatActivity {
                 case "camera":
                     if (readFile.getAnswer() == 1) {
                         buildCamera(readFile.getArgs());
-                        System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
                 case "gpsLoc":
                     if (readFile.getAnswer() == 1) {
                         buildGpsLoc(readFile.getArgs());
-                        System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
                 case "gpsTracker":
                     if (readFile.getAnswer() == 1) {
-                        buildGpsTracker(readFile.getArgs());
-                        System.out.println(Type + " " + readFile.getAnswer());
+                        UiBuilder.gpsTracker(readFile.getArgs());
                     }
                     break;
                 case "unique":
@@ -379,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
         buildGPSLocButton.setTextColor(Color.WHITE);
 
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSHelper.getGpsFreq(), 0, locationListener);
         }
         catch(SecurityException e){
 
@@ -399,28 +391,7 @@ public class MainActivity extends AppCompatActivity {
         buildGPSLocButton.setLayoutParams(gpsParams);
     }
 
-    public void buildGpsTracker(String[] args) {
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Fuzion");
-        wakelock.acquire();
-        if (args.length > 1 && args[2] != null) {
-            GPS_FREQ = Integer.parseInt(args[2]);
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
-            }
-            catch(SecurityException e){
 
-            }
-        }
-        if (args.length > 3) {
-            dbHelper.addColumn(db, args[3], "TEXT");
-            gps_tracker_lat = args[3];
-            gps_tracker_long = args[4];
-            dbHelper.addColumn(db, args[4], "TEXT");
-        }
-        sendGPS = true;
-        System.out.println("SENDGPS = " + sendGPS);
-    }
 
     public void buildSubmit() {
         Button submitButton = new Button(this);
@@ -440,38 +411,7 @@ public class MainActivity extends AppCompatActivity {
 
         layout.addView(submitButton, defaultLayoutParams);
     }
-    //GPS CODE
-    LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            // Called when a new location is found by the network location provider.
-            System.out.println("enter onLocationChanged");
-            makeUseOfNewLocation(location);
-        }
-        public void onStatusChanged(String provider, int status, Bundle extras) {}
 
-        public void onProviderEnabled(String provider) {}
-
-        public void onProviderDisabled(String provider) {}
-    };
-
-    private void makeUseOfNewLocation(Location l){
-        latitude = l.getLatitude();
-        longitude = l.getLongitude();
-        gps_acc = l.getAccuracy();
-
-        if(sendGPS && id_key != null && gps_acc <= 50f) {
-            if(gps_tracker_lat != null && gps_tracker_long != null) {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(gps_tracker_lat, latitude);
-                contentValues.put(gps_tracker_long, longitude);
-                date.insertDate(contentValues);
-                contentValues.put(id_key,id_value);
-                Run.checkDate(getApplication(), sharedPref);
-                Run.insert(getApplication(), sharedPref, contentValues);
-                db.insert("tasksTable",null,contentValues);
-            }
-        }
-    }
     //END GPS CODE
 
     public void buildSave() {

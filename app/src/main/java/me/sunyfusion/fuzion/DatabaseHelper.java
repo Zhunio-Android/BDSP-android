@@ -15,6 +15,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Tasks.db";
     public static final String TABLE_NAME = "tasksTable";
+    public static SQLiteDatabase db;
 
     public DatabaseHelper(Context context)
     {
@@ -47,5 +48,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
         Cursor cursor = db.query("tasksTable", null, null,
                 null, null, null, null);
         return cursor;
+    }
+
+    public static SQLiteDatabase getCurrentDB() {
+        return db;
     }
 }

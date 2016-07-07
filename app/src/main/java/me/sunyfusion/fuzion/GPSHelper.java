@@ -1,7 +1,76 @@
 package me.sunyfusion.fuzion;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+
 /**
  * Created by jesse on 7/5/16.
  */
 public class GPSHelper {
+    LocationManager locationManager;
+    Context context;
+
+    public GPSHelper(Context c) {
+        context = c;
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    private static int GPS_FREQ = 10000;
+    double latitude = -1;
+    double longitude = -1;
+    double gps_acc = 1000;
+    static String gps_tracker_lat;
+    static String gps_tracker_long;
+    static boolean sendGPS = false;
+
+    LocationListener locationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            // Called when a new location is found by the network location provider.
+            makeUseOfNewLocation(location);
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        public void onProviderEnabled(String provider) {
+        }
+
+        public void onProviderDisabled(String provider) {
+        }
+    };
+
+    private ContentValues makeUseOfNewLocation(Location l) {
+        latitude = l.getLatitude();
+        longitude = l.getLongitude();
+        gps_acc = l.getAccuracy();
+
+        if (sendGPS && id_key != null && gps_acc <= 50f) {
+            if (gps_tracker_lat != null && gps_tracker_long != null) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(gps_tracker_lat, latitude);
+                contentValues.put(gps_tracker_long, longitude);
+                date.insertDate(contentValues);
+                contentValues.put(id_key, id_value);
+                Run.checkDate(getApplication(), sharedPref);
+                Run.insert(getApplication(), sharedPref, contentValues);
+                DatabaseHelper.getCurrentDB().insert("tasksTable", null, contentValues);
+            }
+        }
+    }
+
+    public static int getGpsFreq() {
+        return GPS_FREQ;
+    }
+
+    public static void setGpsFreq(int f) {
+        GPS_FREQ = f;
+    }
+
+    public void startLocationUpdates() throws SecurityException {
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSHelper.getGpsFreq(), 0, locationListener);
+    }
 }
