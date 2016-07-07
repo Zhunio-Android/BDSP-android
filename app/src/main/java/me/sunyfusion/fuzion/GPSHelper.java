@@ -2,6 +2,7 @@ package me.sunyfusion.fuzion;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,8 +21,8 @@ public class GPSHelper {
     }
 
     private static int GPS_FREQ = 10000;
-    double latitude = -1;
-    double longitude = -1;
+    static double latitude = -1;
+    static double longitude = -1;
     double gps_acc = 1000;
     static String gps_tracker_lat;
     static String gps_tracker_long;
@@ -43,20 +44,23 @@ public class GPSHelper {
         }
     };
 
-    private ContentValues makeUseOfNewLocation(Location l) {
+    private void makeUseOfNewLocation(Location l) {
         latitude = l.getLatitude();
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
+        DateHelper date = new DateHelper("date");
+        SharedPreferences sharedPref = context.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
 
-        if (sendGPS && id_key != null && gps_acc <= 50f) {
+
+        if (sendGPS && MainActivity.id_key != null && gps_acc <= 50f) {
             if (gps_tracker_lat != null && gps_tracker_long != null) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(gps_tracker_lat, latitude);
                 contentValues.put(gps_tracker_long, longitude);
                 date.insertDate(contentValues);
-                contentValues.put(id_key, id_value);
-                Run.checkDate(getApplication(), sharedPref);
-                Run.insert(getApplication(), sharedPref, contentValues);
+                contentValues.put(MainActivity.id_key, MainActivity.id_value);
+                Run.checkDate(context, sharedPref);
+                Run.insert(context, sharedPref, contentValues);
                 DatabaseHelper.getCurrentDB().insert("tasksTable", null, contentValues);
             }
         }

@@ -1,6 +1,6 @@
 package me.sunyfusion.fuzion;
 
-import android.location.LocationManager;
+import android.content.Context;
 import android.os.PowerManager;
 
 /**
@@ -8,8 +8,10 @@ import android.os.PowerManager;
  */
 public class UiBuilder {
 
-    public void gpsTracker(String[] args, DatabaseHelper dbHelper) {
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+    public static PowerManager.WakeLock wakelock;
+
+    public static void gpsTracker(String[] args, DatabaseHelper dbHelper, Context c) {
+        PowerManager powerManager = (PowerManager) c.getSystemService(Context.POWER_SERVICE);
         wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Fuzion");
         wakelock.acquire();
         if (args.length > 1 && args[2] != null) {
@@ -27,6 +29,6 @@ public class UiBuilder {
             dbHelper.addColumn(DatabaseHelper.db, args[4], "TEXT");
         }
         GPSHelper.sendGPS = true;
-        System.out.println("SENDGPS = " + sendGPS);
     }
+
 }

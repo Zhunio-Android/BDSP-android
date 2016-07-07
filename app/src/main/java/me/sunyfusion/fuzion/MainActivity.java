@@ -29,8 +29,6 @@ import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -90,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     static DatabaseHelper dbHelper;
     static SQLiteDatabase db;
     static HTTPFunc httpFunc;
-    PowerManager.WakeLock wakelock;
+    static GPSHelper gpsHelper;
     DateHelper date;
     ContentValues values;
     RelativeLayout.LayoutParams wrapContent_matchParent = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -120,11 +118,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        sharedPref = this.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         prefEditor = sharedPref.edit();
         //initialize globals
         values = new ContentValues();
         httpFunc = new HTTPFunc(this);
+        gpsHelper = new GPSHelper(this);
 
         //setup layouts
         a_view = (LinearLayout) Layout.createActionBar(this, getSupportActionBar());
@@ -192,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         db.close();
-        wakelock.release();
+        UiBuilder.wakelock.release();
     }
 
     /**
@@ -278,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case "gpsTracker":
                     if (readFile.getAnswer() == 1) {
-                        UiBuilder.gpsTracker(readFile.getArgs());
+                        UiBuilder.gpsTracker(readFile.getArgs(), dbHelper, this);
                     }
                     break;
                 case "unique":
@@ -371,13 +370,15 @@ public class MainActivity extends AppCompatActivity {
         buildGPSLocButton.setTextColor(Color.WHITE);
 
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSHelper.getGpsFreq(), 0, locationListener);
+            gpsHelper.startLocationUpdates();
         }
         catch(SecurityException e){
 
         }
         buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                double latitude = GPSHelper.latitude;
+                double longitude = GPSHelper.longitude;
                 buildGPSLocButton.setText("REDO GPS");
                 values.put(latColumn,latitude);
                 values.put(longColumn,longitude);
@@ -402,8 +403,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     upload();
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     Log.d("UPLOADER", "THAT DIDN'T WORK");
                 }
             }
@@ -412,14 +412,15 @@ public class MainActivity extends AppCompatActivity {
         layout.addView(submitButton, defaultLayoutParams);
     }
 
-    //END GPS CODE
-
     public void buildSave() {
         Button saveButton = new Button(this);
         saveButton.setText("Save");
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 values.put(id_key,id_value);
+
+                double latitude = GPSHelper.latitude;
+                double longitude = GPSHelper.longitude;
 
                 Run.checkDate(getApplication(), sharedPref);          // Compares dates for persistent variables
                 Run.insert(getApplication(), sharedPref, values);   // Inserts persistent into ContentValue object
