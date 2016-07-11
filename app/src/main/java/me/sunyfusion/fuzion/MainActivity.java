@@ -11,8 +11,6 @@
 
 Bugfixes todo
 no manual entry causes issue
-not syncing every day causes issue
-
  */
 
 package me.sunyfusion.fuzion;
@@ -483,9 +481,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         c.moveToNext();
         String[] cNames = c.getColumnNames();
-        ArrayList<String> toDelete = new ArrayList<String>();
 
-        System.out.println();
         int cCount = c.getColumnCount();
         while(!c.isAfterLast()){
             jsonObject = new JSONObject();
