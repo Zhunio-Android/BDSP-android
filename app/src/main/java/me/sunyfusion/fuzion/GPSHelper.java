@@ -20,7 +20,7 @@ public class GPSHelper {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
 
-    private static int GPS_FREQ = 10000;
+    private static int GPS_FREQ = 1000;
     static double latitude = -1;
     static double longitude = -1;
     double gps_acc = 1000;
@@ -52,7 +52,7 @@ public class GPSHelper {
         SharedPreferences sharedPref = context.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
 
 
-        if (sendGPS && MainActivity.id_key != null && gps_acc <= 50f) {
+        if (sendGPS && MainActivity.id_key != null && gps_acc <= 300f) {
             if (gps_tracker_lat != null && gps_tracker_long != null) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(gps_tracker_lat, latitude);
@@ -61,7 +61,7 @@ public class GPSHelper {
                 contentValues.put(MainActivity.id_key, MainActivity.id_value);
                 Run.checkDate(context, sharedPref);
                 Run.insert(context, sharedPref, contentValues);
-                DatabaseHelper.getCurrentDB().insert("tasksTable", null, contentValues);
+                MainActivity.dbHelper.getCurrentDB().insert("tasksTable", null, contentValues);
             }
         }
     }

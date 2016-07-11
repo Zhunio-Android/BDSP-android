@@ -26,13 +26,11 @@ import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -58,6 +56,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
@@ -101,8 +100,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean gpsLocationInUse = false;
     ImageButton camera;
     Button gpsLocation;
-    ArrayList<Unique> uniqueButtonsReferences = new ArrayList<Unique>();
-    private final int MenuItem_EditId = 1, MenuItem_DeleteId = 0;
+    ArrayList<Unique> uniqueButtonsReferences = new ArrayList<>();
     SharedPreferences sharedPref;
     SharedPreferences.Editor prefEditor;
 
@@ -142,8 +140,9 @@ public class MainActivity extends AppCompatActivity {
             logoView.setLayoutParams(logoParams);
             a_view.addView(logoLayout);
             logoLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT,1f));
+        } catch (IOException e) {
+            Log.d("IO", "IO error getting logo");
         }
-        catch(IOException e){}
 
         defaultLayoutParams = new LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -162,8 +161,6 @@ public class MainActivity extends AppCompatActivity {
         //Setup environment
         dbHelper = new DatabaseHelper(this);
         Run.checkDate(this, sharedPref);
-
-        //buildSubmit();
         dispatch();
         buildSave();
     }
@@ -218,11 +215,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void getImage() {
         File f = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File s = new File(f.getPath() + File.separator + timeStamp + ".jpg");
+        File s;
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        if (f != null) {
+            s = new File(f.getPath() + File.separator + timeStamp + ".jpg");
+        } else return;
         Uri uri = Uri.fromFile(s);
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
@@ -260,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                     email = readFile.getArgs()[1];
                     break;
                 case "id":
-                    showIdEntry(readFile.getArgs(),this);
+                    showIdEntry(readFile.getArgs());
                     break;
                 case "camera":
                     if (readFile.getAnswer() == 1) {
@@ -302,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         while (!Type.equals("endFile"));
     }
 
-    public void showIdEntry(final String[] args, final Context c) {
+    public void showIdEntry(final String[] args) {
         idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle("Login");
@@ -313,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(idTxt.getText().toString().equals("")){
-                    showIdEntry(args,c);
+                    showIdEntry(args);
                 }
                 else {
                     id_key = args[1];
@@ -370,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
             gpsHelper.startLocationUpdates();
         }
         catch(SecurityException e){
-
+            Log.d("BDSP", "Error getting location updates");
         }
         buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -387,26 +386,6 @@ public class MainActivity extends AppCompatActivity {
         RelativeLayout.LayoutParams gpsParams = (RelativeLayout.LayoutParams)buildGPSLocButton.getLayoutParams();
         gpsParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         buildGPSLocButton.setLayoutParams(gpsParams);
-    }
-
-
-
-    public void buildSubmit() {
-        Button submitButton = new Button(this);
-        submitButton.setText("Submit All Data");
-        submitButton.setBackgroundColor(Color.BLACK);
-        submitButton.setTextColor(Color.WHITE);
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    upload();
-                } catch (Exception e) {
-                    Log.d("UPLOADER", "THAT DIDN'T WORK");
-                }
-            }
-        });
-
-        layout.addView(submitButton, defaultLayoutParams);
     }
 
     public void buildSave() {
@@ -458,12 +437,12 @@ public class MainActivity extends AppCompatActivity {
     {
         values = new ContentValues();
 
-        if (cameraInUse == true)
+        if (cameraInUse)
         {
             camera.setImageResource(android.R.drawable.ic_menu_camera);
         }
 
-        if (gpsLocationInUse == true)
+        if (gpsLocationInUse)
         {
             gpsLocation.setText("GPS LOCATION");
         }
