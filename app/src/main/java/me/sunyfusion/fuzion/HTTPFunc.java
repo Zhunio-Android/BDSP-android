@@ -51,6 +51,8 @@ public class HTTPFunc {
             System.out.println(e);
         }
         client.setBasicAuth("SUNY","GreenTreeTables");
+        client.setTimeout(20000);
+        client.setMaxRetriesAndTimeout(0, 1);
         client.post(c, url, entity, "application/json", new FileAsyncHttpResponseHandler(c) {
 
             @Override
@@ -60,16 +62,15 @@ public class HTTPFunc {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File response) {
-                //Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
-                //toast.show();
-                Toast toast = Toast.makeText(c, "Success" + statusCode, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
                 Log.i("UPLOAD", "SUCCESS");
+                MainActivity.dbHelper.emptyDeleteQueue();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                Toast toast = Toast.makeText(c, "Failed" + statusCode, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(c, "Failed " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
             }
 

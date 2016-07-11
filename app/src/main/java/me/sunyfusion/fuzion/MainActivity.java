@@ -12,7 +12,6 @@
 Bugfixes todo
 no manual entry causes issue
 not syncing every day causes issue
-move to one line per run on FT
 
  */
 
@@ -484,6 +483,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         c.moveToNext();
         String[] cNames = c.getColumnNames();
+        ArrayList<String> toDelete = new ArrayList<String>();
 
         System.out.println();
         int cCount = c.getColumnCount();
@@ -494,9 +494,7 @@ public class MainActivity extends AppCompatActivity {
                     jsonObject.put(cNames[i],c.getString(i));
             }
             j.put(jsonObject);
-            //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE, MD5?
-            //OR DELETE AT END
-            db.delete("tasksTable","unique_table_id=" + c.getString(0),null);
+            dbHelper.deleteQueue.add(c.getString(0));
             c.moveToNext();
         }
         JSONObject params = new JSONObject();

@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+
 /**
  * Created by Robert Wieland on 3/26/16.
  */
@@ -17,9 +19,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public static final String TABLE_NAME = "tasksTable";
     public static SQLiteDatabase db;
 
+    public ArrayList<String> deleteQueue;
+
     public DatabaseHelper(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        db = this.getWritableDatabase();
+        deleteQueue = new ArrayList<String>();
     }
 
     @Override
@@ -50,7 +56,13 @@ public class DatabaseHelper extends SQLiteOpenHelper
         return cursor;
     }
 
-    public static SQLiteDatabase getCurrentDB() {
+    public SQLiteDatabase getCurrentDB() {
         return db;
+    }
+
+    public void emptyDeleteQueue() {
+        for (String table_id : deleteQueue) {
+            db.delete("tasksTable", "unique_table_id=" + table_id, null);
+        }
     }
 }
