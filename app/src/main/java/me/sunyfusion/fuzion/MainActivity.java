@@ -11,9 +11,6 @@
 
 Bugfixes todo
 no manual entry causes issue
-not syncing every day causes issue
-move to one line per run on FT
-
  */
 
 package me.sunyfusion.fuzion;
@@ -29,15 +26,11 @@ import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PowerManager;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -63,6 +56,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
@@ -74,27 +68,23 @@ public class MainActivity extends AppCompatActivity {
 
     //GLOBAL VARS
     static Uri imgUri;
-    static boolean sendGPS = false;
+
     static boolean sendRun = false;
     static boolean locOnSub = false;
-    double latitude = -1;
-    double longitude = -1;
-    double gps_acc = 1000;
-    int GPS_FREQ = 10000;
+
     static String id_value;
     static String id_key;
-    static String gps_tracker_lat;
-    static String gps_tracker_long;
+
     static String email;
     static String table;
     EditText idTxt;
-    LocationManager locationManager;
+
     LinearLayout.LayoutParams defaultLayoutParams;
     LinearLayout.LayoutParams scrollParameters;
     static DatabaseHelper dbHelper;
     static SQLiteDatabase db;
     static HTTPFunc httpFunc;
-    PowerManager.WakeLock wakelock;
+    static GPSHelper gpsHelper;
     DateHelper date;
     ContentValues values;
     RelativeLayout.LayoutParams wrapContent_matchParent = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -110,8 +100,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean gpsLocationInUse = false;
     ImageButton camera;
     Button gpsLocation;
-    ArrayList<Unique> uniqueButtonsReferences = new ArrayList<Unique>();
-    private final int MenuItem_EditId = 1, MenuItem_DeleteId = 0;
+    ArrayList<Unique> uniqueButtonsReferences = new ArrayList<>();
     SharedPreferences sharedPref;
     SharedPreferences.Editor prefEditor;
 
@@ -124,12 +113,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        sharedPref = this.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         prefEditor = sharedPref.edit();
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         //initialize globals
         values = new ContentValues();
         httpFunc = new HTTPFunc(this);
+        gpsHelper = new GPSHelper(this);
 
         //setup layouts
         a_view = (LinearLayout) Layout.createActionBar(this, getSupportActionBar());
@@ -151,8 +140,9 @@ public class MainActivity extends AppCompatActivity {
             logoView.setLayoutParams(logoParams);
             a_view.addView(logoLayout);
             logoLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT,1f));
+        } catch (IOException e) {
+            Log.d("IO", "IO error getting logo");
         }
-        catch(IOException e){}
 
         defaultLayoutParams = new LinearLayout.LayoutParams(
                 RelativeLayout.LayoutParams.MATCH_PARENT,
@@ -171,8 +161,6 @@ public class MainActivity extends AppCompatActivity {
         //Setup environment
         dbHelper = new DatabaseHelper(this);
         Run.checkDate(this, sharedPref);
-
-        //buildSubmit();
         dispatch();
         buildSave();
     }
@@ -197,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         db.close();
-        wakelock.release();
+        UiBuilder.wakelock.release();
     }
 
     /**
@@ -227,11 +215,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void getImage() {
         File f = getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        File s = new File(f.getPath() + File.separator + timeStamp + ".jpg");
+        File s;
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        if (f != null) {
+            s = new File(f.getPath() + File.separator + timeStamp + ".jpg");
+        } else return;
         Uri uri = Uri.fromFile(s);
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
@@ -269,24 +259,21 @@ public class MainActivity extends AppCompatActivity {
                     email = readFile.getArgs()[1];
                     break;
                 case "id":
-                    showIdEntry(readFile.getArgs(),this);
+                    showIdEntry(readFile.getArgs());
                     break;
                 case "camera":
                     if (readFile.getAnswer() == 1) {
                         buildCamera(readFile.getArgs());
-                        System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
                 case "gpsLoc":
                     if (readFile.getAnswer() == 1) {
                         buildGpsLoc(readFile.getArgs());
-                        System.out.println(Type + " " + readFile.getAnswer());
                     }
                     break;
                 case "gpsTracker":
                     if (readFile.getAnswer() == 1) {
-                        buildGpsTracker(readFile.getArgs());
-                        System.out.println(Type + " " + readFile.getAnswer());
+                        UiBuilder.gpsTracker(readFile.getArgs(), dbHelper, this);
                     }
                     break;
                 case "unique":
@@ -314,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         while (!Type.equals("endFile"));
     }
 
-    public void showIdEntry(final String[] args, final Context c) {
+    public void showIdEntry(final String[] args) {
         idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle("Login");
@@ -325,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(idTxt.getText().toString().equals("")){
-                    showIdEntry(args,c);
+                    showIdEntry(args);
                 }
                 else {
                     id_key = args[1];
@@ -379,13 +366,15 @@ public class MainActivity extends AppCompatActivity {
         buildGPSLocButton.setTextColor(Color.WHITE);
 
         try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
+            gpsHelper.startLocationUpdates();
         }
         catch(SecurityException e){
-
+            Log.d("BDSP", "Error getting location updates");
         }
         buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                double latitude = GPSHelper.latitude;
+                double longitude = GPSHelper.longitude;
                 buildGPSLocButton.setText("REDO GPS");
                 values.put(latColumn,latitude);
                 values.put(longColumn,longitude);
@@ -399,87 +388,15 @@ public class MainActivity extends AppCompatActivity {
         buildGPSLocButton.setLayoutParams(gpsParams);
     }
 
-    public void buildGpsTracker(String[] args) {
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Fuzion");
-        wakelock.acquire();
-        if (args.length > 1 && args[2] != null) {
-            GPS_FREQ = Integer.parseInt(args[2]);
-            try {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPS_FREQ, 0, locationListener);
-            }
-            catch(SecurityException e){
-
-            }
-        }
-        if (args.length > 3) {
-            dbHelper.addColumn(db, args[3], "TEXT");
-            gps_tracker_lat = args[3];
-            gps_tracker_long = args[4];
-            dbHelper.addColumn(db, args[4], "TEXT");
-        }
-        sendGPS = true;
-        System.out.println("SENDGPS = " + sendGPS);
-    }
-
-    public void buildSubmit() {
-        Button submitButton = new Button(this);
-        submitButton.setText("Submit All Data");
-        submitButton.setBackgroundColor(Color.BLACK);
-        submitButton.setTextColor(Color.WHITE);
-        submitButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    upload();
-                }
-                catch(Exception e) {
-                    Log.d("UPLOADER", "THAT DIDN'T WORK");
-                }
-            }
-        });
-
-        layout.addView(submitButton, defaultLayoutParams);
-    }
-    //GPS CODE
-    LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            // Called when a new location is found by the network location provider.
-            System.out.println("enter onLocationChanged");
-            makeUseOfNewLocation(location);
-        }
-        public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-        public void onProviderEnabled(String provider) {}
-
-        public void onProviderDisabled(String provider) {}
-    };
-
-    private void makeUseOfNewLocation(Location l){
-        latitude = l.getLatitude();
-        longitude = l.getLongitude();
-        gps_acc = l.getAccuracy();
-
-        if(sendGPS && id_key != null && gps_acc <= 50f) {
-            if(gps_tracker_lat != null && gps_tracker_long != null) {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(gps_tracker_lat, latitude);
-                contentValues.put(gps_tracker_long, longitude);
-                date.insertDate(contentValues);
-                contentValues.put(id_key,id_value);
-                Run.checkDate(getApplication(), sharedPref);
-                Run.insert(getApplication(), sharedPref, contentValues);
-                db.insert("tasksTable",null,contentValues);
-            }
-        }
-    }
-    //END GPS CODE
-
     public void buildSave() {
         Button saveButton = new Button(this);
         saveButton.setText("Save");
         saveButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 values.put(id_key,id_value);
+
+                double latitude = GPSHelper.latitude;
+                double longitude = GPSHelper.longitude;
 
                 Run.checkDate(getApplication(), sharedPref);          // Compares dates for persistent variables
                 Run.insert(getApplication(), sharedPref, values);   // Inserts persistent into ContentValue object
@@ -520,12 +437,12 @@ public class MainActivity extends AppCompatActivity {
     {
         values = new ContentValues();
 
-        if (cameraInUse == true)
+        if (cameraInUse)
         {
             camera.setImageResource(android.R.drawable.ic_menu_camera);
         }
 
-        if (gpsLocationInUse == true)
+        if (gpsLocationInUse)
         {
             gpsLocation.setText("GPS LOCATION");
         }
@@ -544,7 +461,6 @@ public class MainActivity extends AppCompatActivity {
         c.moveToNext();
         String[] cNames = c.getColumnNames();
 
-        System.out.println();
         int cCount = c.getColumnCount();
         while(!c.isAfterLast()){
             jsonObject = new JSONObject();
@@ -553,9 +469,7 @@ public class MainActivity extends AppCompatActivity {
                     jsonObject.put(cNames[i],c.getString(i));
             }
             j.put(jsonObject);
-            //TODO NOT A SAFE WAY TO DELETE, LOOK TO REVISE, MD5?
-            //OR DELETE AT END
-            db.delete("tasksTable","unique_table_id=" + c.getString(0),null);
+            dbHelper.deleteQueue.add(c.getString(0));
             c.moveToNext();
         }
         JSONObject params = new JSONObject();

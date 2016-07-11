@@ -1,9 +1,7 @@
 package me.sunyfusion.fuzion;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -45,15 +43,19 @@ public class Unique {
         box.addView(uniqueText);
         box.addView(l);
     }
+
     public String getText() {
         return t.getText().toString();
     }
+
     public LinearLayout getView() {
         return box;
     }
+
     public String getName(){
         return name;
     }
+
     public void clearText() {
         t.getText().clear();
     }
