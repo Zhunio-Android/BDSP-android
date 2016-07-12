@@ -43,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
     static String email;
     static String table;
     EditText idTxt;
+    static TextView gpsAcc;
 
     LinearLayout.LayoutParams defaultLayoutParams;
     LinearLayout.LayoutParams scrollParameters;
@@ -299,6 +301,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         while (!Type.equals("endFile"));
+        gpsAcc = new TextView(this);
+        layout.addView(gpsAcc);
+        gpsAcc.setText("No lock");
+
     }
 
     public void showIdEntry(final String[] args) {

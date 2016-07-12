@@ -64,6 +64,7 @@ public class GPSHelper {
                 MainActivity.dbHelper.getCurrentDB().insert("tasksTable", null, contentValues);
             }
         }
+        MainActivity.gpsAcc.setText(String.valueOf(gps_acc));
     }
 
     public static int getGpsFreq() {
