@@ -34,6 +34,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -115,6 +116,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+        getSupportActionBar().setLogo(R.mipmap.logo);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
+
         sharedPref = this.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         prefEditor = sharedPref.edit();
         //initialize globals
@@ -123,12 +130,13 @@ public class MainActivity extends AppCompatActivity {
         gpsHelper = new GPSHelper(this);
 
         //setup layouts
-        a_view = (LinearLayout) Layout.createActionBar(this, getSupportActionBar());
+        a_view = (LinearLayout) new LinearLayout(this);
         layout = (LinearLayout) Layout.createMainLayout(this);
         ScrollView scroll = Layout.makeScroll(this,layout);
         mainFrame = new LinearLayout(this);
         mainFrame.setOrientation(LinearLayout.VERTICAL);
-        setContentView(mainFrame);
+
+
         logoLayout = new RelativeLayout(this);
         ImageView logoView = new ImageView(this);
         try {
