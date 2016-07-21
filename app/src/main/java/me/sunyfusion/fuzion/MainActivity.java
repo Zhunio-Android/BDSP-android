@@ -23,9 +23,6 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -34,16 +31,16 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,15 +50,13 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Scanner;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     // CONSTANTS
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
@@ -74,29 +69,16 @@ public class MainActivity extends AppCompatActivity {
     static boolean sendRun = false;
     static boolean locOnSub = false;
 
-    static String id_value;
-    static String id_key;
-
-    static String email;
-    static String table;
+    static String id_value, id_key;
+    static String email, table;
     EditText idTxt;
-    static TextView gpsAcc;
 
-    LinearLayout.LayoutParams defaultLayoutParams;
-    LinearLayout.LayoutParams scrollParameters;
     static DatabaseHelper dbHelper;
     static SQLiteDatabase db;
     static HTTPFunc httpFunc;
     static GPSHelper gpsHelper;
     DateHelper date;
     ContentValues values;
-    RelativeLayout.LayoutParams wrapContent_matchParent = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT);
-
-    //LAYOUTS
-    private static LinearLayout layout;
-    private static LinearLayout a_view;
-    private static LinearLayout mainFrame;
-    private static RelativeLayout logoLayout;
 
     //GLOBAL BOOLEANS FOR FEATURES
     Boolean cameraInUse = false;
@@ -106,6 +88,11 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Unique> uniqueButtonsReferences = new ArrayList<>();
     SharedPreferences sharedPref;
     SharedPreferences.Editor prefEditor;
+
+
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
 
     /**
      * Runs on startup, creates the layout when the activity is created.
@@ -122,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setLogo(R.mipmap.logo);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
 
+        dbHelper = new DatabaseHelper(this);
         sharedPref = this.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         prefEditor = sharedPref.edit();
         //initialize globals
@@ -129,57 +117,33 @@ public class MainActivity extends AppCompatActivity {
         httpFunc = new HTTPFunc(this);
         gpsHelper = new GPSHelper(this);
 
-        //setup layouts
-        a_view = (LinearLayout) new LinearLayout(this);
-        layout = (LinearLayout) Layout.createMainLayout(this);
-        ScrollView scroll = Layout.makeScroll(this,layout);
-        mainFrame = new LinearLayout(this);
-        mainFrame.setOrientation(LinearLayout.VERTICAL);
+        ArrayList<Unique> uniques = dispatch();
+        UniqueAdapter adapter = new UniqueAdapter(uniques);
+        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
 
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setItemViewCacheSize(uniques.size());
 
-        logoLayout = new RelativeLayout(this);
-        ImageView logoView = new ImageView(this);
-        try {
-            InputStream logoAsset = this.getAssets().open("logo.png");
-            Bitmap logo = BitmapFactory.decodeStream(logoAsset);
-            logoView.setImageBitmap(logo);
-            logoLayout.addView(logoView);
-            logoView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,RelativeLayout.LayoutParams.MATCH_PARENT));
-            RelativeLayout.LayoutParams logoParams = (RelativeLayout.LayoutParams)logoView.getLayoutParams();
-            logoParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            logoView.setLayoutParams(logoParams);
-            a_view.addView(logoLayout);
-            logoLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT,1f));
-        } catch (IOException e) {
-            Log.d("IO", "IO error getting logo");
-        }
+        // use a linear layout manager
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
 
-        defaultLayoutParams = new LinearLayout.LayoutParams(
-                RelativeLayout.LayoutParams.MATCH_PARENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-        defaultLayoutParams.setMargins(0, 10, 0, 10);
-
-        scrollParameters = new
-                LinearLayout.LayoutParams(
-                                RelativeLayout.LayoutParams.MATCH_PARENT,
-                                RelativeLayout.LayoutParams.WRAP_CONTENT);
-                scrollParameters.setMargins(0, 10, 0, 10);
-                scrollParameters.weight = 1; //if not added the scroll will push the save button off screen
-
-        mainFrame.addView(scroll, scrollParameters);
+        // specify an adapter (see also next example)
+        mAdapter = new UniqueAdapter(uniques);
+        mRecyclerView.setAdapter(mAdapter);
 
         //Setup environment
-        dbHelper = new DatabaseHelper(this);
         Run.checkDate(this, sharedPref);
-        dispatch();
-        buildSave();
+        //buildSave();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         ConnectivityManager connectivityManager = (ConnectivityManager)
-            this.getSystemService(Context.CONNECTIVITY_SERVICE );
+                this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         UpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
         Log.i("NET", "Network Connected: " + UpdateReceiver.netConnected);
@@ -191,8 +155,9 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
 
     }
+
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         db.close();
         UiBuilder.wakelock.release();
@@ -209,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             Toast.makeText(this, "Img saved successfully", Toast.LENGTH_LONG).show();
             imgUri = data.getData();
@@ -236,7 +201,8 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
 
-    public void dispatch() {
+    public ArrayList<Unique> dispatch() {
+        ArrayList<Unique> uniques = new ArrayList<Unique>();
         String Type;
         String Name;
         Scanner infile = null;
@@ -262,8 +228,8 @@ public class MainActivity extends AppCompatActivity {
             switch (Type) {
                 case "locOnSub":
                     locOnSub = true;
-                    dbHelper.addColumn(db,"latitude","TEXT");
-                    dbHelper.addColumn(db,"longitude","TEXT");
+                    dbHelper.addColumn(db, "latitude", "TEXT");
+                    dbHelper.addColumn(db, "longitude", "TEXT");
                     break;
                 case "email":
                     email = readFile.getArgs()[1];
@@ -288,14 +254,13 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case "unique":
                     Name = readFile.getUniqueName();
-                    Unique u = new Unique(this,readFile.getArgs());
-                    layout.addView(u.getView());
+                    Unique u = new Unique(this, readFile.getArgs());
+                    uniques.add(u);
                     dbHelper.addColumn(db, Name, "TEXT");
-                    uniqueButtonsReferences.add(u);
                     break;
                 case "datetime":
                     date = new DateHelper(readFile.getArgs()[1]);
-                    dbHelper.addColumn(db,readFile.getArgs()[1],"TEXT");
+                    dbHelper.addColumn(db, readFile.getArgs()[1], "TEXT");
                     break;
                 case "table":
                     table = readFile.getArgs()[1];
@@ -309,10 +274,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         while (!Type.equals("endFile"));
-        gpsAcc = new TextView(this);
-        layout.addView(gpsAcc);
-        gpsAcc.setText("No lock");
-
+        return uniques;
     }
 
     public void showIdEntry(final String[] args) {
@@ -321,16 +283,15 @@ public class MainActivity extends AppCompatActivity {
         adb.setTitle("Login");
         adb.setMessage("Enter " + args[1]);
         adb.setView(idTxt);
-        dbHelper.addColumn(db,args[1],"TEXT");
+        dbHelper.addColumn(db, args[1], "TEXT");
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(idTxt.getText().toString().equals("")){
+                if (idTxt.getText().toString().equals("")) {
                     showIdEntry(args);
-                }
-                else {
+                } else {
                     id_key = args[1];
-                    id_value = idTxt.getText().toString().replace(' ','_');
+                    id_value = idTxt.getText().toString().replace(' ', '_');
                     System.out.printf("id_key=%s, id_value=%s\n", id_key, id_value);
                     SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value;
                     SUBMIT_URL += "&email=" + email + "&table=" + table;
@@ -339,9 +300,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         adb.setCancelable(false);
-        System.out.printf("key=%s, value=%s",id_key,id_value);
+        System.out.printf("key=%s, value=%s", id_key, id_value);
         adb.show();
     }
+
     public void buildCamera(String[] args) {
         // build button
         // add column to SQLite table
@@ -350,15 +312,13 @@ public class MainActivity extends AppCompatActivity {
         dbHelper.addColumn(db, name, "TEXT");
         camera = cameraButton;
         cameraInUse = true;
-        cameraButton.setLayoutParams(wrapContent_matchParent);
         cameraButton.setImageResource(android.R.drawable.ic_menu_camera);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getImage();
             }
         });
-        logoLayout.addView(cameraButton);
-        RelativeLayout.LayoutParams cameraParams = (RelativeLayout.LayoutParams)cameraButton.getLayoutParams();
+        RelativeLayout.LayoutParams cameraParams = (RelativeLayout.LayoutParams) cameraButton.getLayoutParams();
         cameraParams.addRule(RelativeLayout.CENTER_IN_PARENT);
         cameraButton.setLayoutParams(cameraParams);
     }
@@ -367,129 +327,110 @@ public class MainActivity extends AppCompatActivity {
         // build button
         // add column to SQLite table
 
-        final Button buildGPSLocButton = new Button(this);
-
-        gpsLocation = buildGPSLocButton;
         gpsLocationInUse = true;
         final String latColumn = args[2];
         final String longColumn = args[3];
-        dbHelper.addColumn(db,latColumn,"TEXT");
-        dbHelper.addColumn(db,longColumn,"TEXT");
-        buildGPSLocButton.setText("GPS Location");
-        buildGPSLocButton.setLayoutParams(wrapContent_matchParent);
-        buildGPSLocButton.setTextColor(Color.WHITE);
+        dbHelper.addColumn(db, latColumn, "TEXT");
+        dbHelper.addColumn(db, longColumn, "TEXT");
 
         try {
             gpsHelper.startLocationUpdates();
-        }
-        catch(SecurityException e){
+        } catch (SecurityException e) {
             Log.d("BDSP", "Error getting location updates");
         }
-        buildGPSLocButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                double latitude = GPSHelper.latitude;
-                double longitude = GPSHelper.longitude;
-                buildGPSLocButton.setText("REDO GPS");
-                values.put(latColumn,latitude);
-                values.put(longColumn,longitude);
-                Toast toast = Toast.makeText(getApplicationContext(),"Long:" + longitude + " Lat:" + latitude,Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        });
-        logoLayout.addView(buildGPSLocButton);
-        RelativeLayout.LayoutParams gpsParams = (RelativeLayout.LayoutParams)buildGPSLocButton.getLayoutParams();
-        gpsParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        buildGPSLocButton.setLayoutParams(gpsParams);
     }
 
-    public void buildSave() {
-        Button saveButton = new Button(this);
-        saveButton.setText("Save");
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                values.put(id_key,id_value);
+    public void submit() {
+        values.put(id_key, id_value);
 
-                double latitude = GPSHelper.latitude;
-                double longitude = GPSHelper.longitude;
+        double latitude = GPSHelper.latitude;
+        double longitude = GPSHelper.longitude;
 
-                Run.checkDate(getApplication(), sharedPref);          // Compares dates for persistent variables
-                Run.insert(getApplication(), sharedPref, values);   // Inserts persistent into ContentValue object
-                Run.increment(sharedPref);                          // Increments persistent variable
-                if(locOnSub) {
-                    values.put("longitude",longitude);
-                    values.put("latitude",latitude);
-                }
-                for(Unique u : uniqueButtonsReferences){
-                    String uText = u.getText();
-                    if(!uText.isEmpty()) {
-                        values.put(u.getName(), u.getText());
-                    }
-                }
-                date.insertDate(values);
-                try {
-                    db.insert("tasksTable", null, values);
-                }
-                catch (SQLiteException e) {
-                    Log.d("Database", "ERROR inserting: " + e.toString());
-                }
-                resetButtonsAfterSave();
-                if(UpdateReceiver.netConnected) {
-                    try {
-                        upload();
-                    }
-                    catch(Exception e) {
-                        Log.d("UPLOADER", "THAT DIDN'T WORK");
-                    }
-                }
+        Run.checkDate(getApplication(), sharedPref);          // Compares dates for persistent variables
+        Run.insert(getApplication(), sharedPref, values);   // Inserts persistent into ContentValue object
+        Run.increment(sharedPref);                          // Increments persistent variable
+        if (locOnSub) {
+            values.put("longitude", longitude);
+            values.put("latitude", latitude);
+        }
+        enterUniquesToDatabase();
+        date.insertDate(values);
+        try {
+            db.insert("tasksTable", null, values);
+        } catch (SQLiteException e) {
+            Log.d("Database", "ERROR inserting: " + e.toString());
+        }
+        resetButtonsAfterSave();
+        if (UpdateReceiver.netConnected) {
+            try {
+                upload();
+            } catch (Exception e) {
+                Log.d("UPLOADER", "THAT DIDN'T WORK");
             }
-        });
+        }
 
-        mainFrame.addView(saveButton, defaultLayoutParams);
+
     }
 
-    public void resetButtonsAfterSave()
-    {
+    public void resetButtonsAfterSave() {
         values = new ContentValues();
 
-        if (cameraInUse)
-        {
-            camera.setImageResource(android.R.drawable.ic_menu_camera);
+        if (cameraInUse) {
+            //camera.setImageResource(android.R.drawable.ic_menu_camera);
         }
 
-        if (gpsLocationInUse)
-        {
-            gpsLocation.setText("GPS LOCATION");
-        }
-
-        for(Unique u : uniqueButtonsReferences) {
-            u.clearText();
+        if (gpsLocationInUse) {
+            //gpsLocation.setText("GPS LOCATION");
         }
 
     }
+
     public static void upload() throws JSONException {
         JSONArray j = new JSONArray();
         JSONObject jsonObject;
         Cursor c = dbHelper.queueAll(db);
-        if(c.getCount() == 0)   //Does not submit if database is empty
+        if (c.getCount() == 0)   //Does not submit if database is empty
             return;
         c.moveToNext();
         String[] cNames = c.getColumnNames();
 
         int cCount = c.getColumnCount();
-        while(!c.isAfterLast()){
+        while (!c.isAfterLast()) {
             jsonObject = new JSONObject();
-            for(int i = 0; i < cCount; i++) {
-                if(!cNames[i].equals("unique_table_id"))
-                    jsonObject.put(cNames[i],c.getString(i));
+            for (int i = 0; i < cCount; i++) {
+                if (!cNames[i].equals("unique_table_id"))
+                    jsonObject.put(cNames[i], c.getString(i));
             }
             j.put(jsonObject);
             dbHelper.deleteQueue.add(c.getString(0));
             c.moveToNext();
         }
         JSONObject params = new JSONObject();
-        params.put("data",j);
-        httpFunc.doHTTPpost(SUBMIT_URL,j,imgUri);
+        params.put("data", j);
+        httpFunc.doHTTPpost(SUBMIT_URL, j, imgUri);
         c.close();
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.submit:
+                submit();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void enterUniquesToDatabase() {
+        ViewGroup v = (ViewGroup) findViewById(R.id.my_recycler_view);
+        for (int i = 0; i < v.getChildCount(); i++) {
+            ViewGroup vv = (ViewGroup) v.getChildAt(i);
+            TextView vvv = (TextView) vv.getChildAt(0);
+            EditText vvvv = (EditText) vv.getChildAt(1);
+            values.put(vvv.getText().toString(), vvvv.getText().toString());
+            System.out.println(values.toString());
+            vvvv.getText().clear();
+        }
+    }
 }

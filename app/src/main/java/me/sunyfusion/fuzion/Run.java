@@ -26,7 +26,6 @@ public class Run {
     public static void insert(Context c, SharedPreferences prefs, ContentValues values) {
         SharedPreferences.Editor prefEdit = prefs.edit();
         int run = prefs.getInt("run",0);
-        System.out.println("RUN = " + run);
         values.put("run", Integer.toString(run));
     }
     public static void increment(SharedPreferences prefs) {
