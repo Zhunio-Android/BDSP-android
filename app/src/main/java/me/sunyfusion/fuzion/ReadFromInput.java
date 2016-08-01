@@ -28,14 +28,9 @@ public class ReadFromInput
 
     public void getNextLine()
     {
-        Line = infile.nextLine(); // gets Line
-        if(Line.equals("") || Line.startsWith("//")) // ignores blank lines and comments
-        {
-            while(Line.equals("") || Line.startsWith("//"))
-            {
-                Line = infile.nextLine();
-            }
-        }
+        do {
+            Line = infile.nextLine();
+        } while (Line.equals("") || Line.startsWith("//"));
         in = new Scanner(Line); // scans line
     }
 
@@ -67,15 +62,18 @@ public class ReadFromInput
         return Type;
     }
 
-    public int getAnswer()
-    {
-        return answer;
+    public boolean enabled() {
+        if (answer == 1) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-
-    /*
-        Returns an array of all parameters of a
-     */
+    public String getArg(int arg) {
+        String[] ls = Line.split(" ");
+        return ls[arg];
+    }
     public String[] getArgs() {
         String[] ls = Line.split(" ");
         return ls;

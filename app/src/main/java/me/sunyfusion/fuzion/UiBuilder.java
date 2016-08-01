@@ -11,11 +11,16 @@ public class UiBuilder {
     public static PowerManager.WakeLock wakelock;
 
     public static void gpsTracker(String[] args, DatabaseHelper dbHelper, Context c) {
+        PowerManager.WakeLock wakelock;
         PowerManager powerManager = (PowerManager) c.getSystemService(Context.POWER_SERVICE);
-        wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Fuzion");
+        wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "BDSP");
         wakelock.acquire();
+        if (Global.getInstance().gpsHelper == null) {
+            new GPSHelper(Global.getContext(), "latitude", "longitude");
+        }
+        GPSHelper gpsHelper = Global.getInstance().gpsHelper;
         if (args.length > 1 && args[2] != null) {
-            GPSHelper.setGpsFreq(Integer.parseInt(args[2]));
+            gpsHelper.setGpsFreq(Integer.parseInt(args[2]));
             try {
 
             } catch (SecurityException e) {
@@ -23,12 +28,12 @@ public class UiBuilder {
             }
         }
         if (args.length > 3) {
-            dbHelper.addColumn(DatabaseHelper.db, args[3], "TEXT");
-            GPSHelper.gps_tracker_lat = args[3];
-            GPSHelper.gps_tracker_long = args[4];
-            dbHelper.addColumn(DatabaseHelper.db, args[4], "TEXT");
+            dbHelper.addColumn(args[3], "TEXT");
+            gpsHelper.gps_tracker_lat = args[3];
+            gpsHelper.gps_tracker_long = args[4];
+            dbHelper.addColumn(args[4], "TEXT");
         }
-        GPSHelper.sendGPS = true;
+        Global.setTracking(true);
     }
 
 }

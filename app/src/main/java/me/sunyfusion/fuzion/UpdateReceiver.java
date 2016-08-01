@@ -8,6 +8,8 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONArray;
+
 /**
  * Created by jesse on 4/19/16.
  */
@@ -27,8 +29,8 @@ public class UpdateReceiver extends BroadcastReceiver {
                 netConnected = true;
                 Log.i("NET", "connected " + isConnected);
                 try {
-                    //AsyncTask<Void,Void,Void> doUpload = new upload();
-                    //doUpload.execute();
+                    AsyncTask<Void, Void, JSONArray> doUpload = new Upload();
+                    doUpload.execute();
                 }
                 catch(Exception e) {
                     Log.d("UPLOADER", "THAT DIDN'T WORK");

@@ -2,11 +2,11 @@ package me.sunyfusion.fuzion;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.widget.Toast;
 
 /**
  * Created by jesse on 7/5/16.
@@ -15,18 +15,23 @@ public class GPSHelper {
     LocationManager locationManager;
     Context context;
 
-    public GPSHelper(Context c) {
+    public GPSHelper(Context c, String latCol, String longCol) {
         context = c;
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        latitude_col = latCol;
+        longitude_col = longCol;
+        Global.getDbHelper().addColumn(latitude_col, "TEXT");
+        Global.getDbHelper().addColumn(longitude_col, "TEXT");
+        Global.setEnabled("gpsLocation");
+        Global.getInstance().gpsHelper = this;
+        startLocationUpdates();
     }
 
     private static int GPS_FREQ = 1000;
     static double latitude = -1;
     static double longitude = -1;
     double gps_acc = 1000;
-    static String gps_tracker_lat;
-    static String gps_tracker_long;
-    static boolean sendGPS = false;
+    String gps_tracker_lat, gps_tracker_long, latitude_col, longitude_col;
 
     LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -49,22 +54,18 @@ public class GPSHelper {
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
         DateObject date = new DateObject("date");
-        SharedPreferences sharedPref = context.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
-        System.out.println("GPS CODE RUNNING");
-
-
-        if (sendGPS && MainActivity.id_key != null && gps_acc <= 300f) {
+        Toast.makeText(Global.getContext(), "GPS Update, " + gps_acc, Toast.LENGTH_SHORT).show();
+        System.out.println("GPS IS RUNNING " + gps_acc);
+        if (Global.isTrackingActive() && Global.getConfig("id_key") != null && gps_acc <= 300f) {
             if (gps_tracker_lat != null && gps_tracker_long != null) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(gps_tracker_lat, latitude);
                 contentValues.put(gps_tracker_long, longitude);
                 date.insertDate(contentValues);
-                contentValues.put(MainActivity.id_key, MainActivity.id_value);
-                Run.checkDate(context, sharedPref);
-                Run.insert(context, sharedPref, contentValues);
-                MainActivity.dbHelper.getCurrentDB().insert("tasksTable", null, contentValues);
-                System.out.println("GPS CODE TRACKING");
-
+                contentValues.put(Global.getConfig("id_key"), Global.getConfig("id_value"));
+                Run.checkDate();
+                Run.insert(contentValues);
+                Global.getDb().insert("tasksTable", null, contentValues);
             }
         }
     }
