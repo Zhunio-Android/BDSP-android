@@ -27,7 +27,7 @@ public class GPSHelper {
         startLocationUpdates();
     }
 
-    private static int GPS_FREQ = 1000;
+    private static int GPS_FREQ = 5000;
     static double latitude = -1;
     static double longitude = -1;
     double gps_acc = 1000;
@@ -56,7 +56,7 @@ public class GPSHelper {
         DateObject date = new DateObject("date");
         Toast.makeText(Global.getContext(), "GPS Update, " + gps_acc, Toast.LENGTH_SHORT).show();
         System.out.println("GPS IS RUNNING " + gps_acc);
-        if (Global.isTrackingActive() && Global.getConfig("id_key") != null && gps_acc <= 300f) {
+        if (Global.isTrackingActive() && Global.getConfig("id_key") != null && gps_acc <= 50f) {
             if (gps_tracker_lat != null && gps_tracker_long != null) {
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(gps_tracker_lat, latitude);
@@ -79,6 +79,10 @@ public class GPSHelper {
     }
 
     public void startLocationUpdates() throws SecurityException {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSHelper.getGpsFreq(), 0, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, GPSHelper.getGpsFreq(), 5, locationListener);
+    }
+
+    public void stopLocationUpdates() throws SecurityException {
+        locationManager.removeUpdates(locationListener);
     }
 }

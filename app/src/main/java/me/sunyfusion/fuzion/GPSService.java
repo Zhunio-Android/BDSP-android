@@ -16,6 +16,12 @@ public class GPSService extends Service {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Global.getInstance().gpsHelper.stopLocationUpdates();
+    }
+
+    @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
