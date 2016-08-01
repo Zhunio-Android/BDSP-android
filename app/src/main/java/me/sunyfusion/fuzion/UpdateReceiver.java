@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.util.Log;
 
 /**
@@ -26,7 +27,8 @@ public class UpdateReceiver extends BroadcastReceiver {
                 netConnected = true;
                 Log.i("NET", "connected " + isConnected);
                 try {
-                    MainActivity.upload();
+                    //AsyncTask<Void,Void,Void> doUpload = new upload();
+                    //doUpload.execute();
                 }
                 catch(Exception e) {
                     Log.d("UPLOADER", "THAT DIDN'T WORK");

@@ -26,6 +26,7 @@ import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -53,6 +54,7 @@ import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Scanner;
 
@@ -65,10 +67,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //GLOBAL VARS
     static Uri imgUri;
-
-    static boolean sendRun = false;
-    static boolean locOnSub = false;
-
     static String id_value, id_key;
     static String email, table;
     EditText idTxt;
@@ -77,15 +75,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static SQLiteDatabase db;
     static HTTPFunc httpFunc;
     static GPSHelper gpsHelper;
-    DateHelper date;
+    DateObject date;
     ContentValues values;
 
     //GLOBAL BOOLEANS FOR FEATURES
-    Boolean cameraInUse = false;
-    Boolean gpsLocationInUse = false;
+    HashMap<String, Boolean> enabledFeatures = new HashMap<String, Boolean>();
     ImageButton camera;
-    Button gpsLocation;
-    ArrayList<Unique> uniqueButtonsReferences = new ArrayList<>();
     SharedPreferences sharedPref;
     SharedPreferences.Editor prefEditor;
 
@@ -181,6 +176,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.submit:
+                submit();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void showIdEntry(final String[] args) {
+        idTxt = new EditText(this);
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("Login");
+        adb.setMessage("Enter " + args[1]);
+        adb.setView(idTxt);
+        dbHelper.addColumn(db, args[1], "TEXT");
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (idTxt.getText().toString().equals("")) {
+                    showIdEntry(args);
+                } else {
+                    id_key = args[1];
+                    id_value = idTxt.getText().toString().replace(' ', '_');
+                    System.out.printf("id_key=%s, id_value=%s\n", id_key, id_value);
+                    SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value;
+                    SUBMIT_URL += "&email=" + email + "&table=" + table;
+                }
+            }
+        });
+        adb.setCancelable(false);
+        System.out.printf("key=%s, value=%s", id_key, id_value);
+        adb.show();
+    }
+
+//TODO relocate everything below this line
     /**
      * Creates a file in the application's directory on the device, assigns a timestamped file
      * name, creates a new Image Capture intent, and starts it. the overridden method
@@ -227,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             switch (Type) {
                 case "locOnSub":
-                    locOnSub = true;
+                    enabledFeatures.put("addLocationToSubmission", true);
                     dbHelper.addColumn(db, "latitude", "TEXT");
                     dbHelper.addColumn(db, "longitude", "TEXT");
                     break;
@@ -259,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     dbHelper.addColumn(db, Name, "TEXT");
                     break;
                 case "datetime":
-                    date = new DateHelper(readFile.getArgs()[1]);
+                    date = new DateObject(readFile.getArgs()[1]);
                     dbHelper.addColumn(db, readFile.getArgs()[1], "TEXT");
                     break;
                 case "table":
@@ -267,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case "run":
                     dbHelper.addColumn(db, readFile.getArgs()[2], "TEXT");
-                    sendRun = true;
+                    enabledFeatures.put("includeRunInSubmission", true);
                     break;
                 default:
                     break;
@@ -277,33 +310,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return uniques;
     }
 
-    public void showIdEntry(final String[] args) {
-        idTxt = new EditText(this);
-        AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setTitle("Login");
-        adb.setMessage("Enter " + args[1]);
-        adb.setView(idTxt);
-        dbHelper.addColumn(db, args[1], "TEXT");
-        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (idTxt.getText().toString().equals("")) {
-                    showIdEntry(args);
-                } else {
-                    id_key = args[1];
-                    id_value = idTxt.getText().toString().replace(' ', '_');
-                    System.out.printf("id_key=%s, id_value=%s\n", id_key, id_value);
-                    SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value;
-                    SUBMIT_URL += "&email=" + email + "&table=" + table;
-                    System.out.println(SUBMIT_URL);
-                }
-            }
-        });
-        adb.setCancelable(false);
-        System.out.printf("key=%s, value=%s", id_key, id_value);
-        adb.show();
-    }
-
     public void buildCamera(String[] args) {
         // build button
         // add column to SQLite table
@@ -311,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final ImageButton cameraButton = new ImageButton(this);
         dbHelper.addColumn(db, name, "TEXT");
         camera = cameraButton;
-        cameraInUse = true;
+        enabledFeatures.put("camera", true);
         cameraButton.setImageResource(android.R.drawable.ic_menu_camera);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -327,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // build button
         // add column to SQLite table
 
-        gpsLocationInUse = true;
+        enabledFeatures.put("gpsLocation", true);
         final String latColumn = args[2];
         final String longColumn = args[3];
         dbHelper.addColumn(db, latColumn, "TEXT");
@@ -349,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Run.checkDate(getApplication(), sharedPref);          // Compares dates for persistent variables
         Run.insert(getApplication(), sharedPref, values);   // Inserts persistent into ContentValue object
         Run.increment(sharedPref);                          // Increments persistent variable
-        if (locOnSub) {
+        if (enabledFeatures.get("addLocationToSubmission")) {
             values.put("longitude", longitude);
             values.put("latitude", latitude);
         }
@@ -363,7 +369,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         resetButtonsAfterSave();
         if (UpdateReceiver.netConnected) {
             try {
-                upload();
+                AsyncTask<Void, Void, Void> doUpload = new upload();
+                doUpload.execute();
             } catch (Exception e) {
                 Log.d("UPLOADER", "THAT DIDN'T WORK");
             }
@@ -375,62 +382,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void resetButtonsAfterSave() {
         values = new ContentValues();
 
-        if (cameraInUse) {
+        if (enabledFeatures.get("camera")) {
             //camera.setImageResource(android.R.drawable.ic_menu_camera);
         }
 
-        if (gpsLocationInUse) {
+        if (enabledFeatures.get("gpsLocation")) {
             //gpsLocation.setText("GPS LOCATION");
         }
-
     }
 
-    public static void upload() throws JSONException {
-        JSONArray j = new JSONArray();
-        JSONObject jsonObject;
-        Cursor c = dbHelper.queueAll(db);
-        if (c.getCount() == 0)   //Does not submit if database is empty
-            return;
-        c.moveToNext();
-        String[] cNames = c.getColumnNames();
-
-        int cCount = c.getColumnCount();
-        while (!c.isAfterLast()) {
-            jsonObject = new JSONObject();
-            for (int i = 0; i < cCount; i++) {
-                if (!cNames[i].equals("unique_table_id"))
-                    jsonObject.put(cNames[i], c.getString(i));
-            }
-            j.put(jsonObject);
-            dbHelper.deleteQueue.add(c.getString(0));
+    public class upload extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            JSONArray j = new JSONArray();
+            JSONObject jsonObject;
+            Cursor c = dbHelper.queueAll(db);
+            if (c.getCount() == 0)   //Does not submit if database is empty
+                return null;
             c.moveToNext();
-        }
-        JSONObject params = new JSONObject();
-        params.put("data", j);
-        httpFunc.doHTTPpost(SUBMIT_URL, j, imgUri);
-        c.close();
-    }
+            String[] cNames = c.getColumnNames();
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.submit:
-                submit();
-                break;
-            default:
-                break;
+            int cCount = c.getColumnCount();
+            while (!c.isAfterLast()) {
+                jsonObject = new JSONObject();
+                for (int i = 0; i < cCount; i++) {
+                    if (!cNames[i].equals("unique_table_id"))
+                        try {
+                            jsonObject.put(cNames[i], c.getString(i));
+                        } catch (JSONException e) {
+                            Log.d("BDSP", "JSONexception");
+                        }
+                }
+                j.put(jsonObject);
+                dbHelper.deleteQueue.add(c.getString(0));
+                c.moveToNext();
+            }
+            JSONObject params = new JSONObject();
+            try {
+                params.put("data", j);
+            } catch (JSONException e) {
+                Log.d("BDSP", "JSONexception");
+            }
+            httpFunc.doHTTPpost(SUBMIT_URL, j, imgUri);
+            c.close();
+            return null;
         }
     }
 
     public void enterUniquesToDatabase() {
         ViewGroup v = (ViewGroup) findViewById(R.id.my_recycler_view);
         for (int i = 0; i < v.getChildCount(); i++) {
-            ViewGroup vv = (ViewGroup) v.getChildAt(i);
-            TextView vvv = (TextView) vv.getChildAt(0);
-            EditText vvvv = (EditText) vv.getChildAt(1);
-            values.put(vvv.getText().toString(), vvvv.getText().toString());
-            System.out.println(values.toString());
-            vvvv.getText().clear();
+            ViewGroup line = (ViewGroup) v.getChildAt(i);
+            TextView colName = (TextView) line.getChildAt(0);
+            EditText colValue = (EditText) line.getChildAt(1);
+            values.put(colName.getText().toString(), colValue.getText().toString());
+            colValue.getText().clear();
         }
     }
 }

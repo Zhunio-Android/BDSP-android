@@ -48,8 +48,9 @@ public class GPSHelper {
         latitude = l.getLatitude();
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
-        DateHelper date = new DateHelper("date");
+        DateObject date = new DateObject("date");
         SharedPreferences sharedPref = context.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
+        System.out.println("GPS CODE RUNNING");
 
 
         if (sendGPS && MainActivity.id_key != null && gps_acc <= 300f) {
@@ -62,6 +63,8 @@ public class GPSHelper {
                 Run.checkDate(context, sharedPref);
                 Run.insert(context, sharedPref, contentValues);
                 MainActivity.dbHelper.getCurrentDB().insert("tasksTable", null, contentValues);
+                System.out.println("GPS CODE TRACKING");
+
             }
         }
     }
