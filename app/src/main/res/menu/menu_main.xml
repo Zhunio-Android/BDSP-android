@@ -1,6 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
-    <item android:id="@+id/action_settings" android:title="@string/action_settings"
-        android:orderInCategory="100" app:showAsAction="never" />
+    <item
+        android:id="@+id/action_camera"
+        android:icon="@drawable/ic_add_a_photo_black_24dp"
+        android:title="Camera"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        android:visible="false" />
+    <item
+        android:id="@+id/action_gps_location"
+        android:icon="@drawable/ic_my_location_black_24dp"
+        android:title="GPS"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        android:visible="false" />
+    <item
+        android:id="@+id/action_mode_close_button"
+        android:icon="@drawable/ic_clear_black_24dp"
+        android:title="Close"
+        android:orderInCategory="100"
+        app:showAsAction="always" />
 </menu>

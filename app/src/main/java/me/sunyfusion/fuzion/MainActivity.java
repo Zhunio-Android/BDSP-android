@@ -45,6 +45,8 @@ import java.util.Scanner;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     // CONSTANTS
+    MenuItem cameraMenu;
+    MenuItem gpsMenu;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
@@ -90,6 +92,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        super.onCreateOptionsMenu(menu);
+
+        gpsMenu = menu.getItem(1);
+        if (Global.isEnabled("gpsLocation")) {
+            gpsMenu.setVisible(true);
+        }
+        cameraMenu = menu.getItem(0);
+        if (Global.isEnabled("camera")) {
+            cameraMenu.setVisible(true);
+        }
         return true;
     }
 

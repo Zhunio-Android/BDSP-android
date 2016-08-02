@@ -2,7 +2,8 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:background="@drawable/border">
 
     <TextView
         android:id="@+id/uniqueName"
@@ -10,16 +11,16 @@
         android:layout_height="wrap_content"
         android:text="unique"
         android:textSize="16dp"
-        android:minWidth="125px"
-        android:maxWidth="125px"
+        android:minWidth="140px"
         android:maxLines="2"
-        android:singleLine="false" />
+        android:singleLine="false"
+        android:maxWidth="140px" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/editText"
         android:singleLine="true"
-        android:hint="test" />
+        android:hint=" " />
 
 </LinearLayout>

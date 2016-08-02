@@ -20,6 +20,8 @@ import java.io.File;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
+import static me.sunyfusion.fuzion.Global.getDbHelper;
+
 /**
  * Created by jesse on 8/1/16.
  */
@@ -30,10 +32,10 @@ public class Upload extends AsyncTask<Void, Void, JSONArray> {
 
     @Override
     protected JSONArray doInBackground(Void... voids) {
-        Looper.prepare();
         JSONArray j = new JSONArray();
         JSONObject jsonObject;
-        Cursor c = Global.getDbHelper().queueAll();
+        //TODO this will fail when the application is not in the foreground and gets GC'd and network connectivity changes
+        Cursor c = getDbHelper().queueAll();
         if (c.getCount() == 0)   //Does not submit if database is empty
             return null;
         c.moveToNext();
@@ -51,7 +53,7 @@ public class Upload extends AsyncTask<Void, Void, JSONArray> {
                     }
             }
             j.put(jsonObject);
-            Global.getDbHelper().deleteQueue.add(c.getString(0));
+            getDbHelper().deleteQueue.add(c.getString(0));
             c.moveToNext();
         }
         JSONObject params = new JSONObject();
@@ -105,7 +107,7 @@ public class Upload extends AsyncTask<Void, Void, JSONArray> {
                 Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
                 Log.i("UPLOAD", "SUCCESS");
-                Global.getDbHelper().emptyDeleteQueue();
+                getDbHelper().emptyDeleteQueue();
             }
 
             @Override

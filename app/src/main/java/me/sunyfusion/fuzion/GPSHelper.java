@@ -23,6 +23,9 @@ public class GPSHelper {
         Global.getDbHelper().addColumn(latitude_col, "TEXT");
         Global.getDbHelper().addColumn(longitude_col, "TEXT");
         Global.setEnabled("gpsLocation");
+        if (Global.getInstance().gpsHelper != null) {
+            Global.getInstance().gpsHelper.stopLocationUpdates();
+        }
         Global.getInstance().gpsHelper = this;
         startLocationUpdates();
     }

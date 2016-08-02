@@ -10,8 +10,9 @@ public class GPSService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        GPSHelper gpsHelper = Global.getInstance().gpsHelper;
         Global g = Global.getInstance();
+        UiBuilder.getWakelock(this);
+        GPSHelper gpsHelper = Global.getInstance().gpsHelper;
         return START_STICKY;
     }
 
@@ -19,6 +20,7 @@ public class GPSService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Global.getInstance().gpsHelper.stopLocationUpdates();
+        UiBuilder.wakelock.release();
     }
 
     @Override

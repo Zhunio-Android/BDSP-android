@@ -10,11 +10,15 @@ public class UiBuilder {
 
     public static PowerManager.WakeLock wakelock;
 
-    public static void gpsTracker(String[] args, DatabaseHelper dbHelper, Context c) {
+    public static void getWakelock(Context c) {
         PowerManager.WakeLock wakelock;
         PowerManager powerManager = (PowerManager) c.getSystemService(Context.POWER_SERVICE);
         wakelock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "BDSP");
         wakelock.acquire();
+    }
+
+    public static void gpsTracker(String[] args, DatabaseHelper dbHelper, Context c) {
+
         if (Global.getInstance().gpsHelper == null) {
             new GPSHelper(Global.getContext(), "latitude", "longitude");
         }
