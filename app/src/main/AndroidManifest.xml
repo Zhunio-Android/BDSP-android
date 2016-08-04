@@ -27,14 +27,22 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".UpdateReceiver">
+        <receiver android:name=".receiver.UpdateReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".receiver.SaveReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <category android:name="me.sunyfusion.SAVE_COLUMNS" />
+            </intent-filter>
+        </receiver>
 
         <service
-            android:name=".bdspService"
+            android:name=".service.bdspService"
             android:enabled="true"
             android:exported="true" />
     </application>

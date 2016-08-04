@@ -1,4 +1,4 @@
-package me.sunyfusion.fuzion;
+package me.sunyfusion.fuzion.hardware;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -9,6 +9,8 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import me.sunyfusion.fuzion.Global;
 
 /**
  * Created by jesse on 8/1/16.
@@ -22,6 +24,7 @@ public class Camera {
      * @return void
      */
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 100;
+    private String column_name;
 
     private void getImage() {
         File f = Global.getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);

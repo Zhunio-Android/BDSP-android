@@ -1,4 +1,4 @@
-package me.sunyfusion.fuzion;
+package me.sunyfusion.fuzion.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,7 +17,7 @@ import me.sunyfusion.fuzion.tasks.UploadTask;
  */
 public class UpdateReceiver extends BroadcastReceiver {
 
-    protected static boolean netConnected = false;
+    public static boolean netConnected = false;
 
     @Override
     public void onReceive(Context context, Intent intent) {

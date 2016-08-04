@@ -2,7 +2,7 @@ package me.sunyfusion.fuzion;
 
 import android.content.Context;
 
-import me.sunyfusion.fuzion.db.DatabaseHelper;
+import me.sunyfusion.fuzion.db.BdspDB;
 
 /**
  * Created by jesse on 7/7/16.
@@ -11,27 +11,8 @@ public class UiBuilder {
 
 
 
-    public static void gpsTracker(String[] args, DatabaseHelper dbHelper, Context c) {
+    public static void gpsTracker(String[] args, BdspDB dbHelper, Context c) {
 
-        if (Global.getInstance().gpsHelper == null) {
-            new GPSHelper(Global.getContext(), "latitude", "longitude");
-        }
-        GPSHelper gpsHelper = Global.getInstance().gpsHelper;
-        if (args.length > 1 && args[2] != null) {
-            gpsHelper.setGpsFreq(Integer.parseInt(args[2]));
-            try {
-
-            } catch (SecurityException e) {
-
-            }
-        }
-        if (args.length > 3) {
-            dbHelper.addColumn(args[3], "TEXT");
-            gpsHelper.gps_tracker_lat = args[3];
-            gpsHelper.gps_tracker_long = args[4];
-            dbHelper.addColumn(args[4], "TEXT");
-        }
-        Global.setTracking(true);
     }
 
 }

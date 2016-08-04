@@ -1,17 +1,21 @@
 package me.sunyfusion.fuzion.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+
 import java.util.ArrayList;
+
+import me.sunyfusion.fuzion.column.Unique;
 
 /**
  * Created by Robert Wieland on 3/26/16.
  */
 
-public class DatabaseHelper extends SQLiteOpenHelper
+public class BdspDB extends SQLiteOpenHelper
 {
     public static final int DATABASE_VERSION = 1;
     public static final String DATABASE_NAME = "Tasks.db";
@@ -21,12 +25,23 @@ public class DatabaseHelper extends SQLiteOpenHelper
     public ArrayList<String> deleteQueue;
     Context c;
 
-    public DatabaseHelper(Context context)
+    public BdspDB(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         db = this.getWritableDatabase();
         deleteQueue = new ArrayList<String>();
         c = context;
+    }
+
+    public static void enterUniquesToDatabase(ArrayList<Unique> uniques) {
+        ContentValues values = new ContentValues();
+        for (Unique u : uniques) {
+            values.put(u.getColumnName(), u.getValue());
+        }
+        db.insert(TABLE_NAME,null,values);
+    }
+    public void insert(ContentValues values) {
+        db.insert(TABLE_NAME,null,values);
     }
 
     @Override

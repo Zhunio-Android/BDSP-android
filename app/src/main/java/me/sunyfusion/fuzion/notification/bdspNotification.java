@@ -1,4 +1,4 @@
-package me.sunyfusion.fuzion;
+package me.sunyfusion.fuzion.notification;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
+import me.sunyfusion.fuzion.R;
+
 /**
  * Helper class for showing and canceling bdsp
  * notifications.
@@ -21,33 +23,14 @@ import android.support.v4.app.NotificationCompat;
  * class to create notifications in a backward-compatible way.
  */
 public class bdspNotification {
-    /**
-     * The unique identifier for this type of notification.
-     */
+
     private static final String NOTIFICATION_TAG = "bdsp";
 
-    /**
-     * Shows the notification, or updates a previously shown notification of
-     * this type, with the given parameters.
-     * <p/>
-     * TODO: Customize this method's arguments to present relevant content in
-     * the notification.
-     * <p/>
-     * TODO: Customize the contents of this method to tweak the behavior and
-     * presentation of bdsp notifications. Make
-     * sure to follow the
-     * <a href="https://developer.android.com/design/patterns/notifications.html">
-     * Notification design guidelines</a> when doing so.
-     *
-     * @see #cancel(Context)
-     */
-    public static void notify(final Context context,
+    public static Notification notify(final Context context,
                               final String exampleString, final int number) {
         final Resources res = context.getResources();
 
-        // This image is used as the notification's large icon (thumbnail).
-        // TODO: Remove this if your notification has no relevant thumbnail.
-        final Bitmap picture = BitmapFactory.decodeResource(res, R.drawable.example_picture);
+        final Bitmap picture = BitmapFactory.decodeResource(res, R.mipmap.logo);
 
 
         final String ticker = exampleString;
@@ -125,8 +108,8 @@ public class bdspNotification {
 
                 // Automatically dismiss the notification when it is touched.
                 .setAutoCancel(true);
-
-        notify(context, builder.build());
+        return builder.build();
+        //notify(context, builder.build());
     }
 
     @TargetApi(Build.VERSION_CODES.ECLAIR)

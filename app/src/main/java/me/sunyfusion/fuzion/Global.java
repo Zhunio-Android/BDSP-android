@@ -8,7 +8,9 @@ import android.net.Uri;
 
 import java.util.HashMap;
 
-import me.sunyfusion.fuzion.db.DatabaseHelper;
+import me.sunyfusion.fuzion.column.Datestamp;
+import me.sunyfusion.fuzion.db.BdspDB;
+import me.sunyfusion.fuzion.hardware.GPS;
 
 /**
  * Created by jesse on 8/1/16.
@@ -20,10 +22,10 @@ public class Global {
     boolean trackingActive = false;
 
     Uri imgUri;
-    DatabaseHelper dbHelper;
+    BdspDB dbHelper;
     SQLiteDatabase db;
-    GPSHelper gpsHelper;
-    DateObject date;
+    public GPS gps;
+    Datestamp datestamp;
     ContentValues values;
     HashMap<String, Boolean> enabledFeatures = new HashMap<String, Boolean>();
     HashMap<String, String> config = new HashMap<String, String>();
@@ -42,11 +44,6 @@ public class Global {
 
     public void init(Context context) {
         this.context = context;
-        sharedPref = context.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
-        prefEditor = sharedPref.edit();
-        values = new ContentValues();
-        dbHelper = new DatabaseHelper(context);
-        db = dbHelper.getWritableDatabase();
     }
 
     public static String getConfig(String s) {
@@ -74,7 +71,7 @@ public class Global {
         return getInstance().db;
     }
 
-    public static DatabaseHelper getDbHelper() {
+    public static BdspDB getDbHelper() {
         return getInstance().dbHelper;
     }
 

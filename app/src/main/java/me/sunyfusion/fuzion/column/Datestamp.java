@@ -1,33 +1,32 @@
-package me.sunyfusion.fuzion;
+package me.sunyfusion.fuzion.column;
 
 import android.content.ContentValues;
+import android.content.Context;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 /**
  * Created by jesse on 5/2/16.
  */
-public class DateObject {
-    String dateColumnName;
+public class Datestamp extends Column {
 
-    public DateObject(String name) {
-        dateColumnName = name;
+    public Datestamp(Context c, String name) {
+        super(c,name);
     }
 
-    public void insertDate(ContentValues v) {
+    @Override
+    public void insertValue(ContentValues v) {
         SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd H:m:s");
         d.setTimeZone(TimeZone.getDefault());
-        String cdt = d.format(new Date());
-        v.put(dateColumnName, cdt);
+        String cdt = d.format(new java.util.Date());
+        v.put(getColumnName(), cdt);
     }
 
     public static String getDateString() {
         SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd");
         d.setTimeZone(TimeZone.getDefault());
-        String cdt = d.format(new Date());
+        String cdt = d.format(new java.util.Date());
         return cdt;
     }
 }

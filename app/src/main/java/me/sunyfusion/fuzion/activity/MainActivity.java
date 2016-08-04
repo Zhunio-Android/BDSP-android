@@ -10,19 +10,23 @@
 package me.sunyfusion.fuzion.activity;
 
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.support.v7.app.AlertDialog;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,25 +38,19 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import org.json.JSONArray;
 
-import me.sunyfusion.fuzion.bdspService;
-import me.sunyfusion.fuzion.Data;
-import me.sunyfusion.fuzion.db.DatabaseHelper;
-import me.sunyfusion.fuzion.DateObject;
-import me.sunyfusion.fuzion.GPSHelper;
-import me.sunyfusion.fuzion.GPSService;
+import java.util.ArrayList;
+
+import me.sunyfusion.fuzion.Config;
 import me.sunyfusion.fuzion.Global;
 import me.sunyfusion.fuzion.R;
-import me.sunyfusion.fuzion.ReadFromInput;
-import me.sunyfusion.fuzion.Run;
-import me.sunyfusion.fuzion.UiBuilder;
-import me.sunyfusion.fuzion.Unique;
-import me.sunyfusion.fuzion.UniqueAdapter;
-import me.sunyfusion.fuzion.UpdateReceiver;
-
+import me.sunyfusion.fuzion.adapter.UniqueAdapter;
+import me.sunyfusion.fuzion.column.Unique;
+import me.sunyfusion.fuzion.db.BdspDB;
+import me.sunyfusion.fuzion.receiver.UpdateReceiver;
+import me.sunyfusion.fuzion.service.bdspService;
+import me.sunyfusion.fuzion.tasks.UploadTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -64,8 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     bdspService bdspServiceBinder;
-
-
+    Config config;
+    BdspDB db;
     /**
      * Runs on startup, creates the layout when the activity is created.
      * This is essentially the "main" method.
@@ -75,10 +73,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        db = new BdspDB(this);
         Global.getInstance().init(this);
-        ArrayList<Unique> uniques = dispatch();
-        startService(new Intent(MainActivity.this, bdspService.class));
-        doBindService();
+        config = new Config(this);
+        ArrayList<Unique> uniques = config.getUniques();
+        showIdEntry(config.getIdKey());
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -99,8 +98,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter = new UniqueAdapter(uniques);
         mRecyclerView.setAdapter(mAdapter);
 
+        startService(new Intent(MainActivity.this, bdspService.class));
         //Setup environment
-        Run.checkDate();
+        config.getRun().checkDate();
     }
 
     @Override
@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_mode_close_button) {
-            stopService(new Intent(this, GPSService.class));
             finish();
         }
         return super.onOptionsItemSelected(item);
@@ -141,24 +140,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
         UpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
         Log.i("NET", "Network Connected: " + UpdateReceiver.netConnected);
-        Run.checkDate();
+        config.getRun().checkDate();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         unbindService(bdspConnection);
-        //Global.getInstance().db.close();
-        try {
-            //UiBuilder.wakelock.release();
-        } catch (Exception e) {
-        }
     }
 
     /**
@@ -175,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             Toast.makeText(this, "Img saved successfully", Toast.LENGTH_LONG).show();
-            Global.getInstance().imgUri = data.getData();
+            //Global.getInstance().imgUri = data.getData();
         }
     }
 
@@ -183,7 +176,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.submit:
-                Data.submit();
+                Intent intent = new Intent("save-all-columns");
+                ContentValues cv = new ContentValues();
+                intent.putExtra("cv", cv);
+                LocalBroadcastManager.getInstance(this).sendBroadcastSync(intent);
+                try {
+                    db.insert(cv);
+                } catch (SQLiteException e) {
+                    Log.d("Database", "ERROR inserting: " + e.toString());
+                }
+                if (UpdateReceiver.netConnected) {
+                    try {
+                        AsyncTask<Void, Void, JSONArray> doUpload = new UploadTask();
+                        doUpload.execute();
+                    } catch (Exception e) {
+                        Log.d("UPLOADER", "THAT DIDN'T WORK");
+                    }
+                }
                 break;
             default:
                 break;
@@ -194,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager
                 .getRunningServices(Integer.MAX_VALUE)) {
-            if (GPSService.class.getName().equals(
+            if (bdspService.class.getName().equals(
                     service.service.getClassName())) {
                 return true;
             }
@@ -230,103 +239,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bindService(intent, bdspConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public ArrayList<Unique> dispatch() {
-        ArrayList<Unique> uniques = new ArrayList<>();
-        String Type, Name;
-        Scanner infile = null;
-        DatabaseHelper dbHelper = Global.getDbHelper();
+    public static void resetButtonsAfterSave() {
+        Global.clearValues();
 
-        try {
-            infile = new Scanner(this.getAssets().open("buildApp.txt"));   // scans File
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (Global.isEnabled("camera")) {
+            //camera.setImageResource(android.R.drawable.ic_menu_camera);
         }
-        ReadFromInput readFile = new ReadFromInput(infile);
 
-        do {
-            try {
-                readFile.getNextLine();
-                readFile.ReadLineCollectInfo();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            Type = readFile.getType();
-
-            switch (Type) {
-                case "locOnSub":
-                    Global.setEnabled("addLocationToSubmission");
-                    dbHelper.addColumn("latitude", "TEXT");
-                    dbHelper.addColumn("longitude", "TEXT");
-                    break;
-                case "email":
-                    Global.setConfig("email", readFile.getArg(1));
-                    break;
-                case "id":
-                    showIdEntry(readFile.getArgs());
-                    break;
-                case "camera":
-                    if (readFile.enabled()) {
-                        Global.getDbHelper().addColumn(readFile.getArg(2), "TEXT");
-                        Global.setEnabled("camera");
-                    }
-                    break;
-                case "gpsLoc":
-                    if (readFile.enabled()) {
-                        Global.setEnabled("gpsLocation");
-                        final String latColumn = readFile.getArg(2);
-                        final String longColumn = readFile.getArg(3);
-                        new GPSHelper(this, latColumn, longColumn);
-                    }
-                    break;
-                case "gpsTracker":
-                    if (readFile.enabled()) {
-                        Global.setEnabled("gpsTracking");
-                        UiBuilder.gpsTracker(readFile.getArgs(), dbHelper, this);
-                    }
-                    break;
-                case "unique":
-                    Name = readFile.getUniqueName();
-                    Unique u = new Unique(this, readFile.getArgs());
-                    uniques.add(u);
-                    dbHelper.addColumn(Name, "TEXT");
-                    break;
-                case "datetime":
-                    Global.getInstance().date = new DateObject(readFile.getArgs()[1]);
-                    dbHelper.addColumn(readFile.getArgs()[1], "TEXT");
-                    break;
-                case "table":
-                    Global.setConfig("table", readFile.getArgs()[1]);
-                    break;
-                case "run":
-                    dbHelper.addColumn(readFile.getArgs()[2], "TEXT");
-                    Global.setEnabled("includeRunInSubmission");
-                    break;
-                default:
-                    break;
-            }
+        if (Global.isEnabled("gpsLocation")) {
+            //gpsLocation.setText("GPS LOCATION");
         }
-        while (!Type.equals("endFile"));
-        return uniques;
     }
 
-    public void showIdEntry(final String[] args) {
+     public void showIdEntry(final String id_key) {
         final EditText idTxt;
-        DatabaseHelper dbHelper = Global.getInstance().dbHelper;
         idTxt = new EditText(Global.getContext());
         AlertDialog.Builder adb = new AlertDialog.Builder(Global.getContext());
         adb.setTitle("Login");
-        adb.setMessage("Enter " + args[1]);
+        adb.setMessage("Enter " + id_key);
         adb.setView(idTxt);
-        dbHelper.addColumn(args[1], "TEXT");
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (idTxt.getText().toString().equals("")) {
-                    showIdEntry(args);
+                    showIdEntry(id_key);
                 } else {
-                    Global.setConfig("id_key", args[1]);
-                    Global.setConfig("id_value", idTxt.getText().toString().replace(' ', '_'));
+                    config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
+                    getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
                 }
             }
         });

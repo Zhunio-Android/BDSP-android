@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +19,7 @@ import java.io.File;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import me.sunyfusion.fuzion.Global;
+import me.sunyfusion.fuzion.db.BdspDB;
 
 import static me.sunyfusion.fuzion.Global.getDbHelper;
 
@@ -30,13 +30,14 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
     public UploadTask() {
         super();
     }
+    BdspDB db = new BdspDB(Global.getContext());
 
     @Override
     protected JSONArray doInBackground(Void... voids) {
         JSONArray j = new JSONArray();
         JSONObject jsonObject;
         //TODO this will fail when the application is not in the foreground and gets GC'd and network connectivity changes
-        Cursor c = getDbHelper().queueAll();
+        Cursor c = db.queueAll();
         if (c.getCount() == 0)   //Does not submit if database is empty
             return null;
         c.moveToNext();
@@ -54,7 +55,7 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
                     }
             }
             j.put(jsonObject);
-            getDbHelper().deleteQueue.add(c.getString(0));
+            db.deleteQueue.add(c.getString(0));
             c.moveToNext();
         }
         JSONObject params = new JSONObject();
@@ -70,7 +71,8 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
     @Override
     protected void onPostExecute(JSONArray j) {
         super.onPostExecute(j);
-        doHTTPpost(Global.getSubmitUrl(), j, Global.getimgUri());
+        System.out.println(Global.getSubmitUrl());
+        doHTTPpost(Global.getSubmitUrl(), j, null);
     }
 
     /**
