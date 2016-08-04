@@ -7,21 +7,21 @@
 
 //TODO add fields for GPS feedback
 
-package me.sunyfusion.fuzion;
+package me.sunyfusion.fuzion.activity;
 
 import android.app.ActivityManager;
-import android.content.ContentValues;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteException;
+import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,24 +33,38 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import org.json.JSONArray;
-import java.io.File;
+
 import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Scanner;
+
+import me.sunyfusion.fuzion.bdspService;
+import me.sunyfusion.fuzion.Data;
+import me.sunyfusion.fuzion.db.DatabaseHelper;
+import me.sunyfusion.fuzion.DateObject;
+import me.sunyfusion.fuzion.GPSHelper;
+import me.sunyfusion.fuzion.GPSService;
+import me.sunyfusion.fuzion.Global;
+import me.sunyfusion.fuzion.R;
+import me.sunyfusion.fuzion.ReadFromInput;
+import me.sunyfusion.fuzion.Run;
+import me.sunyfusion.fuzion.UiBuilder;
+import me.sunyfusion.fuzion.Unique;
+import me.sunyfusion.fuzion.UniqueAdapter;
+import me.sunyfusion.fuzion.UpdateReceiver;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     // CONSTANTS
     MenuItem cameraMenu;
     MenuItem gpsMenu;
-
+    Context context = this;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    bdspService bdspServiceBinder;
+
 
     /**
      * Runs on startup, creates the layout when the activity is created.
@@ -62,15 +76,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Global.getInstance().init(this);
+        ArrayList<Unique> uniques = dispatch();
+        startService(new Intent(MainActivity.this, bdspService.class));
+        doBindService();
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setLogo(R.mipmap.logo);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
-
-        ArrayList<Unique> uniques = dispatch();
+        getSupportActionBar().setSubtitle(Global.getConfig("id_key") + " : " + Global.getConfig("id_value"));
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -138,6 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onDestroy() {
         super.onDestroy();
+        unbindService(bdspConnection);
         //Global.getInstance().db.close();
         try {
             //UiBuilder.wakelock.release();
@@ -174,29 +190,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    public void showIdEntry(final String[] args) {
-        final EditText idTxt;
-        DatabaseHelper dbHelper = Global.getInstance().dbHelper;
-        idTxt = new EditText(this);
-        AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setTitle("Login");
-        adb.setMessage("Enter " + args[1]);
-        adb.setView(idTxt);
-        dbHelper.addColumn(args[1], "TEXT");
-        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (idTxt.getText().toString().equals("")) {
-                    showIdEntry(args);
-                } else {
-                    getSupportActionBar().setSubtitle(args[1] + " : " + idTxt.getText().toString().replace(' ', '_'));
-                    Global.setConfig("id_key", args[1]);
-                    Global.setConfig("id_value", idTxt.getText().toString().replace(' ', '_'));
-                }
+    private boolean isMyServiceRunning() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager
+                .getRunningServices(Integer.MAX_VALUE)) {
+            if (GPSService.class.getName().equals(
+                    service.service.getClassName())) {
+                return true;
             }
-        });
-        adb.setCancelable(false);
-        adb.show();
+        }
+        return false;
+    }
+
+    public ServiceConnection bdspConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            bdspServiceBinder = ((bdspService.bdspBinder) iBinder).getService();
+            Log.d("ServiceConnection", "connected");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            bdspServiceBinder = null;
+            Log.d("ServiceConnection", "disconnected");
+        }
+    };
+    public Handler myHandler = new Handler() {
+        public void handleMessage(Message message) {
+            Bundle data = message.getData();
+        }
+    };
+
+    public void doBindService() {
+        Intent intent = null;
+        intent = new Intent(this, bdspService.class);
+        Messenger messenger = new Messenger(myHandler);
+        intent.putExtra("MESSENGER", messenger);
+        bindService(intent, bdspConnection, Context.BIND_AUTO_CREATE);
     }
 
     public ArrayList<Unique> dispatch() {
@@ -250,10 +281,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case "gpsTracker":
                     if (readFile.enabled()) {
+                        Global.setEnabled("gpsTracking");
                         UiBuilder.gpsTracker(readFile.getArgs(), dbHelper, this);
-                        if (!isMyServiceRunning()) {
-                            startService(new Intent(this, GPSService.class));
-                        }
                     }
                     break;
                 case "unique":
@@ -281,15 +310,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return uniques;
     }
 
-    private boolean isMyServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager
-                .getRunningServices(Integer.MAX_VALUE)) {
-            if (GPSService.class.getName().equals(
-                    service.service.getClassName())) {
-                return true;
+    public void showIdEntry(final String[] args) {
+        final EditText idTxt;
+        DatabaseHelper dbHelper = Global.getInstance().dbHelper;
+        idTxt = new EditText(Global.getContext());
+        AlertDialog.Builder adb = new AlertDialog.Builder(Global.getContext());
+        adb.setTitle("Login");
+        adb.setMessage("Enter " + args[1]);
+        adb.setView(idTxt);
+        dbHelper.addColumn(args[1], "TEXT");
+        adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (idTxt.getText().toString().equals("")) {
+                    showIdEntry(args);
+                } else {
+                    Global.setConfig("id_key", args[1]);
+                    Global.setConfig("id_value", idTxt.getText().toString().replace(' ', '_'));
+                }
             }
-        }
-        return false;
+        });
+        adb.setCancelable(false);
+        adb.show();
     }
 }

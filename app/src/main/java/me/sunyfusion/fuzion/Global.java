@@ -5,9 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.widget.EditText;
 
 import java.util.HashMap;
+
+import me.sunyfusion.fuzion.db.DatabaseHelper;
 
 /**
  * Created by jesse on 8/1/16.

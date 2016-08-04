@@ -24,7 +24,7 @@ public class DateObject {
         v.put(dateColumnName, cdt);
     }
 
-    public static String getDate() {
+    public static String getDateString() {
         SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd");
         d.setTimeZone(TimeZone.getDefault());
         String cdt = d.format(new Date());

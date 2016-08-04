@@ -1,4 +1,4 @@
-package me.sunyfusion.fuzion;
+package me.sunyfusion.fuzion.db;
 
 import android.content.Context;
 import android.database.Cursor;

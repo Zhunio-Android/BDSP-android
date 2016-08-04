@@ -1,7 +1,6 @@
 package me.sunyfusion.fuzion;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
@@ -12,13 +11,13 @@ public class Run {
     public static void checkDate() {
         SharedPreferences prefs = Global.getSharedPrefs();
         SharedPreferences.Editor prefEdit = Global.getInstance().prefEditor;
-        String date = DateObject.getDate();
+        String date = DateObject.getDateString();
         if(prefs.getString("lastDate","").isEmpty()) {
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();
         }
-        if (!prefs.getString("lastDate", "").equals(DateObject.getDate())) {
+        if (!prefs.getString("lastDate", "").equals(DateObject.getDateString())) {
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();

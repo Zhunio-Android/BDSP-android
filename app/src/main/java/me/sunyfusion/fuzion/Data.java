@@ -2,29 +2,16 @@ package me.sunyfusion.fuzion;
 
 import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Looper;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.FileAsyncHttpResponseHandler;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.File;
-
-import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.entity.StringEntity;
+import me.sunyfusion.fuzion.tasks.UploadTask;
 
 /**
  * Created by jesse on 8/1/16.
@@ -67,7 +54,7 @@ public class Data {
         resetButtonsAfterSave();
         if (UpdateReceiver.netConnected) {
             try {
-                AsyncTask<Void, Void, JSONArray> doUpload = new Upload();
+                AsyncTask<Void, Void, JSONArray> doUpload = new UploadTask();
                 doUpload.execute();
             } catch (Exception e) {
                 Log.d("UPLOADER", "THAT DIDN'T WORK");

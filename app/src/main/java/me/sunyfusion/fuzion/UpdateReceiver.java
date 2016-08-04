@@ -10,6 +10,8 @@ import android.util.Log;
 
 import org.json.JSONArray;
 
+import me.sunyfusion.fuzion.tasks.UploadTask;
+
 /**
  * Created by jesse on 4/19/16.
  */
@@ -29,7 +31,7 @@ public class UpdateReceiver extends BroadcastReceiver {
                 netConnected = true;
                 Log.i("NET", "connected " + isConnected);
                 try {
-                    AsyncTask<Void, Void, JSONArray> doUpload = new Upload();
+                    AsyncTask<Void, Void, JSONArray> doUpload = new UploadTask();
                     doUpload.execute();
                 }
                 catch(Exception e) {

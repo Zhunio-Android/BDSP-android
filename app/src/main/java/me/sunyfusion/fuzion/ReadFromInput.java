@@ -29,6 +29,7 @@ public class ReadFromInput
     public void getNextLine()
     {
         do {
+            System.out.println("RUN");
             Line = infile.nextLine();
         } while (Line.equals("") || Line.startsWith("//"));
         in = new Scanner(Line); // scans line
