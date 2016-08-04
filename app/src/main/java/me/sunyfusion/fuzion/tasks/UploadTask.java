@@ -18,10 +18,9 @@ import java.io.File;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
+import me.sunyfusion.fuzion.Config;
 import me.sunyfusion.fuzion.Global;
 import me.sunyfusion.fuzion.db.BdspDB;
-
-import static me.sunyfusion.fuzion.Global.getDbHelper;
 
 /**
  * Created by jesse on 8/1/16.
@@ -71,8 +70,9 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
     @Override
     protected void onPostExecute(JSONArray j) {
         super.onPostExecute(j);
-        System.out.println(Global.getSubmitUrl());
-        doHTTPpost(Global.getSubmitUrl(), j, null);
+        System.out.println(Config.SUBMIT_URL);
+        Config.updateUrl();
+        doHTTPpost(Config.SUBMIT_URL, j, null);
     }
 
     /**
@@ -110,7 +110,7 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
                 Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
                 Log.i("UPLOAD", "SUCCESS");
-                getDbHelper().emptyDeleteQueue();
+                db.emptyDeleteQueue();
             }
 
             @Override

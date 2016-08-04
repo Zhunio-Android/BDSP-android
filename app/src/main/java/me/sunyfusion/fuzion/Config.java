@@ -17,6 +17,8 @@ import me.sunyfusion.fuzion.db.BdspDB;
  */
 public class Config {
 
+    public static String SUBMIT_URL = "http://www.sunyfusion.me/ft_test/update.php";
+
     private String dateColumn, cameraColumn, latColumn, lonColumn, trackerLatColumn, trackerLonColumn, runColumn;
     private String id_key, id_value, email, table;
     private Run run;
@@ -131,7 +133,9 @@ public class Config {
         }
         while (!Type.equals("endFile"));
     }
-
+    public void updateUrl() {
+        SUBMIT_URL += "?idk=" + id_key + "&idv=" + Global.getConfig("id_value") + "&email=" + email + "&table=" + table;
+    }
     public void setIdValue(String idValue) {
         id_value = idValue;
     }
