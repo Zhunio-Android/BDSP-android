@@ -1,6 +1,7 @@
 package me.sunyfusion.fuzion.state;
 
 import android.content.Context;
+import android.content.Intent;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import me.sunyfusion.fuzion.column.Tracker;
 import me.sunyfusion.fuzion.column.Unique;
 import me.sunyfusion.fuzion.hardware.GPS;
 import me.sunyfusion.fuzion.io.ReadFromInput;
+import me.sunyfusion.fuzion.service.trackerService;
 
 /**
  * Created by deisingj1 on 8/4/2016.
@@ -94,7 +96,7 @@ public class Config {
                         if(gps == null) {
                             gps = new GPS(c);
                         }
-                        tracker = new Tracker(c, this);
+                        c.startService(new Intent(c,trackerService.class));
                     }
                     break;
                 case "unique":
