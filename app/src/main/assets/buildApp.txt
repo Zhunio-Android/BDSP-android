@@ -4,27 +4,24 @@ camera 0 camera
 
 // gpsLoc 1/0, latitude column, longitude column
 
-gpsLoc 0 latitude longitude
+// gpsLoc 0 latitude longitude
 
 // gpsTracker 1/0, frequency, manual/automatic, latitude column, longitude column
 
 gpsTracker 1 2000 latTrack longTrack
 
 // id, value of column
-id truck_number
+id truckID
 
 //run 1/0
 
 run 1 run
-table HelloFusion
+table Poughkeepsie_Sanitation
 email jett925@gmail.com
 
 datetime date
 
 // unique options - "unique", type, name
-unique Cat
-unique Dog
-unique Bird
-locOnSub 1
-//unique longitude text
+unique tons
+locOnSub 1 latitude longitude
 endFile
