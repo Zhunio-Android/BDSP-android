@@ -65,7 +65,6 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
             @Override
             public void afterTextChanged(Editable s) {
                 mDataset.get(p).setValue(s.toString());
-                System.out.println(s.toString());
             }
         });
     }

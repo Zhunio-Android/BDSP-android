@@ -35,6 +35,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -42,14 +43,14 @@ import org.json.JSONArray;
 
 import java.util.ArrayList;
 
-import me.sunyfusion.fuzion.Config;
-import me.sunyfusion.fuzion.Global;
 import me.sunyfusion.fuzion.R;
 import me.sunyfusion.fuzion.adapter.UniqueAdapter;
 import me.sunyfusion.fuzion.column.Unique;
 import me.sunyfusion.fuzion.db.BdspDB;
-import me.sunyfusion.fuzion.receiver.UpdateReceiver;
+import me.sunyfusion.fuzion.receiver.NetUpdateReceiver;
 import me.sunyfusion.fuzion.service.bdspService;
+import me.sunyfusion.fuzion.state.Config;
+import me.sunyfusion.fuzion.state.Global;
 import me.sunyfusion.fuzion.tasks.UploadTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -73,9 +74,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        db = new BdspDB(this);
         Global.getInstance().init(this);
         config = new Config(this);
+        db = Global.getDb();
+        Global.getInstance().setConfig(config);
         ArrayList<Unique> uniques = config.getUniques();
         showIdEntry(config.getIdKey());
         setContentView(R.layout.activity_main);
@@ -83,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(myToolbar);
         getSupportActionBar().setLogo(R.mipmap.logo);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
-        getSupportActionBar().setSubtitle(Global.getConfig("id_key") + " : " + Global.getConfig("id_value"));
-        mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
+        mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -99,8 +101,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.setAdapter(mAdapter);
 
         startService(new Intent(MainActivity.this, bdspService.class));
-        //Setup environment
-        config.getRun().checkDate();
     }
 
     @Override
@@ -138,9 +138,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ConnectivityManager connectivityManager = (ConnectivityManager)
                 this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetInfo = connectivityManager.getActiveNetworkInfo();
-        UpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
-        Log.i("NET", "Network Connected: " + UpdateReceiver.netConnected);
-        config.getRun().checkDate();
+        NetUpdateReceiver.netConnected = activeNetInfo != null && activeNetInfo.isConnectedOrConnecting();
+        Log.i("NET", "Network Connected: " + NetUpdateReceiver.netConnected);
     }
 
     @Override
@@ -150,8 +149,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onDestroy() {
+        db.close();
         super.onDestroy();
-        unbindService(bdspConnection);
     }
 
     /**
@@ -168,7 +167,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             Toast.makeText(this, "Img saved successfully", Toast.LENGTH_LONG).show();
-            //Global.getInstance().imgUri = data.getData();
         }
     }
 
@@ -185,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } catch (SQLiteException e) {
                     Log.d("Database", "ERROR inserting: " + e.toString());
                 }
-                if (UpdateReceiver.netConnected) {
+                if (NetUpdateReceiver.netConnected) {
                     try {
                         AsyncTask<Void, Void, JSONArray> doUpload = new UploadTask();
                         doUpload.execute();
@@ -193,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.d("UPLOADER", "THAT DIDN'T WORK");
                     }
                 }
+                clearTextFields();
                 break;
             default:
                 break;
@@ -239,22 +238,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bindService(intent, bdspConnection, Context.BIND_AUTO_CREATE);
     }
 
-    public static void resetButtonsAfterSave() {
-        Global.clearValues();
-
-        if (Global.isEnabled("camera")) {
-            //camera.setImageResource(android.R.drawable.ic_menu_camera);
-        }
-
-        if (Global.isEnabled("gpsLocation")) {
-            //gpsLocation.setText("GPS LOCATION");
+    private void clearTextFields() {
+        ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
+        for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
+            ViewGroup uniqueItemGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
+            for(int j = 0; j < uniqueItemGroup.getChildCount(); j++) {
+                if (uniqueItemGroup.getChildAt(j) instanceof EditText) {
+                    ((EditText) uniqueItemGroup.getChildAt(j)).setText("");
+                }
+            }
         }
     }
 
-     public void showIdEntry(final String id_key) {
+    private void showIdEntry(final String id_key) {
         final EditText idTxt;
-        idTxt = new EditText(Global.getContext());
-        AlertDialog.Builder adb = new AlertDialog.Builder(Global.getContext());
+        idTxt = new EditText(this);
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle("Login");
         adb.setMessage("Enter " + id_key);
         adb.setView(idTxt);
@@ -266,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
+                    config.updateUrl();
                 }
             }
         });

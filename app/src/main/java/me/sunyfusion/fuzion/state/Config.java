@@ -1,4 +1,4 @@
-package me.sunyfusion.fuzion;
+package me.sunyfusion.fuzion.state;
 
 import android.content.Context;
 
@@ -6,11 +6,16 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import me.sunyfusion.fuzion.column.Camera;
 import me.sunyfusion.fuzion.column.Datestamp;
+import me.sunyfusion.fuzion.column.ID;
+import me.sunyfusion.fuzion.column.Latitude;
+import me.sunyfusion.fuzion.column.Longitude;
+import me.sunyfusion.fuzion.column.Photo;
 import me.sunyfusion.fuzion.column.Run;
+import me.sunyfusion.fuzion.column.Tracker;
 import me.sunyfusion.fuzion.column.Unique;
-import me.sunyfusion.fuzion.db.BdspDB;
+import me.sunyfusion.fuzion.hardware.GPS;
+import me.sunyfusion.fuzion.io.ReadFromInput;
 
 /**
  * Created by deisingj1 on 8/4/2016.
@@ -19,35 +24,26 @@ public class Config {
 
     public static String SUBMIT_URL = "http://www.sunyfusion.me/ft_test/update.php";
 
-    private String dateColumn, cameraColumn, latColumn, lonColumn, trackerLatColumn, trackerLonColumn, runColumn;
+    Latitude latColumn;
+    Longitude lonColumn;
     private String id_key, id_value, email, table;
     private Run run;
-    private Camera camera;
+    private Photo photo;
     private Datestamp date;
+    private ID id;
+    private Tracker tracker;
     ArrayList<Unique> uniques = new ArrayList<>();
     Context c;
+    GPS gps;
 
     public Config(Context context) {
         c = context;
         init();
     }
-    public Run getRun() {
-        return run;
-    }
-    public ArrayList<Unique> getUniques() {
-        return uniques;
-    }
-    public String getDateColumn() {
-        return dateColumn;
-    }
-    public String getIdKey() {
-        return id_key;
-    }
-    private void init() {
-        String Type, Name;
-        Scanner infile = null;
-        BdspDB dbHelper = new BdspDB(c);
 
+    private void init() {
+        String Type;
+        Scanner infile = null;
         try {
             infile = new Scanner(c.getAssets().open("buildApp.txt"));   // scans File
         } catch (Exception e) {
@@ -66,54 +62,40 @@ public class Config {
 
             switch (Type) {
                 case "locOnSub":
-                    Global.setEnabled("addLocationToSubmission");
-                    dbHelper.addColumn("latitude", "TEXT");
-                    dbHelper.addColumn("longitude", "TEXT");
+                    if(gps == null) {
+                        gps = new GPS(c);
+                    }
+                    latColumn = new Latitude(c, readFile.getArg(2), gps);
+                    lonColumn = new Longitude(c, readFile.getArg(3), gps);
                     break;
                 case "email":
                     email = readFile.getArg(1);
                     break;
                 case "id":
                     id_key = readFile.getArg(1);
+                    id = new ID(c, id_key);
                     break;
-                case "camera":
+                case "photo":
                     if (readFile.enabled()) {
-                        camera = new Camera(c,readFile.getArg(2));
-                        Global.getDbHelper().addColumn(cameraColumn, "TEXT");
+                        photo = new Photo(c,readFile.getArg(2));
                     }
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {
-                        latColumn = readFile.getArg(2);
-                        lonColumn = readFile.getArg(3);
-                        Global.getDbHelper().addColumn(latColumn, "TEXT");
-                        Global.getDbHelper().addColumn(lonColumn, "TEXT");
-                        //new GPS(c, latColumn, lonColumn);
+                        if(gps == null) {
+                            gps = new GPS(c);
+                        }
+                        latColumn = new Latitude(c, readFile.getArg(2), gps);
+                        lonColumn = new Longitude(c, readFile.getArg(3), gps);
                     }
                     break;
-                case "gpsTracker":/*
-                    if (readFile.enabled()) {
-                        Global.setEnabled("gpsTracking");
-                        if (Global.getInstance().gps == null) {
-                            new GPS(Global.getContext(), "latitude", "longitude");
+                case "gpsTracker":
+                    if(readFile.enabled()) {
+                        if(gps == null) {
+                            gps = new GPS(c);
                         }
-                        GPS gps = Global.getInstance().gps;
-                        if (args.length > 1 && args[2] != null) {
-                            gps.setGpsFreq(Integer.parseInt(args[2]));
-                            try {
-
-                            } catch (SecurityException e) {
-
-                            }
-                        }
-                        if (args.length > 3) {
-                            dbHelper.addColumn(args[3], "TEXT");
-                            gps.gps_tracker_lat = args[3];
-                            gps.gps_tracker_long = args[4];
-                            dbHelper.addColumn(args[4], "TEXT");
-                        }
-                        Global.setTracking(true);
-                    }*/
+                        tracker = new Tracker(c, this);
+                    }
                     break;
                 case "unique":
                     uniques.add(new Unique(c, readFile.getArg(1)));
@@ -133,13 +115,30 @@ public class Config {
         }
         while (!Type.equals("endFile"));
     }
+
     public void updateUrl() {
-        SUBMIT_URL += "?idk=" + id_key + "&idv=" + Global.getConfig("id_value") + "&email=" + email + "&table=" + table;
+        SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value + "&email=" + email + "&table=" + table;
     }
+
     public void setIdValue(String idValue) {
+        id.setValue(idValue);
         id_value = idValue;
+    }
+
+    public Run getRun() {
+        return run;
+    }
+    public ArrayList<Unique> getUniques() {
+        return uniques;
+    }
+    public String getIdKey() {
+        return id_key;
     }
     public String getIdValue() {
         return id_value;
     }
+    public GPS getGps(){
+        return gps;
+    }
+    public ID getId() { return id; }
 }

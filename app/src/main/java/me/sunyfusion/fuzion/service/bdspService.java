@@ -7,13 +7,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import me.sunyfusion.fuzion.Global;
-import me.sunyfusion.fuzion.hardware.GPS;
 import me.sunyfusion.fuzion.notification.bdspNotification;
 
 public class bdspService extends Service {
     private final IBinder mBinder = new bdspBinder();
-    GPS gps = new GPS(Global.getContext());
 
     public bdspService() {
 
@@ -21,10 +18,6 @@ public class bdspService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-        if (Global.isEnabled("gpsLocation") || Global.isEnabled("gpsTracking")) {
-            //Global.getInstance().gps.startLocationUpdates();
-        }
         Notification n = bdspNotification.notify(getApplicationContext(), "THIS IS A TEST", 1);
         startForeground(1, n);
         return START_STICKY;

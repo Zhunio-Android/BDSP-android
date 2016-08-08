@@ -21,6 +21,7 @@ public class Datestamp extends Column {
         d.setTimeZone(TimeZone.getDefault());
         String cdt = d.format(new java.util.Date());
         v.put(getColumnName(), cdt);
+        System.out.println("subclass insertValue date");
     }
 
     public static String getDateString() {

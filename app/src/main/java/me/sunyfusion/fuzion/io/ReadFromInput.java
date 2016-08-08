@@ -1,4 +1,4 @@
-package me.sunyfusion.fuzion;
+package me.sunyfusion.fuzion.io;
 
 import java.io.FileNotFoundException;
 import java.util.Scanner;

@@ -15,7 +15,7 @@ import me.sunyfusion.fuzion.tasks.UploadTask;
 /**
  * Created by jesse on 4/19/16.
  */
-public class UpdateReceiver extends BroadcastReceiver {
+public class NetUpdateReceiver extends BroadcastReceiver {
 
     public static boolean netConnected = false;
 

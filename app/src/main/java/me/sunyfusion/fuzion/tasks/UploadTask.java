@@ -18,9 +18,9 @@ import java.io.File;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
-import me.sunyfusion.fuzion.Config;
-import me.sunyfusion.fuzion.Global;
 import me.sunyfusion.fuzion.db.BdspDB;
+import me.sunyfusion.fuzion.state.Config;
+import me.sunyfusion.fuzion.state.Global;
 
 /**
  * Created by jesse on 8/1/16.
@@ -29,13 +29,12 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
     public UploadTask() {
         super();
     }
-    BdspDB db = new BdspDB(Global.getContext());
+    BdspDB db = Global.getDb();
 
     @Override
     protected JSONArray doInBackground(Void... voids) {
         JSONArray j = new JSONArray();
         JSONObject jsonObject;
-        //TODO this will fail when the application is not in the foreground and gets GC'd and network connectivity changes
         Cursor c = db.queueAll();
         if (c.getCount() == 0)   //Does not submit if database is empty
             return null;
@@ -71,7 +70,6 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
     protected void onPostExecute(JSONArray j) {
         super.onPostExecute(j);
         System.out.println(Config.SUBMIT_URL);
-        Config.updateUrl();
         doHTTPpost(Config.SUBMIT_URL, j, null);
     }
 

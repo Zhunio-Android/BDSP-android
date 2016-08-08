@@ -4,7 +4,7 @@ camera 0 camera
 
 // gpsLoc 1/0, latitude column, longitude column
 
-gpsLoc 0 latitude longitude
+// gpsLoc 0 latitude longitude
 
 // gpsTracker 1/0, frequency, manual/automatic, latitude column, longitude column
 
@@ -23,5 +23,5 @@ datetime date
 
 // unique options - "unique", type, name
 unique tons
-locOnSub 1
+locOnSub 1 latitude longitude
 endFile

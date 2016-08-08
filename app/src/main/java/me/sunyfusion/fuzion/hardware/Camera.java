@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import me.sunyfusion.fuzion.Global;
+import me.sunyfusion.fuzion.state.Global;
 
 /**
  * Created by jesse on 8/1/16.

@@ -8,7 +8,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_close">CLOSE</string>
 
-    <string name="bdsp_notification_title_template">Bdsp: %1$s</string>
+    <string name="bdsp_notification_title_template">BDSP: %1$s</string>
 
     <!-- TODO: remove this placeholder text -->
     <string name="bdsp_notification_placeholder_text_template">You said %1$s and lorem ipsum dolor

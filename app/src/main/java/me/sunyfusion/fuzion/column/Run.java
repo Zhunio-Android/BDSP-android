@@ -36,6 +36,11 @@ public class Run extends Column{
         values.put("run", Integer.toString(run));
         increment();
     }
+    public void insertValueNoInc(ContentValues values) {
+        SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
+        int run = prefs.getInt("run",0);
+        values.put("run", Integer.toString(run));
+    }
 
     public void increment() {
         SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
