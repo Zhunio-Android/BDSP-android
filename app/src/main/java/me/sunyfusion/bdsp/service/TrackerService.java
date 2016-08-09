@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.db.BdspDB;
@@ -21,18 +23,26 @@ public class TrackerService extends Service {
     BdspDB db;
     Tracker tracker;
     String timeStarted;
+    Timer t;
     public TrackerService() {
 
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        t = new Timer();
         db = new BdspDB(this);
         SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         d.setTimeZone(TimeZone.getDefault());
         timeStarted = d.format(new java.util.Date());
         Notification n = BdspNotification.notify(getApplicationContext(), timeStarted, 1);
         tracker = new Tracker(getApplicationContext(),Global.getConfig());
+        t.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                tracker.insertPoint();
+            }
+        },0,1000);
         startForeground(1, n);
         return START_STICKY;
     }

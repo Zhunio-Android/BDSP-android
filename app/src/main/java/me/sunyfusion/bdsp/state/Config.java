@@ -1,7 +1,6 @@
 package me.sunyfusion.bdsp.state;
 
 import android.content.Context;
-import android.content.Intent;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -17,7 +16,6 @@ import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.column.Unique;
 import me.sunyfusion.bdsp.hardware.GPS;
 import me.sunyfusion.bdsp.io.ReadFromInput;
-import me.sunyfusion.bdsp.service.TrackerService;
 
 /**
  * Created by deisingj1 on 8/4/2016.
@@ -96,7 +94,7 @@ public class Config {
                         if(gps == null) {
                             gps = new GPS(c);
                         }
-                        c.startService(new Intent(c,TrackerService.class));
+                        //c.startService(new Intent(c,TrackerService.class));
                     }
                     break;
                 case "unique":

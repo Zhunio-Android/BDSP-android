@@ -47,9 +47,6 @@ public class GPS {
         gps_acc = l.getAccuracy();
         Toast.makeText(Global.getContext(), "GPS Update, " + gps_acc, Toast.LENGTH_SHORT).show();
         System.out.println("GPS IS RUNNING " + gps_acc);
-        if (tracker != null && Global.getConfig().getIdValue() != null && gps_acc <= 1000f) {
-            tracker.insertPoint();
-        }
     }
 
     public void startLocationUpdates() throws SecurityException {

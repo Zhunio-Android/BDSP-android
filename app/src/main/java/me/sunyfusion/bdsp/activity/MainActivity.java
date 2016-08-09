@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter = new UniqueAdapter(uniques);
         mRecyclerView.setAdapter(mAdapter);
 
-        startService(new Intent(MainActivity.this, TrackerService.class));
     }
 
     @Override
@@ -231,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
                     config.updateUrl();
+                    startService(new Intent(MainActivity.this, TrackerService.class));
                 }
             }
         });
