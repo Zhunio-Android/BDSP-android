@@ -48,7 +48,7 @@ import me.sunyfusion.fuzion.adapter.UniqueAdapter;
 import me.sunyfusion.fuzion.column.Unique;
 import me.sunyfusion.fuzion.db.BdspDB;
 import me.sunyfusion.fuzion.receiver.NetUpdateReceiver;
-import me.sunyfusion.fuzion.service.bdspService;
+import me.sunyfusion.fuzion.service.trackerService;
 import me.sunyfusion.fuzion.state.Config;
 import me.sunyfusion.fuzion.state.Global;
 import me.sunyfusion.fuzion.tasks.UploadTask;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    bdspService bdspServiceBinder;
+    trackerService trackerServiceBinder;
     Config config;
     BdspDB db;
     /**
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAdapter = new UniqueAdapter(uniques);
         mRecyclerView.setAdapter(mAdapter);
 
-        startService(new Intent(MainActivity.this, bdspService.class));
+        startService(new Intent(MainActivity.this, trackerService.class));
     }
 
     @Override
@@ -149,6 +149,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onDestroy() {
+        stopService(new Intent(this,trackerService.class));
+        Global.getConfig().getGps().stopLocationUpdates();
         db.close();
         super.onDestroy();
     }
@@ -202,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager
                 .getRunningServices(Integer.MAX_VALUE)) {
-            if (bdspService.class.getName().equals(
+            if (trackerService.class.getName().equals(
                     service.service.getClassName())) {
                 return true;
             }
@@ -214,13 +216,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            bdspServiceBinder = ((bdspService.bdspBinder) iBinder).getService();
+            trackerServiceBinder = ((trackerService.bdspBinder) iBinder).getService();
             Log.d("ServiceConnection", "connected");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            bdspServiceBinder = null;
+            trackerServiceBinder = null;
             Log.d("ServiceConnection", "disconnected");
         }
     };
@@ -232,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void doBindService() {
         Intent intent = null;
-        intent = new Intent(this, bdspService.class);
+        intent = new Intent(this, trackerService.class);
         Messenger messenger = new Messenger(myHandler);
         intent.putExtra("MESSENGER", messenger);
         bindService(intent, bdspConnection, Context.BIND_AUTO_CREATE);

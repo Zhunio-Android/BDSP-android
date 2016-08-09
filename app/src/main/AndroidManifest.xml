@@ -35,7 +35,7 @@
         </receiver>
 
         <service
-            android:name=".service.bdspService"
+            android:name=".service.trackerService"
             android:enabled="true"
             android:exported="true" />
     </application>

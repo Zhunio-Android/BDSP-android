@@ -1,3 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
 
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\Fuzion\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="f0351ad595554425e64f0698c0505dab33f6cb68">
+        <dex dex="C:\Users\deisingj1\StudioProjects\Fuzion\app\build\intermediates\pre-dexed\debug\instant-run-bootstrap_5c7fa5cbf2106ec0b417aa67cbe4961a889b54fc.jar" />
+    </item>
+
+</items>
