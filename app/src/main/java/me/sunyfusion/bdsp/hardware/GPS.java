@@ -42,6 +42,7 @@ public class GPS {
     };
 
     private void makeUseOfNewLocation(Location l) {
+        System.out.println("NEW GPS");
         latitude = l.getLatitude();
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();

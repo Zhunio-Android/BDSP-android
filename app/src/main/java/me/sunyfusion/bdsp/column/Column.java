@@ -62,7 +62,6 @@ public abstract class Column {
      * @param v The object to insert the column's value into
      */
     public void insertValue(ContentValues v) {
-        System.out.println("Superclass insval");
         v.put(columnName,value);
     }
 
