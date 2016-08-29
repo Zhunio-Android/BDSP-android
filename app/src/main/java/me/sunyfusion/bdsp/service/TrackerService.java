@@ -9,12 +9,16 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.FileOutputStream;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,8 +36,18 @@ public class TrackerService extends Service implements LocationListener {
     Timer t;
     PowerManager.WakeLock wl;
     LocationManager locationManager;
+    FileOutputStream outputStream;
 
     public TrackerService() {
+        String filename = "myfile.txt";
+        String string = "Hello world!";
+
+        try {
+            outputStream = openFileOutput(Environment.DIRECTORY_DOCUMENTS + "/test441.txt", Context.MODE_PRIVATE);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         locationManager = (LocationManager) Global.getContext().getSystemService(Context.LOCATION_SERVICE);
     }
     public void onLocationChanged(Location location) {
@@ -74,6 +88,12 @@ public class TrackerService extends Service implements LocationListener {
             public void run() {
                 tracker.insertPoint();
                 System.out.println("POINT LOGGED");
+                String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                try {
+                    outputStream.write(currentDateTimeString.getBytes());
+                }
+                catch(Exception e) {
+                }
             }
         },0,1000);
         startForeground(1, n);
@@ -84,6 +104,14 @@ public class TrackerService extends Service implements LocationListener {
     public void onDestroy() {
         Toast.makeText(TrackerService.this, timeStarted, Toast.LENGTH_SHORT).show();
         wl.release();
+        t.cancel();
+        stopLocationUpdates();
+        try {
+            outputStream.close();
+        }
+        catch(Exception e) {
+
+        }
         super.onDestroy();
     }
 
