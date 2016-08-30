@@ -9,12 +9,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,11 +39,10 @@ public class TrackerService extends Service implements LocationListener {
     FileOutputStream outputStream;
 
     public TrackerService() {
-        String filename = "myfile.txt";
-        String string = "Hello world!";
-
         try {
-            outputStream = openFileOutput(Environment.DIRECTORY_DOCUMENTS + "/test441.txt", Context.MODE_PRIVATE);
+            File file = new File(Global.getContext().getExternalFilesDir(null), "test_file.txt");
+            outputStream = new FileOutputStream(file);
+            System.out.println(outputStream.toString());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,9 +89,12 @@ public class TrackerService extends Service implements LocationListener {
                 System.out.println("POINT LOGGED");
                 String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
                 try {
+                    System.out.println("write");
                     outputStream.write(currentDateTimeString.getBytes());
+                    outputStream.write("\n".getBytes());
                 }
                 catch(Exception e) {
+                    e.printStackTrace();
                 }
             }
         },0,1000);
