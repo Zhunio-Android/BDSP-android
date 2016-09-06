@@ -37,6 +37,7 @@ public class TrackerService extends Service implements LocationListener {
     PowerManager.WakeLock wl;
     LocationManager locationManager;
     FileOutputStream outputStream;
+    Location location;
 
     public TrackerService() {
         try {
@@ -59,7 +60,7 @@ public class TrackerService extends Service implements LocationListener {
     public void onProviderDisabled(String provider) {
     }
     private void makeUseOfNewLocation(Location l) {
-        System.out.println("NEW GPS FROM TRACKER");
+        location = l;
     }
 
     public void startLocationUpdates() throws SecurityException {
@@ -91,6 +92,7 @@ public class TrackerService extends Service implements LocationListener {
                 try {
                     System.out.println("write");
                     outputStream.write(currentDateTimeString.getBytes());
+                    outputStream.write(String.format("lat: %f long: %f acc: %f",location.getLatitude(),location.getLongitude(),location.getAccuracy()).getBytes());
                     outputStream.write("\n".getBytes());
                 }
                 catch(Exception e) {

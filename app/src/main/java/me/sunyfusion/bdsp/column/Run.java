@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import me.sunyfusion.bdsp.state.Global;
+
 /**
  * Created by jesse on 5/5/16.
  */
@@ -24,6 +26,7 @@ public class Run extends Column{
             prefEdit.commit();
         }
         if (!prefs.getString("lastDate", "").equals(Datestamp.getDateString())) {
+            Global.getDb().deleteRun(prefs.getString("run", ""),prefs.getString("lastDate", ""));
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();

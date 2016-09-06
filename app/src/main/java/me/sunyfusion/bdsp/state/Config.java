@@ -22,16 +22,24 @@ import me.sunyfusion.bdsp.io.ReadFromInput;
  */
 public class Config {
 
-    public static String SUBMIT_URL = "http://www.sunyfusion.me/ft_test/update.php";
+    public static String SUBMIT_URL = "update.php";
 
     Latitude latColumn;
     Longitude lonColumn;
+    String url;
     private String id_key, id_value, email, table;
     private Run run;
     private Photo photo;
     private Datestamp date;
+
+    public boolean isGpsTrackerEnabled() {
+        return gpsTrackerEnabled;
+    }
+
+    boolean gpsTrackerEnabled = false;
     private ID id;
     private Tracker tracker;
+    private String project;
     ArrayList<Unique> uniques = new ArrayList<>();
     Context c;
     GPS gps;
@@ -61,6 +69,13 @@ public class Config {
             Type = readFile.getType();
 
             switch (Type) {
+                case "url":
+                    url = readFile.getArg(1);
+                    SUBMIT_URL = readFile.getArg(1) + SUBMIT_URL;
+                    break;
+                case "project":
+                    project = readFile.getArg(1);
+                    break;
                 case "locOnSub":
                     if(gps == null) {
                         gps = new GPS(c);
@@ -90,12 +105,7 @@ public class Config {
                     }
                     break;
                 case "gpsTracker":
-                    if(readFile.enabled()) {
-                        if(gps == null) {
-                            gps = new GPS(c);
-                        }
-                        //c.startService(new Intent(c,TrackerService.class));
-                    }
+                    gpsTrackerEnabled = readFile.enabled();
                     break;
                 case "unique":
                     uniques.add(new Unique(c, readFile.getArg(1)));
@@ -123,6 +133,9 @@ public class Config {
     public void setIdValue(String idValue) {
         id.setValue(idValue);
         id_value = idValue;
+    }
+    public String getProjectUrl() {
+        return url + "projects/" + project;
     }
 
     public Run getRun() {

@@ -76,16 +76,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemViewCacheSize(uniques.size());
 
-        // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // specify an adapter (see also next example)
         mAdapter = new UniqueAdapter(uniques);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -173,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     db.insert(cv);
                 } catch (SQLiteException e) {
                     Log.d("Database", "ERROR inserting: " + e.toString());
+                    Log.d("Database", "ERROR inserting: " + e.toString());
                 }
                 if (NetUpdateReceiver.netConnected) {
                     try {
@@ -230,7 +227,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
                     config.updateUrl();
-                    startService(new Intent(MainActivity.this, TrackerService.class));
+                    if(Global.getConfig().isGpsTrackerEnabled()) {
+                        startService(new Intent(MainActivity.this, TrackerService.class));
+                    }
                 }
             }
         });

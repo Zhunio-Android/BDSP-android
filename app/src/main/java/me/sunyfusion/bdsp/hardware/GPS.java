@@ -5,10 +5,8 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import me.sunyfusion.bdsp.column.Tracker;
-import me.sunyfusion.bdsp.state.Global;
 
 /**
  * Created by jesse on 7/5/16.
@@ -42,11 +40,10 @@ public class GPS {
     };
 
     private void makeUseOfNewLocation(Location l) {
-        System.out.println("NEW GPS");
         latitude = l.getLatitude();
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
-        Toast.makeText(Global.getContext(), "GPS Update, " + gps_acc, Toast.LENGTH_SHORT).show();
+        //makeText(Global.getContext(), "GPS Update, " + gps_acc, Toast.LENGTH_SHORT).show();
         System.out.println("GPS IS RUNNING " + gps_acc);
     }
 
