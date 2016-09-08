@@ -26,7 +26,7 @@ public class Run extends Column{
             prefEdit.commit();
         }
         if (!prefs.getString("lastDate", "").equals(Datestamp.getDateString())) {
-            Global.getDb().deleteRun(prefs.getString("run", ""),prefs.getString("lastDate", ""));
+            Global.getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();

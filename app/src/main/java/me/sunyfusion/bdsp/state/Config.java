@@ -2,10 +2,15 @@ package me.sunyfusion.bdsp.state;
 
 import android.content.Context;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.FileAsyncHttpResponseHandler;
+
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import cz.msebera.android.httpclient.Header;
 import me.sunyfusion.bdsp.column.Datestamp;
 import me.sunyfusion.bdsp.column.ID;
 import me.sunyfusion.bdsp.column.Latitude;
@@ -47,6 +52,20 @@ public class Config {
     public Config(Context context) {
         c = context;
         init();
+    }
+    public void getNewConfig() {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get("https://example.com/file.png", new FileAsyncHttpResponseHandler(c) {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, File response) {
+                // Do something with the file `response`
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] header, Throwable t, File f) {
+
+
+            }
+        });
     }
 
     private void init() {
@@ -154,4 +173,10 @@ public class Config {
         return gps;
     }
     public ID getId() { return id; }
+    public boolean isPhotoEnabled() {
+        return photo != null;
+    }
+    public boolean isLocationEnabled() {
+        return gps != null;
+    }
 }

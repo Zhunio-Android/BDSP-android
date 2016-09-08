@@ -62,8 +62,8 @@ public class BdspDB extends SQLiteOpenHelper
                 null, null, null, null);
         return cursor;
     }
-    public void deleteRun(String run, String date) {
-        db.delete("tasksTable","run=? and date > Datetime(?)",new String[]{run,date});
+    public void deleteRun(int run, String date) {
+        db.delete("tasksTable","run=? and date > Datetime(?)",new String[]{Integer.toString(run),date});
     }
 
     public void emptyDeleteQueue() {
