@@ -25,9 +25,14 @@ public class ReadFromInput
 
     public void getNextLine()
     {
+
         do {
             Line = infile.nextLine();
+
+        // Skips blank lines and comments from the build file
         } while (Line.equals("") || Line.startsWith("//"));
+
+        // Gets the next useful line from the build file
         in = new Scanner(Line); // scans line
     }
 
