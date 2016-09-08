@@ -43,7 +43,6 @@ public class GPS {
         latitude = l.getLatitude();
         longitude = l.getLongitude();
         gps_acc = l.getAccuracy();
-        //makeText(Global.getContext(), "GPS Update, " + gps_acc, Toast.LENGTH_SHORT).show();
         System.out.println("GPS IS RUNNING " + gps_acc);
     }
 
