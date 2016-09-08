@@ -16,9 +16,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,20 +35,19 @@ public class TrackerService extends Service implements LocationListener {
     PowerManager.WakeLock wl;
     LocationManager locationManager;
     FileOutputStream outputStream;
+    Location location;
 
     public TrackerService() {
         try {
             File file = new File(Global.getContext().getExternalFilesDir(null), "test_file.txt");
             outputStream = new FileOutputStream(file);
-            System.out.println(outputStream.toString());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         locationManager = (LocationManager) Global.getContext().getSystemService(Context.LOCATION_SERVICE);
     }
-    public void onLocationChanged(Location location) {
-        makeUseOfNewLocation(location);
+    public void onLocationChanged(Location l) {
+        makeUseOfNewLocation(l);
     }
     public void onStatusChanged(String provider, int status, Bundle extras) {
     }
@@ -59,7 +56,7 @@ public class TrackerService extends Service implements LocationListener {
     public void onProviderDisabled(String provider) {
     }
     private void makeUseOfNewLocation(Location l) {
-        System.out.println("NEW GPS FROM TRACKER");
+        location = l;
     }
 
     public void startLocationUpdates() throws SecurityException {
@@ -71,13 +68,13 @@ public class TrackerService extends Service implements LocationListener {
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        tracker = new Tracker(getApplicationContext(),Global.getConfig());
+        tracker = new Tracker(Global.getContext(),Global.getConfig());
         t = new Timer();
         PowerManager pm = (PowerManager) Global.getContext().getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TrackerService");
         wl.acquire();
         startLocationUpdates();
-        db = new BdspDB(this);
+        db = Global.getDb();
         SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         d.setTimeZone(TimeZone.getDefault());
         timeStarted = d.format(new java.util.Date());
@@ -85,16 +82,9 @@ public class TrackerService extends Service implements LocationListener {
         t.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                tracker.insertPoint();
-                System.out.println("POINT LOGGED");
-                String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                try {
-                    System.out.println("write");
-                    outputStream.write(currentDateTimeString.getBytes());
-                    outputStream.write("\n".getBytes());
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
+                if(location != null) {
+                    tracker.insertPoint(location);
+                    System.out.println("POINT LOGGED");
                 }
             }
         },0,1000);

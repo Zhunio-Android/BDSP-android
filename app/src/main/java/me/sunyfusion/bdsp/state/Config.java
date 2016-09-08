@@ -2,10 +2,15 @@ package me.sunyfusion.bdsp.state;
 
 import android.content.Context;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.FileAsyncHttpResponseHandler;
+
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import cz.msebera.android.httpclient.Header;
 import me.sunyfusion.bdsp.column.Datestamp;
 import me.sunyfusion.bdsp.column.ID;
 import me.sunyfusion.bdsp.column.Latitude;
@@ -22,16 +27,24 @@ import me.sunyfusion.bdsp.io.ReadFromInput;
  */
 public class Config {
 
-    public static String SUBMIT_URL = "http://www.sunyfusion.me/ft_test/update.php";
+    public static String SUBMIT_URL = "update.php";
 
     Latitude latColumn;
     Longitude lonColumn;
+    String url;
     private String id_key, id_value, email, table;
     private Run run;
     private Photo photo;
     private Datestamp date;
+
+    public boolean isGpsTrackerEnabled() {
+        return gpsTrackerEnabled;
+    }
+
+    boolean gpsTrackerEnabled = false;
     private ID id;
     private Tracker tracker;
+    private String project;
     ArrayList<Unique> uniques = new ArrayList<>();
     Context c;
     GPS gps;
@@ -39,6 +52,20 @@ public class Config {
     public Config(Context context) {
         c = context;
         init();
+    }
+    public void getNewConfig() {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get("https://example.com/file.png", new FileAsyncHttpResponseHandler(c) {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, File response) {
+                // Do something with the file `response`
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] header, Throwable t, File f) {
+
+
+            }
+        });
     }
 
     private void init() {
@@ -61,6 +88,13 @@ public class Config {
             Type = readFile.getType();
 
             switch (Type) {
+                case "url":
+                    url = readFile.getArg(1);
+                    SUBMIT_URL = readFile.getArg(1) + SUBMIT_URL;
+                    break;
+                case "project":
+                    project = readFile.getArg(1);
+                    break;
                 case "locOnSub":
                     if(gps == null) {
                         gps = new GPS(c);
@@ -90,12 +124,7 @@ public class Config {
                     }
                     break;
                 case "gpsTracker":
-                    if(readFile.enabled()) {
-                        if(gps == null) {
-                            gps = new GPS(c);
-                        }
-                        //c.startService(new Intent(c,TrackerService.class));
-                    }
+                    gpsTrackerEnabled = readFile.enabled();
                     break;
                 case "unique":
                     uniques.add(new Unique(c, readFile.getArg(1)));
@@ -124,6 +153,9 @@ public class Config {
         id.setValue(idValue);
         id_value = idValue;
     }
+    public String getProjectUrl() {
+        return url + "projects/" + project;
+    }
 
     public Run getRun() {
         return run;
@@ -141,4 +173,10 @@ public class Config {
         return gps;
     }
     public ID getId() { return id; }
+    public boolean isPhotoEnabled() {
+        return photo != null;
+    }
+    public boolean isLocationEnabled() {
+        return gps != null;
+    }
 }

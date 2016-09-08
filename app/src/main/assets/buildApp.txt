@@ -10,18 +10,32 @@ camera 0 camera
 
 gpsTracker 1 2000 latTrack longTrack
 
-// id, value of column
+// id, must be present or app will break, name of ID column
 id truckID
 
-//run 1/0
-
+//run 0/1(enable disable) and name of column
 run 1 run
+
+//name of fusion table that will be written to (no spaces)
 table bdspTestTable
+
+//email address of user that built the app, transactions will be authorized through this account
 email jett925@gmail.com
 
+//field that the app will put the current system time into
 datetime date
+
+//base url of server that the app interacts with
+url http://www.sunyfusion.me/ft_test/
+
+//sets subdirectory of project folder that updated config will be read from
+project san_test
 
 // unique options - "unique", type, name
 unique tons
+
+//location (0/1 enable disable) included on pressing of submit button
 locOnSub 1 latitude longitude
+
+//EOF marker
 endFile

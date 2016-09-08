@@ -1,12 +1,3 @@
-//TODO have datatypes option for unique fields - shelved
-//TODO autoincrement field
-//TODO section function - auto increment by date on field
-//TODO flagged fields - allow binary
-//TODO manual or incremental field - trigger = field, reset = how you want to reset (daily or no reset)
-//TODO housekeeping, separate manual and automatically collected
-
-//TODO add fields for GPS feedback
-
 package me.sunyfusion.bdsp.activity;
 
 import android.app.AlertDialog;
@@ -16,6 +7,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -62,6 +54,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .penaltyDeath()
+                .build());
         super.onCreate(savedInstanceState);
         Global.getInstance().init(this);
         config = new Config(this);
@@ -76,16 +73,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemViewCacheSize(uniques.size());
 
-        // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // specify an adapter (see also next example)
         mAdapter = new UniqueAdapter(uniques);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -98,11 +91,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreateOptionsMenu(menu);
 
         gpsMenu = menu.getItem(1);
-        if (Global.isEnabled("gpsLocation")) {
+        if (config.isLocationEnabled()) {
             gpsMenu.setVisible(true);
         }
         cameraMenu = menu.getItem(0);
-        if (Global.isEnabled("camera")) {
+        if (config.isPhotoEnabled()) {
             cameraMenu.setVisible(true);
         }
         return true;
@@ -230,7 +223,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
                     config.updateUrl();
-                    startService(new Intent(MainActivity.this, TrackerService.class));
+                    if(Global.getConfig().isGpsTrackerEnabled()) {
+                        startService(new Intent(MainActivity.this, TrackerService.class));
+                    }
                 }
             }
         });

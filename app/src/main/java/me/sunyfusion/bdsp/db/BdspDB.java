@@ -9,8 +9,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 
-import me.sunyfusion.bdsp.column.Unique;
-
 /**
  * Created by Robert Wieland on 3/26/16.
  */
@@ -22,6 +20,9 @@ public class BdspDB extends SQLiteOpenHelper
     public static final String TABLE_NAME = "tasksTable";
     public static SQLiteDatabase db;
 
+    /*
+    *
+    * */
     public ArrayList<String> deleteQueue;
     Context c;
 
@@ -33,13 +34,6 @@ public class BdspDB extends SQLiteOpenHelper
         c = context;
     }
 
-    public static void enterUniquesToDatabase(ArrayList<Unique> uniques) {
-        ContentValues values = new ContentValues();
-        for (Unique u : uniques) {
-            values.put(u.getColumnName(), u.getValue());
-        }
-        db.insert(TABLE_NAME,null,values);
-    }
     public void insert(ContentValues values) {
         db.insert(TABLE_NAME,null,values);
     }
@@ -71,11 +65,17 @@ public class BdspDB extends SQLiteOpenHelper
                 null, null, null, null);
         return cursor;
     }
+    public void deleteRun(int run, String date) {
+        db.delete("tasksTable","run=? and date > Datetime(?)",new String[]{Integer.toString(run),date});
+    }
 
     public void emptyDeleteQueue() {
+        System.out.println("Entering delete");
         for (String table_id : deleteQueue) {
+            System.out.println("Deleting " + table_id);
             db.delete("tasksTable", "unique_table_id=" + table_id, null);
         }
+        System.out.println("Exiting delete");
     }
 
 }

@@ -2,6 +2,7 @@ package me.sunyfusion.bdsp.column;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.location.Location;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -28,10 +29,10 @@ public class Tracker {
         db.addColumn("longTrack", "TEXT");
     }
 
-    public void insertPoint() {
+    public void insertPoint(Location l) {
         ContentValues cv = new ContentValues();
-        cv.put("latTrack", gps.latitude);
-        cv.put("longTrack", gps.longitude);
+        cv.put("latTrack", l.getLatitude());
+        cv.put("longTrack", l.getLongitude());
         config.getId().insertValue(cv);
         cv.put("date", getDateString());
         config.getRun().checkDate();
