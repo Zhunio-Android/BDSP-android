@@ -1,12 +1,3 @@
-//TODO have datatypes option for unique fields - shelved
-//TODO autoincrement field
-//TODO section function - auto increment by date on field
-//TODO flagged fields - allow binary
-//TODO manual or incremental field - trigger = field, reset = how you want to reset (daily or no reset)
-//TODO housekeeping, separate manual and automatically collected
-
-//TODO add fields for GPS feedback
-
 package me.sunyfusion.bdsp.activity;
 
 import android.app.AlertDialog;
@@ -94,11 +85,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreateOptionsMenu(menu);
 
         gpsMenu = menu.getItem(1);
-        if (Global.isEnabled("gpsLocation")) {
+        if (config.isLocationEnabled()) {
             gpsMenu.setVisible(true);
         }
         cameraMenu = menu.getItem(0);
-        if (Global.isEnabled("camera")) {
+        if (config.isPhotoEnabled()) {
             cameraMenu.setVisible(true);
         }
         return true;
@@ -168,7 +159,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     db.insert(cv);
                 } catch (SQLiteException e) {
-                    Log.d("Database", "ERROR inserting: " + e.toString());
                     Log.d("Database", "ERROR inserting: " + e.toString());
                 }
                 if (NetUpdateReceiver.netConnected) {

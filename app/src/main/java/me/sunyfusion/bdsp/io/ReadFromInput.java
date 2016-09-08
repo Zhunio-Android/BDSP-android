@@ -54,11 +54,7 @@ public class ReadFromInput
     }
 
     public boolean enabled() {
-        if (answer == 1) {
-            return true;
-        } else {
-            return false;
-        }
+        return answer == 1;
     }
 
     public String getArg(int arg) {

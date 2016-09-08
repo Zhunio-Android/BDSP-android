@@ -16,9 +16,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -43,15 +41,13 @@ public class TrackerService extends Service implements LocationListener {
         try {
             File file = new File(Global.getContext().getExternalFilesDir(null), "test_file.txt");
             outputStream = new FileOutputStream(file);
-            System.out.println(outputStream.toString());
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         locationManager = (LocationManager) Global.getContext().getSystemService(Context.LOCATION_SERVICE);
     }
-    public void onLocationChanged(Location location) {
-        makeUseOfNewLocation(location);
+    public void onLocationChanged(Location l) {
+        makeUseOfNewLocation(l);
     }
     public void onStatusChanged(String provider, int status, Bundle extras) {
     }
@@ -72,7 +68,7 @@ public class TrackerService extends Service implements LocationListener {
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        tracker = new Tracker(getApplicationContext(),Global.getConfig());
+        tracker = new Tracker(Global.getContext(),Global.getConfig());
         t = new Timer();
         PowerManager pm = (PowerManager) Global.getContext().getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TrackerService");
@@ -86,17 +82,9 @@ public class TrackerService extends Service implements LocationListener {
         t.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                tracker.insertPoint();
-                System.out.println("POINT LOGGED");
-                String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                try {
-                    System.out.println("write");
-                    outputStream.write(currentDateTimeString.getBytes());
-                    outputStream.write(String.format("lat: %f long: %f acc: %f",location.getLatitude(),location.getLongitude(),location.getAccuracy()).getBytes());
-                    outputStream.write("\n".getBytes());
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
+                if(location != null) {
+                    tracker.insertPoint(location);
+                    System.out.println("POINT LOGGED");
                 }
             }
         },0,1000);

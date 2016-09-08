@@ -1,3 +1,257 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
 
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="613298b7aa012f121ce542881c0a599ebd8078f2">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-measurement-8.4.0_1531f6b7598a861e6f0bbcb3cb21224db4f39a28.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.android.support\animated-vector-drawable\23.3.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="23be6993826b8fd88bbc8d14928bb3b8960d3d4e">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.android.support-animated-vector-drawable-23.3.0_832d0e7e26e9ce51390a6a3d4156ecd8bc03bf14.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-location\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="a8412b654dab86d57bf90683367488211c8a81f1">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-location-8.4.0_e5b76195de545907d6c437702ef9bfb19888ccae.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\incremental-runtime-classes\debug\instant-run.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="08482fcb5d4a5ee611d2c7b717187fbdffc20f31">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\instant-run_a85907c3dcd94fb5246ee290dfcea59e3c4f818d.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="b5e7892fb0708e792e0e933c4c0a0ca0ac7831fb">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-ads-8.4.0_b752373a4f7507388df12ec1af6ae8e153ccfa10.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.3.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="1b8e03daaa43fb0a4cd57e378167c2fd70454c1e">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.android.support-appcompat-v7-23.3.0_6f30d7aba84d57bb2d963144063744af50af580e.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-safetynet\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="0194a7409c40de94fb539d4ad9928ec5d47afeb7">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-safetynet-8.4.0_1416b177c797541a631ff1e464dc5aff8b54e536.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.3.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="8a034dd16c0dfd75fe86c52c2cd581592acc684a">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.android.support-support-v4-23.3.0_6b722641fb02ab7e154a7c57015e2fae0cc4a5e9.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-identity\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="b82b8e847173c28efffcd291b2a0b1ae9ad17fa4">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-identity-8.4.0_a9e402e89b8de521a6db1ac5c98dd4ed1c64cb97.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="8e673cdfadd8f2d98fdb2fda2285c30f6e449782">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-basement-8.4.0_b89e161e4214a464d2d374469e004c88ad4c4971.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="0470483a964a6a395ba1fba768f33a89f1f8fcca">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\instant-run-bootstrap_2aa423d4529cb6f9cc11fa81c17266602650451f.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-fitness\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="c54246475c1bb64ac6857d1320364bfbfeda2c46">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-fitness-8.4.0_9aa69801e186435d5f9d6b06042052b6382a3f26.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="2d7fe76982677315c4dc4edfb459c8ca718a9d4c">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-gcm-8.4.0_b1231c4cf63498fd7ce4e36fa2d9c1ed4590636e.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-wallet\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="f2df436a8f02ce7e4d7d209671fc45f97c470f0e">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-wallet-8.4.0_acba9def9172d9e8aa32d210eda1444f239fa154.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.3.0\support-annotations-23.3.0.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="db7791d75a07fef9844d06236c1c59ba7bf6997c">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\support-annotations-23.3.0_adf5c838c4439f3d12dd8604d0e8c99257fcdac5.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-plus\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="1a78298e7724d5440d210bcb946b3493250d354d">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-plus-8.4.0_b39d8f1797fb7ad960e414003c9e5a36134ced5d.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.android.support\mediarouter-v7\23.0.0\jars\libs\internal_impl-23.0.0.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="03d38bb042efe3e5ce27ba66b729a9523c36d8fe">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\internal_impl-23.0.0_95948fb6ab96e8c42860b21b43152d726178020e.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\.gradle\caches\modules-2\files-2.1\cz.msebera.android\httpclient\4.3.6\526a9f794eab830eae4f23a62c572878b3f491ab\httpclient-4.3.6.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="526a9f794eab830eae4f23a62c572878b3f491ab">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\httpclient-4.3.6_b6b5ef0c6a0efb5d4cd5cfb38cdb23f08cda8314.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.3.0\jars\libs\internal_impl-23.3.0.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="4da5a4d697d32497c6f85567a5112e62fdfd0676">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\internal_impl-23.3.0_ccb7c60ee2e63284357e077f39965a95201dd4f0.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.android.support\mediarouter-v7\23.0.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="d358b3dd49a7c67844622dcbc9cf4339e13952ce">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.android.support-mediarouter-v7-23.0.0_24f62be09450628fb961dc1ea99c7589f9d27e4b.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\.gradle\caches\modules-2\files-2.1\com.loopj.android\android-async-http\1.4.9\386a4339ffe52d5d63e80f9bed8d2b1d1a418249\android-async-http-1.4.9.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="386a4339ffe52d5d63e80f9bed8d2b1d1a418249">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\android-async-http-1.4.9_2468404ee86f7ba752d8f40d3c365531f879bd0c.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-games\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="3a364cc6b698d1b3b2d284f64618daaa7fe77ddf">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-games-8.4.0_3e7a45fec7e11bad9465b0ec311d8ccc935b4f64.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-cast\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="551e78f21acf69ebfb489c0e79647824c838013e">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-cast-8.4.0_159eccd3155bd9af9068c163b990e0bbb706144b.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\23.3.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="debf30ce0a7560396b6235edef77e447006454c2">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.android.support-recyclerview-v7-23.3.0_1bbb558d4460afae3420ce92558e5ec7e8887f38.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-wearable\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="e167a34eaca0b31704212f43f9576ea84e05046f">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-wearable-8.4.0_9d3480ec438481268c75cf2b08366ab25236daf2.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-appinvite\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="9fe026fb4c7fce21bc5142f6e1bdf844f28061ac">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-appinvite-8.4.0_73b75cedebe279bdb09430eabbd0895e4beda12f.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.android.support\support-vector-drawable\23.3.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="a0b5d60246cd9d4f3f2443611b3b4c25265840b5">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.android.support-support-vector-drawable-23.3.0_7c7187f0e34a684ec3501c83da3b2de1f7c084fe.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-vision\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="dfecc4d835cdabcdecf7e95f0d20a3ef1e9d8ef4">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-vision-8.4.0_426d2d48ef6a11170d58826acc69db54e976bab9.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-auth\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="966e5771a5a2ebfb31bf00d7cd6cd2546d245517">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-auth-8.4.0_04fc11c75ae3e66cdc3ed0585ce7a99e6afcd197.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-analytics\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="1c9f35e952b212c843f7bd2c7eec8e82ad95602e">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-analytics-8.4.0_98fb84b51952a70dd619afc1d210fb1dbe659008.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-nearby\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="9cad249cf62751a323d9af568caf12284b7d6062">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-nearby-8.4.0_b2aeeaedda6bc86890a168d879ea55e7fd0505c1.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-panorama\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="08d34b2d135c1cc96ab506fd8bf6916d1e2f391a">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-panorama-8.4.0_bb37374a819afd1d69c0cd2e92c1d079e363c678.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-appindexing\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="65d086ee9daaf87b5af62ad24471edafa433354c">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-appindexing-8.4.0_bdd89b6068146980ccc87d6fa572d5c23a7253a3.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-maps\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="04de44f90606c77f3b28cf44861f306290505aac">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-maps-8.4.0_ed54f2aeaea313ecfb77393a341cbdd7d4dd0831.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-drive\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="b36f30ac5ee5d5214f4b1e2ac49f11889d58e71a">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-drive-8.4.0_dc119bf4e197c553d86f9f56cf9d73d622b6c1c9.jar" />
+    </item>
+    <item
+        jar="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\8.4.0\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.1"
+        sha1="fef2b3e4b6b1b0e5fe7b69fa137a5fa55a3182ab">
+        <dex dex="C:\Users\deisingj1\StudioProjects\BDSP-android\app\build\intermediates\pre-dexed\debug\com.google.android.gms-play-services-base-8.4.0_77128b56dce8292bd1620395cda64a3f07a2556d.jar" />
+    </item>
+
+</items>
