@@ -107,7 +107,8 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
                 Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
                 Log.i("UPLOAD", "SUCCESS");
-                db.emptyDeleteQueue();
+                AsyncTask<Void,Void,Void> emptyQueue = new EmptyDeleteQueueTask();
+                emptyQueue.execute();
             }
 
             @Override

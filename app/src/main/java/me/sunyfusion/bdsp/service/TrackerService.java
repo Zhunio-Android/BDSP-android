@@ -74,7 +74,7 @@ public class TrackerService extends Service implements LocationListener {
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TrackerService");
         wl.acquire();
         startLocationUpdates();
-        db = new BdspDB(this);
+        db = Global.getDb();
         SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         d.setTimeZone(TimeZone.getDefault());
         timeStarted = d.format(new java.util.Date());

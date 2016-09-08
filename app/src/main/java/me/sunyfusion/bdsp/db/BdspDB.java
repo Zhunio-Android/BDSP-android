@@ -20,6 +20,9 @@ public class BdspDB extends SQLiteOpenHelper
     public static final String TABLE_NAME = "tasksTable";
     public static SQLiteDatabase db;
 
+    /*
+    *
+    * */
     public ArrayList<String> deleteQueue;
     Context c;
 
@@ -67,9 +70,12 @@ public class BdspDB extends SQLiteOpenHelper
     }
 
     public void emptyDeleteQueue() {
+        System.out.println("Entering delete");
         for (String table_id : deleteQueue) {
+            System.out.println("Deleting " + table_id);
             db.delete("tasksTable", "unique_table_id=" + table_id, null);
         }
+        System.out.println("Exiting delete");
     }
 
 }
