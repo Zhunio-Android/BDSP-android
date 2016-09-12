@@ -1,6 +1,11 @@
 package me.sunyfusion.bdsp.state;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
@@ -50,7 +55,7 @@ public class Config {
     GPS gps;
 
     public Config(Context context) {
-        c = context;
+        c = context;   // Ties config to main activity
         init();
     }
     public void getNewConfig() {
@@ -179,4 +184,25 @@ public class Config {
     public boolean isLocationEnabled() {
         return gps != null;
     }
+
+    public void checkGPSPermission()
+    {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(c,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+
+                ActivityCompat.requestPermissions((Activity) c,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        Global.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+
+        }
+    }
+
+
 }

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .build());
         super.onCreate(savedInstanceState);
         Global.getInstance().init(this);
-        config = new Config(this);
+        config = new Config(this);  // Stores all of the config info from build app.txt
         db = Global.getDb();
         Global.getInstance().setConfig(config);
         ArrayList<Unique> uniques = config.getUniques();
@@ -231,5 +232,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         adb.setCancelable(false);
         adb.show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case Global.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                System.out.println("They said yes!");
+
+                } else {
+
+                    System.out.println("They said no!");
+
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 }

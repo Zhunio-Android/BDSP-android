@@ -16,6 +16,8 @@ public class Global {
     BdspDB dbHelper;
     SQLiteDatabase db;
 
+    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+
     public static Global getInstance() {
         return ourInstance;
     }
