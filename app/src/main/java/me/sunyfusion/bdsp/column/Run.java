@@ -16,6 +16,11 @@ public class Run extends Column{
         c = context;
     }
 
+    /**
+     * checks to see if the current date is different than the one set in SharedPreferences,
+     * if it is (signifying the start of a new day), resets the run number (also in SharedPreferences)
+     * to 1, and the date stored in SharedPreferences to "now".
+     */
     public void checkDate() {
         SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         SharedPreferences.Editor prefEdit = prefs.edit();
@@ -39,12 +44,20 @@ public class Run extends Column{
         values.put("run", Integer.toString(run));
         increment();
     }
+
+    /**
+     * Inserts the current run number into a ContentValues object
+     * @param values the ContentValues object to insert the run number into
+     */
     public void insertValueNoInc(ContentValues values) {
         SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         int run = prefs.getInt("run",0);
         values.put("run", Integer.toString(run));
     }
 
+    /**
+     * Increments the currently stored run number in SharedPreferences
+     */
     public void increment() {
         SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         SharedPreferences.Editor prefEdit = prefs.edit();

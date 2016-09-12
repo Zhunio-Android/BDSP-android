@@ -30,11 +30,9 @@ public class BdspNotification {
                 .setContentText(text)
 
                 // All fields below this line are optional.
-
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setLargeIcon(picture)
                 .setTicker(ticker)
-
                 .setNumber(number)
 
                 // Set the pending intent to be initiated when the user touches

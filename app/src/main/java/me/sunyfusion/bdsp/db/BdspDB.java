@@ -20,12 +20,13 @@ public class BdspDB extends SQLiteOpenHelper
     public static final String TABLE_NAME = "tasksTable";
     public static SQLiteDatabase db;
 
-    /*
-    *
-    * */
     public ArrayList<String> deleteQueue;
     Context c;
 
+    /**
+     * Creates new BdspDB object
+     * @param context the context of the Activity that is using this object
+     */
     public BdspDB(Context context)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -34,6 +35,10 @@ public class BdspDB extends SQLiteOpenHelper
         c = context;
     }
 
+    /**
+     * Inserts values into database
+     * @param values values to be inserted
+     */
     public void insert(ContentValues values) {
         db.insert(TABLE_NAME,null,values);
     }
@@ -50,6 +55,11 @@ public class BdspDB extends SQLiteOpenHelper
 
     }
 
+    /**
+     * Adds a column to the database
+     * @param columnName name of the column
+     * @param columnType type of the column
+     */
     public void addColumn(String columnName, String columnType)
     {
         try {
@@ -58,6 +68,10 @@ public class BdspDB extends SQLiteOpenHelper
         catch(SQLiteException e) {}
     }
 
+    /**
+     * Queries the default table, returning a cursor to every row in the table
+     * @return a cursor to all of the rows in the table
+     */
     public Cursor queueAll() {
         String[] columns = new String[] { "*" };
 
@@ -65,17 +79,24 @@ public class BdspDB extends SQLiteOpenHelper
                 null, null, null, null);
         return cursor;
     }
+
+    /**
+     * Removes all entries associated with a run number from the table, starting on a certain date
+     * @param run Run number to remove
+     * @param date Date to remove runs from
+     */
     public void deleteRun(int run, String date) {
         db.delete("tasksTable","run=? and date > Datetime(?)",new String[]{Integer.toString(run),date});
     }
 
+    /**
+     * Empties the queue of rows to be deleted
+     */
     public void emptyDeleteQueue() {
-        System.out.println("Entering delete");
         for (String table_id : deleteQueue) {
             System.out.println("Deleting " + table_id);
             db.delete("tasksTable", "unique_table_id=" + table_id, null);
         }
-        System.out.println("Exiting delete");
     }
 
 }
