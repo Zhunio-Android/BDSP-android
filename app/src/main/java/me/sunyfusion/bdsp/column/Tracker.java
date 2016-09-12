@@ -21,6 +21,11 @@ public class Tracker {
     Config config;
     BdspDB db = Global.getDb();
 
+    /**
+     * Instantiates new Tracker object
+     * @param c the context of the activity that is using the tracker
+     * @param config the current configuration of the application
+     */
     public Tracker(Context c, Config config) {
         this.gps = config.getGps();
         gps.bindTracker(this);
@@ -29,6 +34,11 @@ public class Tracker {
         db.addColumn("longTrack", "TEXT");
     }
 
+    /**
+     * Inserts into the database the location information contained in the passed
+     * Location object
+     * @param l the Location object to be inserted
+     */
     public void insertPoint(Location l) {
         ContentValues cv = new ContentValues();
         cv.put("latTrack", l.getLatitude());
@@ -39,6 +49,11 @@ public class Tracker {
         config.getRun().insertValueNoInc(cv);
         db.insert(cv);
     }
+
+    /**
+     * Returns the current date and time in string form
+     * @return a date string for "now" in the format "yyyy-MM-dd H:m:s"
+     */
     private String getDateString() {
         SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd H:m:s");
         d.setTimeZone(TimeZone.getDefault());

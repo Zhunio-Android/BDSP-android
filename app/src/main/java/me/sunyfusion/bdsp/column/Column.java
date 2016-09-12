@@ -28,7 +28,7 @@ public abstract class Column {
     final Column column = this;
 
     /**
-     * Main constructor
+     * Default constructor
      * @param context context passed in from calling method
      * @param colName name of column read in from configuration file
      */
