@@ -24,9 +24,10 @@ import java.util.TimerTask;
 import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.notification.BdspNotification;
+import me.sunyfusion.bdsp.state.Config;
 import me.sunyfusion.bdsp.state.Global;
 
-public class TrackerService extends Service implements LocationListener {
+public class GpsService extends Service implements LocationListener {
     private final IBinder mBinder = new bdspBinder();
     BdspDB db;
     Tracker tracker;
@@ -37,7 +38,7 @@ public class TrackerService extends Service implements LocationListener {
     FileOutputStream outputStream;
     Location location;
 
-    public TrackerService() {
+    public GpsService() {
         try {
             File file = new File(Global.getContext().getExternalFilesDir(null), "test_file.txt");
             outputStream = new FileOutputStream(file);
@@ -57,6 +58,9 @@ public class TrackerService extends Service implements LocationListener {
     }
     private void makeUseOfNewLocation(Location l) {
         location = l;
+        Config config = Global.getConfig();
+        config.getLatitude().setLocation(l);
+        config.getLongitude().setLocation(l);
     }
 
     public void startLocationUpdates() throws SecurityException {
@@ -71,7 +75,7 @@ public class TrackerService extends Service implements LocationListener {
         tracker = new Tracker(Global.getContext(),Global.getConfig());
         t = new Timer();
         PowerManager pm = (PowerManager) Global.getContext().getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TrackerService");
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "GpsService");
         wl.acquire();
         startLocationUpdates();
         db = Global.getDb();
@@ -79,22 +83,25 @@ public class TrackerService extends Service implements LocationListener {
         d.setTimeZone(TimeZone.getDefault());
         timeStarted = d.format(new java.util.Date());
         Notification n = BdspNotification.notify(getApplicationContext(), timeStarted, 1);
-        t.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                if(location != null) {
-                    tracker.insertPoint(location);
-                    System.out.println("POINT LOGGED");
+        if(Global.getConfig().isGpsTrackerEnabled()) {
+            t.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    if (location != null) {
+                        tracker.insertPoint(location);
+                        System.out.println(location.getAccuracy());
+                        System.out.println("POINT LOGGED");
+                    }
                 }
-            }
-        },0,1000);
+            }, 0, 1000);
+        }
         startForeground(1, n);
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        Toast.makeText(TrackerService.this, timeStarted, Toast.LENGTH_SHORT).show();
+        Toast.makeText(GpsService.this, timeStarted, Toast.LENGTH_SHORT).show();
         wl.release();
         t.cancel();
         stopLocationUpdates();
@@ -115,10 +122,8 @@ public class TrackerService extends Service implements LocationListener {
     }
 
     public class bdspBinder extends Binder {
-        public TrackerService getService() {
-            return TrackerService.this;
+        public GpsService getService() {
+            return GpsService.this;
         }
     }
-
-
 }

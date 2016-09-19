@@ -33,7 +33,7 @@
         </receiver>
 
         <service
-            android:name="me.sunyfusion.bdsp.service.TrackerService"
+            android:name=".service.GpsService"
             android:enabled="true"
             android:exported="true" />
     </application>

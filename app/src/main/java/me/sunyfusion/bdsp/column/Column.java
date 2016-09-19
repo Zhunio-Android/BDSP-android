@@ -86,5 +86,6 @@ public abstract class Column {
      * @return Column value
      */
     public String getValue() { return value; }
+    public Context getContext() { return c; }
 
 }

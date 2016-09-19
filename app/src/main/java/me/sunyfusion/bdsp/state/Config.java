@@ -24,7 +24,6 @@ import me.sunyfusion.bdsp.column.Photo;
 import me.sunyfusion.bdsp.column.Run;
 import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.column.Unique;
-import me.sunyfusion.bdsp.hardware.GPS;
 import me.sunyfusion.bdsp.io.ReadFromInput;
 
 /**
@@ -52,7 +51,6 @@ public class Config {
     private String project;
     ArrayList<Unique> uniques = new ArrayList<>();
     Context c;
-    GPS gps;
 
     public Config(Context context) {
         c = context;   // Ties config to main activity
@@ -101,11 +99,8 @@ public class Config {
                     project = readFile.getArg(1);
                     break;
                 case "locOnSub":
-                    if(gps == null) {
-                        gps = new GPS(c);
-                    }
-                    latColumn = new Latitude(c, readFile.getArg(2), gps);
-                    lonColumn = new Longitude(c, readFile.getArg(3), gps);
+                    latColumn = new Latitude(c, readFile.getArg(2));
+                    lonColumn = new Longitude(c, readFile.getArg(3));
                     break;
                 case "email":
                     email = readFile.getArg(1);
@@ -121,11 +116,8 @@ public class Config {
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {
-                        if(gps == null) {
-                            gps = new GPS(c);
-                        }
-                        latColumn = new Latitude(c, readFile.getArg(2), gps);
-                        lonColumn = new Longitude(c, readFile.getArg(3), gps);
+                        latColumn = new Latitude(c, readFile.getArg(2));
+                        lonColumn = new Longitude(c, readFile.getArg(3));
                     }
                     break;
                 case "gpsTracker":
@@ -174,15 +166,14 @@ public class Config {
     public String getIdValue() {
         return id_value;
     }
-    public GPS getGps(){
-        return gps;
-    }
+    public Latitude getLatitude() { return latColumn; };
+    public Longitude getLongitude() { return lonColumn; };
     public ID getId() { return id; }
     public boolean isPhotoEnabled() {
         return photo != null;
     }
     public boolean isLocationEnabled() {
-        return gps != null;
+        return true;
     }
 
     public void checkGPSPermission()

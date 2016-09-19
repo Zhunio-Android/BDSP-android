@@ -2,20 +2,23 @@ package me.sunyfusion.bdsp.column;
 
 import android.content.ContentValues;
 import android.content.Context;
-
-import me.sunyfusion.bdsp.hardware.GPS;
+import android.location.Location;
 
 /**
  * Created by deisingj1 on 8/8/2016.
  */
 public class Longitude extends Column {
-    GPS gps;
-    public Longitude(Context c, String s, GPS gps) {
+    Location location;
+    public Longitude(Context c, String s) {
         super(c,s);
-        this.gps = gps;
     }
     @Override
     public void insertValue(ContentValues cv) {
-        cv.put(getColumnName(), gps.longitude);
+        if(location != null) {
+            cv.put(getColumnName(), location.getLongitude());
+        }
+    }
+    public void setLocation(Location l) {
+        location = l;
     }
 }

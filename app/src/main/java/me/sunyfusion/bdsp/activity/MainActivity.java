@@ -31,7 +31,7 @@ import me.sunyfusion.bdsp.adapter.UniqueAdapter;
 import me.sunyfusion.bdsp.column.Unique;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
-import me.sunyfusion.bdsp.service.TrackerService;
+import me.sunyfusion.bdsp.service.GpsService;
 import me.sunyfusion.bdsp.state.Config;
 import me.sunyfusion.bdsp.state.Global;
 import me.sunyfusion.bdsp.tasks.UploadTask;
@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mAdapter = new UniqueAdapter(uniques);
         mRecyclerView.setAdapter(mAdapter);
-
     }
 
     @Override
@@ -126,8 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onDestroy() {
-        stopService(new Intent(this,TrackerService.class));
-        Global.getConfig().getGps().stopLocationUpdates();
+        stopService(new Intent(this,GpsService.class));
         db.close();
         super.onDestroy();
     }
@@ -179,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 clearTextFields();
                 break;
             default:
+                System.out.println(view.getId());
                 break;
         }
     }
@@ -224,9 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
                     config.updateUrl();
-                    if(Global.getConfig().isGpsTrackerEnabled()) {
-                        startService(new Intent(MainActivity.this, TrackerService.class));
-                    }
+                    startService(new Intent(MainActivity.this, GpsService.class));
                 }
             }
         });

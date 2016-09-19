@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 import me.sunyfusion.bdsp.db.BdspDB;
-import me.sunyfusion.bdsp.hardware.GPS;
 import me.sunyfusion.bdsp.state.Config;
 import me.sunyfusion.bdsp.state.Global;
 
@@ -16,7 +15,6 @@ import me.sunyfusion.bdsp.state.Global;
  * Created by deisingj1 on 8/8/2016.
  */
 public class Tracker {
-    GPS gps;
     Context c;
     Config config;
     BdspDB db = Global.getDb();
@@ -27,8 +25,6 @@ public class Tracker {
      * @param config the current configuration of the application
      */
     public Tracker(Context c, Config config) {
-        this.gps = config.getGps();
-        gps.bindTracker(this);
         this.config = config;
         db.addColumn("latTrack", "TEXT");
         db.addColumn("longTrack", "TEXT");
