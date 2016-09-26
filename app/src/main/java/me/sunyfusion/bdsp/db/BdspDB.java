@@ -73,7 +73,7 @@ public class BdspDB extends SQLiteOpenHelper
      * @return a cursor to all of the rows in the table
      */
     public Cursor queueAll() {
-        String[] columns = new String[] { "*" };
+       // String[] columns = new String[] { "*" };
 
         Cursor cursor = db.query("tasksTable", null, null,
                 null, null, null, null);

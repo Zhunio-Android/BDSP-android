@@ -3,6 +3,7 @@ package me.sunyfusion.bdsp.state;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
+import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.column.Datestamp;
 import me.sunyfusion.bdsp.column.ID;
 import me.sunyfusion.bdsp.column.Latitude;
@@ -25,6 +27,7 @@ import me.sunyfusion.bdsp.column.Run;
 import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.column.Unique;
 import me.sunyfusion.bdsp.io.ReadFromInput;
+import me.sunyfusion.bdsp.service.GpsService;
 
 /**
  * Created by deisingj1 on 8/4/2016.
@@ -40,6 +43,8 @@ public class Config {
     private Run run;
     private Photo photo;
     private Datestamp date;
+    private boolean trackerInUse;
+    private boolean LocInUse;
 
     public boolean isGpsTrackerEnabled() {
         return gpsTrackerEnabled;
@@ -116,12 +121,15 @@ public class Config {
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {
+                        checkGPSPermission();
                         latColumn = new Latitude(c, readFile.getArg(2));
                         lonColumn = new Longitude(c, readFile.getArg(3));
                     }
                     break;
                 case "gpsTracker":
                     gpsTrackerEnabled = readFile.enabled();
+                    if (readFile.enabled())
+                        checkGPSPermission();
                     break;
                 case "unique":
                     uniques.add(new Unique(c, readFile.getArg(1)));
@@ -140,6 +148,11 @@ public class Config {
             }
         }
         while (!Type.equals("endFile"));
+
+        if(trackerInUse == true || LocInUse == true)
+        {
+            Global.getContext().startService(new Intent(c, GpsService.class));
+        }
     }
 
     public void updateUrl() {

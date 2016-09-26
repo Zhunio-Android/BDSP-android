@@ -33,7 +33,7 @@ public class GpsService extends Service implements LocationListener {
     Tracker tracker;
     String timeStarted;
     Timer t;
-    PowerManager.WakeLock wl;
+    PowerManager.WakeLock wl;  // wakelock
     LocationManager locationManager;
     FileOutputStream outputStream;
     Location location;

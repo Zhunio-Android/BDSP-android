@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
                     config.updateUrl();
                     startService(new Intent(MainActivity.this, GpsService.class));
+
                 }
             }
         });
@@ -234,13 +235,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+
+        System.out.println("I am the onRequestPermissionsResult() and was called by the OS ");
+
         switch (requestCode) {
             case Global.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                System.out.println("They said yes!");
+                    System.out.println("They said yes!");
+                    startService(new Intent(MainActivity.this, GpsService.class));
+
 
                 } else {
 
