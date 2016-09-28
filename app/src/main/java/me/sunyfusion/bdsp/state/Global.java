@@ -42,4 +42,7 @@ public class Global {
     public static Context getContext() {
         return getInstance().context;
     }
+    public static void setDb(BdspDB d) {
+        getInstance().dbHelper = d;
+    }
 }

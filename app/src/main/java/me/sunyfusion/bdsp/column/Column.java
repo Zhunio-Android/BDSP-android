@@ -33,7 +33,6 @@ public abstract class Column {
      * @param colName name of column read in from configuration file
      */
     public Column(Context context, String colName) {
-
         c = context;
         columnName = colName;
         db = Global.getDb();
