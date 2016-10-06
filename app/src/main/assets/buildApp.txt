@@ -20,7 +20,7 @@ run 1 run
 table bdspTestTable
 
 //email address of user that built the app, transactions will be authorized through this account
-email jett925@gmail.com
+email simonsj@newpaltz.edu
 
 //field that the app will put the current system time into
 datetime date

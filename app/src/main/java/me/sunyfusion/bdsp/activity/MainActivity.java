@@ -2,10 +2,13 @@ package me.sunyfusion.bdsp.activity;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -116,6 +119,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        NetUpdateReceiver.netConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
     }
 
     @Override
@@ -223,8 +232,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
                     config.updateUrl();
-                    startService(new Intent(MainActivity.this, GpsService.class));
-
+                    //startService(new Intent(MainActivity.this, GpsService.class));
                 }
             }
         });
@@ -246,12 +254,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     System.out.println("They said yes!");
                     startService(new Intent(MainActivity.this, GpsService.class));
-
-
                 } else {
-
                     System.out.println("They said no!");
-
                 }
                 return;
             }

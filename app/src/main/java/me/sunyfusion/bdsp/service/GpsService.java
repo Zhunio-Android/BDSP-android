@@ -42,10 +42,10 @@ public class GpsService extends Service implements LocationListener {
         try {
             File file = new File(Global.getContext().getExternalFilesDir(null), "test_file.txt");
             outputStream = new FileOutputStream(file);
+            locationManager = (LocationManager) Global.getContext().getSystemService(Context.LOCATION_SERVICE);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        locationManager = (LocationManager) Global.getContext().getSystemService(Context.LOCATION_SERVICE);
     }
     public void onLocationChanged(Location l) {
         makeUseOfNewLocation(l);
@@ -64,11 +64,15 @@ public class GpsService extends Service implements LocationListener {
     }
 
     public void startLocationUpdates() throws SecurityException {
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+        if(locationManager != null) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+        }
     }
 
     public void stopLocationUpdates() throws SecurityException {
-        locationManager.removeUpdates(this);
+        if(locationManager != null) {
+            locationManager.removeUpdates(this);
+        }
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

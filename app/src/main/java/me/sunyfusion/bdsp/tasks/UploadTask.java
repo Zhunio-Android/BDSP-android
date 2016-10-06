@@ -69,6 +69,7 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
     @Override
     protected void onPostExecute(JSONArray j) {
         super.onPostExecute(j);
+        System.out.println(Config.SUBMIT_URL);
         doHTTPpost(Config.SUBMIT_URL, j, null);
     }
 

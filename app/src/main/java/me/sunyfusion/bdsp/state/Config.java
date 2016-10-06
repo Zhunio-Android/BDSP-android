@@ -2,9 +2,11 @@ package me.sunyfusion.bdsp.state;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
-import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.column.Datestamp;
 import me.sunyfusion.bdsp.column.ID;
 import me.sunyfusion.bdsp.column.Latitude;
@@ -45,6 +46,7 @@ public class Config {
     private Datestamp date;
     private boolean trackerInUse;
     private boolean LocInUse;
+    private boolean gpsEnabled;
 
     public boolean isGpsTrackerEnabled() {
         return gpsTrackerEnabled;
@@ -97,8 +99,10 @@ public class Config {
 
             switch (Type) {
                 case "url":
-                    url = readFile.getArg(1);
-                    SUBMIT_URL = readFile.getArg(1) + SUBMIT_URL;
+                    if(url == null) {
+                        url = readFile.getArg(1);
+                        SUBMIT_URL = readFile.getArg(1) + SUBMIT_URL;
+                    }
                     break;
                 case "project":
                     project = readFile.getArg(1);
@@ -122,6 +126,7 @@ public class Config {
                 case "gpsLoc":
                     if (readFile.enabled()) {
                         checkGPSPermission();
+                        LocInUse = true;
                         latColumn = new Latitude(c, readFile.getArg(2));
                         lonColumn = new Longitude(c, readFile.getArg(3));
                     }
@@ -149,14 +154,13 @@ public class Config {
         }
         while (!Type.equals("endFile"));
 
-        if(trackerInUse == true || LocInUse == true)
-        {
-            Global.getContext().startService(new Intent(c, GpsService.class));
-        }
     }
 
     public void updateUrl() {
-        SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value + "&email=" + email + "&table=" + table;
+        if(!SUBMIT_URL.contains("?idk=") && !SUBMIT_URL.contains("&email=")) {
+            SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value + "&email=" + email + "&table=" + table;
+        }
+        System.out.println(SUBMIT_URL);
     }
 
     public void setIdValue(String idValue) {
@@ -186,26 +190,37 @@ public class Config {
         return photo != null;
     }
     public boolean isLocationEnabled() {
-        return true;
+        return LocInUse;
     }
 
-    public void checkGPSPermission()
-    {
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission(c,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+    public void checkGPSPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Here, thisActivity is the current activity
+            if (ContextCompat.checkSelfPermission(c,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
 
 
                 ActivityCompat.requestPermissions((Activity) c,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         Global.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-
+            }
         }
+        else {
+            if(!isServiceRunning(GpsService.class)) {
+                Global.getContext().startService(new Intent(c, GpsService.class));
+            }
+        }
+    }
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
