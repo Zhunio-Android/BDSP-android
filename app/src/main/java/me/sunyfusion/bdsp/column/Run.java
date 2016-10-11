@@ -24,13 +24,13 @@ public class Run extends Column{
     public void checkDate() {
         SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         SharedPreferences.Editor prefEdit = prefs.edit();
-        String date = Datestamp.getDateString();
+        String date = Datestamp.getDateString("yyyy-MM-dd");
         if(prefs.getString("lastDate","").isEmpty()) {
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();
         }
-        if (!prefs.getString("lastDate", "").equals(Datestamp.getDateString())) {
+        if (!prefs.getString("lastDate", "").equals(Datestamp.getDateString("yyyy-MM-dd"))) {
             Global.getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);

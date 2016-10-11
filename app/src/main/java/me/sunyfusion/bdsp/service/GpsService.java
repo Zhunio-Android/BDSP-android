@@ -21,6 +21,7 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import me.sunyfusion.bdsp.column.Datestamp;
 import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.notification.BdspNotification;
@@ -29,7 +30,6 @@ import me.sunyfusion.bdsp.state.Global;
 
 public class GpsService extends Service implements LocationListener {
     private final IBinder mBinder = new bdspBinder();
-    BdspDB db;
     Tracker tracker;
     String timeStarted;
     Timer t;
@@ -39,14 +39,12 @@ public class GpsService extends Service implements LocationListener {
     Location location;
 
     public GpsService() {
-        try {
-            File file = new File(Global.getContext().getExternalFilesDir(null), "test_file.txt");
-            outputStream = new FileOutputStream(file);
-            locationManager = (LocationManager) Global.getContext().getSystemService(Context.LOCATION_SERVICE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
+
+    //-------------------------------------------------------------------
+    // Methods that implement LocationListener
+    //-------------------------------------------------------------------
     public void onLocationChanged(Location l) {
         makeUseOfNewLocation(l);
     }
@@ -74,18 +72,19 @@ public class GpsService extends Service implements LocationListener {
             locationManager.removeUpdates(this);
         }
     }
+
+    //-------------------------------------------------------------------
+    // Methods that extend Service
+    //-------------------------------------------------------------------
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        tracker = new Tracker(Global.getContext(),Global.getConfig());
+        if(Global.getInstance() != null) {
+            tracker = new Tracker(Global.getContext(), Global.getConfig());
+        }
         t = new Timer();
-        PowerManager pm = (PowerManager) Global.getContext().getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "GpsService");
-        wl.acquire();
+        getWakelock();
         startLocationUpdates();
-        db = Global.getDb();
-        SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        d.setTimeZone(TimeZone.getDefault());
-        timeStarted = d.format(new java.util.Date());
+        timeStarted = Datestamp.getDateString("yyyy-MM-dd HH:mm:ss");
         Notification n = BdspNotification.notify(getApplicationContext(), timeStarted, 1);
         if(Global.getConfig().isGpsTrackerEnabled()) {
             t.scheduleAtFixedRate(new TimerTask() {
@@ -94,7 +93,6 @@ public class GpsService extends Service implements LocationListener {
                     if (location != null) {
                         tracker.insertPoint(location);
                         System.out.println(location.getAccuracy());
-                        System.out.println("POINT LOGGED");
                     }
                 }
             }, 0, 1000);
@@ -113,7 +111,7 @@ public class GpsService extends Service implements LocationListener {
             outputStream.close();
         }
         catch(Exception e) {
-
+            System.out.println(e.getMessage());
         }
         super.onDestroy();
     }
@@ -129,5 +127,14 @@ public class GpsService extends Service implements LocationListener {
         public GpsService getService() {
             return GpsService.this;
         }
+    }
+
+    //-------------------------------------------------------------------
+    // Everything else
+    //-------------------------------------------------------------------
+    private void getWakelock() {
+        PowerManager pm = (PowerManager) Global.getContext().getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "GpsService");
+        wl.acquire();
     }
 }

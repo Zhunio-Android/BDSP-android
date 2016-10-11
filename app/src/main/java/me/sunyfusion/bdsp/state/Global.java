@@ -1,7 +1,6 @@
 package me.sunyfusion.bdsp.state;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import me.sunyfusion.bdsp.db.BdspDB;
 
@@ -13,8 +12,7 @@ public class Global {
     private static Global ourInstance = new Global();
     private Config config;
 
-    BdspDB dbHelper;
-    SQLiteDatabase db;
+    private static BdspDB dbHelper;
 
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
@@ -36,13 +34,13 @@ public class Global {
     }
 
     public static BdspDB getDb() {
+        if (dbHelper == null) {
+            dbHelper = new BdspDB(getContext());
+        }
         return getInstance().dbHelper;
     }
 
     public static Context getContext() {
         return getInstance().context;
-    }
-    public static void setDb(BdspDB d) {
-        getInstance().dbHelper = d;
     }
 }

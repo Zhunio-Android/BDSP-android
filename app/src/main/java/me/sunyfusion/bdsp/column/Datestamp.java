@@ -24,8 +24,8 @@ public class Datestamp extends Column {
         System.out.println("subclass insertValue date");
     }
 
-    public static String getDateString() {
-        SimpleDateFormat d = new SimpleDateFormat("yyyy-MM-dd");
+    public static String getDateString(String format) {
+        SimpleDateFormat d = new SimpleDateFormat(format);
         d.setTimeZone(TimeZone.getDefault());
         String cdt = d.format(new java.util.Date());
         return cdt;

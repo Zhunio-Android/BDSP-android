@@ -15,6 +15,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
@@ -25,52 +27,61 @@ import me.sunyfusion.bdsp.state.Global;
 /**
  * Created by jesse on 8/1/16.
  */
-public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
+public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
     public UploadTask() {
         super();
     }
     BdspDB db = Global.getDb();
 
     @Override
-    protected JSONArray doInBackground(Void... voids) {
-        JSONArray j = new JSONArray();
-        JSONObject jsonObject;
-        Cursor c = db.queueAll();
-        if (c.getCount() == 0)   //Does not submit if database is empty
-            return null;
-        c.moveToNext();
-        String[] cNames = c.getColumnNames();
-
-        int cCount = c.getColumnCount();
-        while (!c.isAfterLast()) {
-            jsonObject = new JSONObject();
-            for (int i = 0; i < cCount; i++) {
-                if (!cNames[i].equals("unique_table_id"))
-                    try {
-                        jsonObject.put(cNames[i], c.getString(i));
-                    } catch (JSONException e) {
-                        Log.d("BDSP", "JSONexception");
-                    }
-            }
-            j.put(jsonObject);
-            db.deleteQueue.add(c.getString(0));
+    protected ArrayList<JSONArray> doInBackground(Void... voids) {
+        ArrayList<JSONArray> jsonArrayList = new ArrayList<JSONArray>();
+        HashSet<ArrayList<String>> runAndDateList = db.getColumns(Global.getConfig().getRun().getColumnName(),"date");
+        for(ArrayList<String> s : runAndDateList) {
+            Object[] str = s.toArray();
+            Cursor c = db.queueAll(str);
+            JSONArray j = new JSONArray();
+            JSONObject jsonObject;
+            if (c.getCount() == 0)   //Does not submit if database is empty
+                return null;
             c.moveToNext();
+            String[] cNames = c.getColumnNames();
+
+            int cCount = c.getColumnCount();
+            while (!c.isAfterLast()) {
+                jsonObject = new JSONObject();
+                for (int i = 0; i < cCount; i++) {
+                    if (!cNames[i].equals("unique_table_id"))
+                        try {
+                            jsonObject.put(cNames[i], c.getString(i));
+                        } catch (JSONException e) {
+                            Log.d("BDSP", "JSONexception");
+                        }
+                }
+                j.put(jsonObject);
+                db.deleteQueue.add(c.getString(0));
+                c.moveToNext();
+            }
+            JSONObject params = new JSONObject();
+            try {
+                params.put("data", j);
+            } catch (JSONException e) {
+                Log.d("BDSP", "JSONexception");
+            }
+            c.close();
+            jsonArrayList.add(j);
         }
-        JSONObject params = new JSONObject();
-        try {
-            params.put("data", j);
-        } catch (JSONException e) {
-            Log.d("BDSP", "JSONexception");
-        }
-        c.close();
-        return j;
+        return jsonArrayList;
     }
 
     @Override
-    protected void onPostExecute(JSONArray j) {
+    protected void onPostExecute(ArrayList<JSONArray> j) {
         super.onPostExecute(j);
         System.out.println(Config.SUBMIT_URL);
-        doHTTPpost(Config.SUBMIT_URL, j, null);
+        for(JSONArray jsonArray : j) {
+            Log.d("JSON ARRAY", jsonArray.toString());
+            doHTTPpost(Config.SUBMIT_URL, jsonArray, null);
+        }
     }
 
     /**
@@ -86,7 +97,6 @@ public class UploadTask extends AsyncTask<Void, Void, JSONArray> {
 
         if (imgUri != null) {
             File myFile = new File(imgUri.getPath());
-
         }
         try {
             entity = new StringEntity(jsonParams.toString());

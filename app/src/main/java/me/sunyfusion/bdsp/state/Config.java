@@ -44,9 +44,7 @@ public class Config {
     private Run run;
     private Photo photo;
     private Datestamp date;
-    private boolean trackerInUse;
     private boolean LocInUse;
-    private boolean gpsEnabled;
 
     public boolean isGpsTrackerEnabled() {
         return gpsTrackerEnabled;
@@ -54,7 +52,6 @@ public class Config {
 
     boolean gpsTrackerEnabled = false;
     private ID id;
-    private Tracker tracker;
     private String project;
     ArrayList<Unique> uniques = new ArrayList<>();
     Context c;
@@ -63,6 +60,7 @@ public class Config {
         c = context;   // Ties config to main activity
         init();
     }
+    //Currently not used, written to support updating configurations remotely, not finished
     public void getNewConfig() {
         AsyncHttpClient client = new AsyncHttpClient();
         client.get("https://example.com/file.png", new FileAsyncHttpResponseHandler(c) {
@@ -92,7 +90,8 @@ public class Config {
             try {
                 readFile.getNextLine();
                 readFile.ReadLineCollectInfo();
-            } catch (FileNotFoundException e) {
+            }
+            catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
             Type = readFile.getType();
@@ -101,7 +100,9 @@ public class Config {
                 case "url":
                     if(url == null) {
                         url = readFile.getArg(1);
-                        SUBMIT_URL = readFile.getArg(1) + SUBMIT_URL;
+                        if(!SUBMIT_URL.contains(readFile.getArg(1))) {
+                            SUBMIT_URL = readFile.getArg(1) + SUBMIT_URL;
+                        }
                     }
                     break;
                 case "project":

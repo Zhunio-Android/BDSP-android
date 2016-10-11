@@ -135,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onDestroy() {
         stopService(new Intent(this,GpsService.class));
-        db.close();
         super.onDestroy();
     }
 
@@ -177,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if (NetUpdateReceiver.netConnected) {
                     try {
-                        AsyncTask<Void, Void, JSONArray> doUpload = new UploadTask();
+                        AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask();
                         doUpload.execute();
                     } catch (Exception e) {
                         Log.d("UPLOADER", "THAT DIDN'T WORK");
@@ -232,7 +231,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
                     config.updateUrl();
-                    //startService(new Intent(MainActivity.this, GpsService.class));
                 }
             }
         });
@@ -243,8 +241,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
-
-        System.out.println("I am the onRequestPermissionsResult() and was called by the OS ");
 
         switch (requestCode) {
             case Global.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {

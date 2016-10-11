@@ -6,8 +6,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
+import me.sunyfusion.bdsp.state.Global;
 
 /**
  * Created by Robert Wieland on 3/26/16.
@@ -65,19 +70,39 @@ public class BdspDB extends SQLiteOpenHelper
         try {
             db.execSQL("ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + columnName + " " + columnType);
         }
-        catch(SQLiteException e) {}
+        catch(SQLiteException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     /**
      * Queries the default table, returning a cursor to every row in the table
      * @return a cursor to all of the rows in the table
      */
-    public Cursor queueAll() {
+    public Cursor queueAll(Object[] o) {
        // String[] columns = new String[] { "*" };
-
-        Cursor cursor = db.query("tasksTable", null, null,
-                null, null, null, null);
+        String[] s = new String[]{(String) o[0], (String) o[1] + "%"};
+        Cursor cursor = db.query("tasksTable", null, "run=? and date LIKE ?",
+                s, null, null, null);
         return cursor;
+    }
+    public HashSet<ArrayList<String>> getColumns(String... column_names) {
+        if (db == null) throw new AssertionError("db is null, there's a problem");
+        HashSet<ArrayList<String>> columnsList = new HashSet<ArrayList<String>>();
+        Cursor c = db.query(true, "tasksTable", column_names, null, null, null, null, null, null);
+        if (c.getCount() > 0) {
+            Log.d("DB SIZE", Integer.toString(c.getCount()));
+            c.moveToNext();
+            while (!c.isAfterLast()) {
+                ArrayList<String> stringArrayList = new ArrayList<>();
+                stringArrayList.add(c.getString(0));
+                stringArrayList.add(c.getString(1).substring(0, 10));
+                columnsList.add(stringArrayList);
+                c.moveToNext();
+            }
+        }
+        c.close();
+        return columnsList;
     }
 
     /**
