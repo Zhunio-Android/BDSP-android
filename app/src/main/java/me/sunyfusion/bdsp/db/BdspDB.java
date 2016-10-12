@@ -36,7 +36,6 @@ public class BdspDB extends SQLiteOpenHelper
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         db = this.getWritableDatabase();
-        deleteQueue = new ArrayList<String>();
         c = context;
     }
 
@@ -80,10 +79,16 @@ public class BdspDB extends SQLiteOpenHelper
      * @return a cursor to all of the rows in the table
      */
     public Cursor queueAll(Object[] o) {
-       // String[] columns = new String[] { "*" };
-        String[] s = new String[]{(String) o[0], (String) o[1] + "%"};
-        Cursor cursor = db.query("tasksTable", null, "run=? and date LIKE ?",
-                s, null, null, null);
+        Cursor cursor;
+        if(o != null) {
+            String[] s = new String[]{(String) o[0], (String) o[1] + "%"};
+            cursor = db.query("tasksTable", null, "run=? and date LIKE ?",
+                    s, null, null, null);
+        }
+        else {
+            cursor = db.query("tasksTable", null, null,
+                    null, null, null, null);
+        }
         return cursor;
     }
     public HashSet<ArrayList<String>> getColumns(String... column_names) {
@@ -117,10 +122,11 @@ public class BdspDB extends SQLiteOpenHelper
     /**
      * Empties the queue of rows to be deleted
      */
-    public void emptyDeleteQueue() {
+    public void emptyDeleteQueue(ArrayList<String> deleteQueue) {
         for (String table_id : deleteQueue) {
             System.out.println("Deleting " + table_id);
             db.delete("tasksTable", "unique_table_id=" + table_id, null);
+            deleteQueue.remove(table_id);
         }
     }
 

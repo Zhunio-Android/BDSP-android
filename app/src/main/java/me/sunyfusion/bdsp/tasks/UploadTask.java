@@ -32,6 +32,7 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
         super();
     }
     BdspDB db = Global.getDb();
+    ArrayList<String> deleteQueue = new ArrayList<String>();
 
     @Override
     protected ArrayList<JSONArray> doInBackground(Void... voids) {
@@ -59,7 +60,7 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
                         }
                 }
                 j.put(jsonObject);
-                db.deleteQueue.add(c.getString(0));
+                deleteQueue.add(c.getString(0));
                 c.moveToNext();
             }
             JSONObject params = new JSONObject();
@@ -118,8 +119,8 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
                 Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
                 Log.i("UPLOAD", "SUCCESS");
-                AsyncTask<Void,Void,Void> emptyQueue = new EmptyDeleteQueueTask();
-                emptyQueue.execute();
+                AsyncTask<ArrayList<String>,Void,Void> emptyQueue = new EmptyDeleteQueueTask();
+                emptyQueue.execute(deleteQueue);
             }
 
             @Override
