@@ -13,17 +13,12 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
-
-import java.io.File;
 import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import me.sunyfusion.bdsp.column.Datestamp;
 import me.sunyfusion.bdsp.column.Tracker;
-import me.sunyfusion.bdsp.db.BdspDB;
+import me.sunyfusion.bdsp.exception.LocationManagerNullException;
 import me.sunyfusion.bdsp.notification.BdspNotification;
 import me.sunyfusion.bdsp.state.Config;
 import me.sunyfusion.bdsp.state.Global;
@@ -39,7 +34,7 @@ public class GpsService extends Service implements LocationListener {
     Location location;
 
     public GpsService() {
-
+        locationManager = (LocationManager) Global.getContext().getSystemService(Context.LOCATION_SERVICE);
     }
 
     //-------------------------------------------------------------------
@@ -61,10 +56,11 @@ public class GpsService extends Service implements LocationListener {
         config.getLongitude().setLocation(l);
     }
 
-    public void startLocationUpdates() throws SecurityException {
+    public void startLocationUpdates() throws SecurityException,LocationManagerNullException {
         if(locationManager != null) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
         }
+        else throw new LocationManagerNullException();
     }
 
     public void stopLocationUpdates() throws SecurityException {
@@ -83,7 +79,12 @@ public class GpsService extends Service implements LocationListener {
         }
         t = new Timer();
         getWakelock();
-        startLocationUpdates();
+        try {
+            startLocationUpdates();
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
         timeStarted = Datestamp.getDateString("yyyy-MM-dd HH:mm:ss");
         Notification n = BdspNotification.notify(getApplicationContext(), timeStarted, 1);
         if(Global.getConfig().isGpsTrackerEnabled()) {

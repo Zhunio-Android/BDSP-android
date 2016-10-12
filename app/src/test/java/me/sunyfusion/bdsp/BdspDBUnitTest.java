@@ -76,6 +76,6 @@ public class BdspDBUnitTest {
             db.insert(cv);
         }
         int count = db.queueAll(null).getCount();
-        assertTrue("incorrect row insertion, expected 2000, actual = " + count, count == 200);
+        assertTrue("incorrect row insertion, expected 200, actual = " + count, count == 200);
     }
 }

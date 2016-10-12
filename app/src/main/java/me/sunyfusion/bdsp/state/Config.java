@@ -27,6 +27,7 @@ import me.sunyfusion.bdsp.column.Photo;
 import me.sunyfusion.bdsp.column.Run;
 import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.column.Unique;
+import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.io.ReadFromInput;
 import me.sunyfusion.bdsp.service.GpsService;
 
@@ -45,6 +46,7 @@ public class Config {
     private Photo photo;
     private Datestamp date;
     private boolean LocInUse;
+    private BdspDB db;
 
     public boolean isGpsTrackerEnabled() {
         return gpsTrackerEnabled;
@@ -59,6 +61,7 @@ public class Config {
     public Config(Context context) {
         c = context;   // Ties config to main activity
         init();
+        db = new BdspDB(context);
     }
     //Currently not used, written to support updating configurations remotely, not finished
     public void getNewConfig() {
@@ -75,6 +78,13 @@ public class Config {
             }
         });
     }
+    public BdspDB getDb() {
+        if (db == null) {
+            db = new BdspDB(c);
+        }
+        return db;
+    }
+
 
     private void init() {
         String Type;

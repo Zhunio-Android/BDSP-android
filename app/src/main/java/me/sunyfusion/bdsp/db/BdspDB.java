@@ -126,8 +126,6 @@ public class BdspDB extends SQLiteOpenHelper
         for (String table_id : deleteQueue) {
             System.out.println("Deleting " + table_id);
             db.delete("tasksTable", "unique_table_id=" + table_id, null);
-            deleteQueue.remove(table_id);
         }
     }
-
 }
