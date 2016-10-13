@@ -31,7 +31,7 @@ import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.adapter.UniqueAdapter;
-import me.sunyfusion.bdsp.column.Unique;
+import me.sunyfusion.bdsp.column.Column;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
 import me.sunyfusion.bdsp.service.GpsService;
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         config = new Config(this);  // Stores all of the config info from build app.txt
         db = Global.getDb();
         Global.getInstance().setConfig(config);
-        ArrayList<Unique> uniques = config.getUniques();
+        ArrayList<Column> uniques = config.getUniques();
         showIdEntry(config.getIdKey());
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);

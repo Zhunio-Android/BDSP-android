@@ -12,7 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.R;
-import me.sunyfusion.bdsp.column.Unique;
+import me.sunyfusion.bdsp.column.Column;
 
 /**
  * @author Jesse Deisinger
@@ -23,7 +23,7 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
     /**
      * Holds list of Unique objects created when Config.init was run
      */
-    private ArrayList<Unique> uniqueList;
+    private ArrayList<Column> uniqueList;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public View mView;
@@ -34,7 +34,7 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
         }
     }
 
-    public UniqueAdapter(ArrayList<Unique> myDataset) {
+    public UniqueAdapter(ArrayList<Column> myDataset) {
         uniqueList = myDataset;
     }
 
@@ -53,7 +53,7 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         TextView t = (TextView) holder.mView.findViewById(R.id.uniqueName);
-        t.setText(uniqueList.get(position).getColumnName());
+        t.setText(uniqueList.get(position).getName());
         EditText e = (EditText) holder.mView.findViewById(R.id.uniqueValue);
         e.addTextChangedListener(new TextWatcher() {
             @Override

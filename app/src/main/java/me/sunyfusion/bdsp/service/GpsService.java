@@ -16,7 +16,8 @@ import android.widget.Toast;
 import java.io.FileOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
-import me.sunyfusion.bdsp.column.Datestamp;
+
+import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.exception.LocationManagerNullException;
 import me.sunyfusion.bdsp.notification.BdspNotification;
@@ -52,8 +53,8 @@ public class GpsService extends Service implements LocationListener {
     private void makeUseOfNewLocation(Location l) {
         location = l;
         Config config = Global.getConfig();
-        config.getLatitude().setLocation(l);
-        config.getLongitude().setLocation(l);
+        config.getLatitude().setValue(String.valueOf(l.getLatitude()));
+        config.getLongitude().setValue(String.valueOf(l.getLongitude()));
     }
 
     public void startLocationUpdates() throws SecurityException,LocationManagerNullException {
@@ -85,7 +86,7 @@ public class GpsService extends Service implements LocationListener {
         catch(Exception e) {
             System.out.println(e.getMessage());
         }
-        timeStarted = Datestamp.getDateString("yyyy-MM-dd HH:mm:ss");
+        timeStarted = Utils.getDateString("yyyy-MM-dd HH:mm:ss");
         Notification n = BdspNotification.notify(getApplicationContext(), timeStarted, 1);
         if(Global.getConfig().isGpsTrackerEnabled()) {
             t.scheduleAtFixedRate(new TimerTask() {

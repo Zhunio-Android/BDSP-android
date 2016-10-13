@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
@@ -19,13 +20,13 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
+import me.sunyfusion.bdsp.activity.MainActivity;
+import me.sunyfusion.bdsp.column.Column;
 import me.sunyfusion.bdsp.column.Datestamp;
-import me.sunyfusion.bdsp.column.ID;
 import me.sunyfusion.bdsp.column.Latitude;
 import me.sunyfusion.bdsp.column.Longitude;
 import me.sunyfusion.bdsp.column.Photo;
 import me.sunyfusion.bdsp.column.Run;
-import me.sunyfusion.bdsp.column.Unique;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.io.ReadFromInput;
 import me.sunyfusion.bdsp.service.GpsService;
@@ -37,8 +38,7 @@ public class Config {
 
     public static String SUBMIT_URL = "update.php";
 
-    Latitude latColumn;
-    Longitude lonColumn;
+    private Column latColumn, lonColumn, id;
     String url;
     private String id_key, id_value, email, table;
     private Run run;
@@ -52,9 +52,8 @@ public class Config {
     }
 
     boolean gpsTrackerEnabled = false;
-    private ID id;
     private String project;
-    ArrayList<Unique> uniques = new ArrayList<>();
+    ArrayList<Column> uniques = new ArrayList<>();
     Context c;
 
     public Config(Context context) {
@@ -94,6 +93,7 @@ public class Config {
             e.printStackTrace();
         }
         ReadFromInput readFile = new ReadFromInput(infile);
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(c);
 
         do {
             try {
@@ -118,27 +118,27 @@ public class Config {
                     project = readFile.getArg(1);
                     break;
                 case "locOnSub":
-                    latColumn = new Latitude(c, readFile.getArg(2));
-                    lonColumn = new Longitude(c, readFile.getArg(3));
+                    latColumn = new Column(lbm, Column.ColumnType.LATITUDE, readFile.getArg(2), getDb());
+                    lonColumn = new Column(lbm, Column.ColumnType.LONGITUDE, readFile.getArg(3),getDb());
                     break;
                 case "email":
                     email = readFile.getArg(1);
                     break;
                 case "id":
                     id_key = readFile.getArg(1);
-                    id = new ID(c, id_key);
+                    id = new Column(lbm, Column.ColumnType.ID, id_key, getDb());
                     break;
                 case "photo":
                     if (readFile.enabled()) {
-                        photo = new Photo(c,readFile.getArg(2));
+                        photo = new Photo(c,readFile.getArg(2),getDb());
                     }
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {
                         checkGPSPermission();
                         LocInUse = true;
-                        latColumn = new Latitude(c, readFile.getArg(2));
-                        lonColumn = new Longitude(c, readFile.getArg(3));
+                        latColumn = new L(c, readFile.getArg(2),getDb());
+                        lonColumn = new Longitude(c, readFile.getArg(3),getDb());
                     }
                     break;
                 case "gpsTracker":
@@ -147,16 +147,16 @@ public class Config {
                         checkGPSPermission();
                     break;
                 case "unique":
-                    uniques.add(new Unique(c, readFile.getArg(1)));
+                    uniques.add(new Column(lbm, Column.ColumnType.UNIQUE, readFile.getArg(1),getDb()));
                     break;
                 case "datetime":
-                    date = new Datestamp(c,readFile.getArg(1));
+                    date = new Datestamp(c,readFile.getArg(1),getDb());
                     break;
                 case "table":
                     table = readFile.getArg(1);
                     break;
                 case "run":
-                    run = new Run(c, readFile.getArg(2));
+                    run = new Run(c, readFile.getArg(2),getDb());
                     break;
                 default:
                     break;
@@ -184,7 +184,7 @@ public class Config {
     public Run getRun() {
         return run;
     }
-    public ArrayList<Unique> getUniques() {
+    public ArrayList<Column> getUniques() {
         return uniques;
     }
     public String getIdKey() {
@@ -193,9 +193,9 @@ public class Config {
     public String getIdValue() {
         return id_value;
     }
-    public Latitude getLatitude() { return latColumn; };
-    public Longitude getLongitude() { return lonColumn; };
-    public ID getId() { return id; }
+    public Column getLatitude() { return latColumn; };
+    public Column getLongitude() { return lonColumn; };
+    public Column getId() { return id; }
     public boolean isPhotoEnabled() {
         return photo != null;
     }
@@ -213,7 +213,7 @@ public class Config {
 
                 ActivityCompat.requestPermissions((Activity) c,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        Global.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                        MainActivity.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
             }
         }
