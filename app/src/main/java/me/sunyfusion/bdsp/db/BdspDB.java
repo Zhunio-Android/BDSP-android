@@ -20,33 +20,17 @@ import me.sunyfusion.bdsp.state.Global;
 
 public class BdspDB extends SQLiteOpenHelper
 {
-    public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "Tasks.db";
-    public static final String TABLE_NAME = "tasksTable";
-    public static SQLiteDatabase db;
 
-    public ArrayList<String> deleteQueue;
-    Context c;
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "Tasks.db";
+    private static final String TABLE_NAME = "tasksTable";
+    private SQLiteDatabase db;
 
-    /**
-     * Creates new BdspDB object
-     * @param context the context of the Activity that is using this object
-     */
-    public BdspDB(Context context)
+    public BdspDB(Context c)
     {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(c, DATABASE_NAME, null, DATABASE_VERSION);
         db = this.getWritableDatabase();
-        c = context;
     }
-
-    /**
-     * Inserts values into database
-     * @param values values to be inserted
-     */
-    public void insert(ContentValues values) {
-        db.insert(TABLE_NAME,null,values);
-    }
-
     @Override
     public void onCreate(SQLiteDatabase db)
     {
@@ -57,6 +41,19 @@ public class BdspDB extends SQLiteOpenHelper
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
 
+    }
+    /**
+     * Creates new BdspDB object
+     * @param context the context of the Activity that is using this object
+     */
+
+
+    /**
+     * Inserts values into database
+     * @param values values to be inserted
+     */
+    public long insert(ContentValues values) {
+        return db.insert(TABLE_NAME,null,values);
     }
 
     /**

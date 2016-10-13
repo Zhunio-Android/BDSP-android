@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,12 +11,9 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import java.util.Date;
 import java.util.Random;
 
-import me.sunyfusion.bdsp.column.Unique;
 import me.sunyfusion.bdsp.db.BdspDB;
-import me.sunyfusion.bdsp.state.Global;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -36,7 +32,7 @@ public class BdspDBUnitTest {
     @Before
     public void setup() {
         c = RuntimeEnvironment.application;
-        db = new BdspDB(c);
+        db = new BdspDB();
         generator = new Random();
     }
     @After

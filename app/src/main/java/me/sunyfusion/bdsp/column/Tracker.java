@@ -16,16 +16,14 @@ import me.sunyfusion.bdsp.state.Global;
  * Created by deisingj1 on 8/8/2016.
  */
 public class Tracker {
-    Context c;
     Config config;
     BdspDB db = Global.getDb();
 
     /**
      * Instantiates new Tracker object
-     * @param c the context of the activity that is using the tracker
      * @param config the current configuration of the application
      */
-    public Tracker(Context c, Config config) {
+    public Tracker(Config config) {
         this.config = config;
         db.addColumn("latTrack", "TEXT");
         db.addColumn("longTrack", "TEXT");

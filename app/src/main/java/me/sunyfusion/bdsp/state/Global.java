@@ -14,7 +14,6 @@ public class Global {
 
     private static BdspDB dbHelper;
 
-    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     public static Global getInstance() {
         return ourInstance;

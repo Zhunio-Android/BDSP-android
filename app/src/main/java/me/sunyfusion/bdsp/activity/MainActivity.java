@@ -42,6 +42,8 @@ import me.sunyfusion.bdsp.tasks.UploadTask;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     // CONSTANTS
+    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+
     MenuItem cameraMenu;
     MenuItem gpsMenu;
     private RecyclerView mRecyclerView;
@@ -111,7 +113,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_mode_close_button) {
-            finish();
+            finishAffinity();
+            System.exit(0);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -176,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if (NetUpdateReceiver.netConnected) {
                     try {
-                        AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask();
+                        AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(Config.SUBMIT_URL);
                         doUpload.execute();
                     } catch (Exception e) {
                         Log.d("UPLOADER", "THAT DIDN'T WORK");
@@ -243,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                            String permissions[], int[] grantResults) {
 
         switch (requestCode) {
-            case Global.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

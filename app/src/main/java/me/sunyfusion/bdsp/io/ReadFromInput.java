@@ -10,51 +10,45 @@ import java.util.Scanner;
  * from that text file.
  */
 
-public class ReadFromInput
-{
+public class ReadFromInput {
     private String Type = null;    // To hold the type of category from the buildApp.txt when read.
     private Scanner infile;
     private Scanner in;
     private String Line;
     private int answer = 0;        // To hold the answer to categories such as camera. 1 = yes, 0 = no
 
-    public ReadFromInput(Scanner sq)
-    {
+    public ReadFromInput(Scanner sq) {
         infile = sq; // passes the scanned File
     }
 
-    public void getNextLine()
-    {
+    public void getNextLine() {
 
         do {
             Line = infile.nextLine();
 
-        // Skips blank lines and comments from the build file
+            // Skips blank lines and comments from the build file
         } while (Line.equals("") || Line.startsWith("//"));
 
         // Gets the next useful line from the build file
         in = new Scanner(Line); // scans line
     }
 
-    public void ReadLineCollectInfo() throws FileNotFoundException
-    {
+    public void ReadLineCollectInfo() throws FileNotFoundException {
         // Resets variables to read the next line fresh.
         Type = null;
         answer = 0;
 
-        if(in.hasNext())
-        {
+        if (in.hasNext()) {
             Type = in.next(); // Gets the category and assigns to Type
 
-            if(in.hasNextInt()) // Checks for an answer, 1 = include, 0 = do not
+            if (in.hasNextInt()) // Checks for an answer, 1 = include, 0 = do not
             {
                 answer = in.nextInt();
             }
         }
     }
 
-    public String getType()
-    {
+    public String getType() {
         return Type;
     }
 

@@ -25,7 +25,6 @@ import me.sunyfusion.bdsp.column.Latitude;
 import me.sunyfusion.bdsp.column.Longitude;
 import me.sunyfusion.bdsp.column.Photo;
 import me.sunyfusion.bdsp.column.Run;
-import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.column.Unique;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.io.ReadFromInput;
@@ -61,7 +60,7 @@ public class Config {
     public Config(Context context) {
         c = context;   // Ties config to main activity
         init();
-        db = new BdspDB(context);
+        db = new BdspDB(c);
     }
     //Currently not used, written to support updating configurations remotely, not finished
     public void getNewConfig() {

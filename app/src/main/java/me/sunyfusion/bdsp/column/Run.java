@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
@@ -11,8 +12,8 @@ import me.sunyfusion.bdsp.state.Global;
  */
 public class Run extends Column{
     Context c;
-    public Run(Context context, String name) {
-        super(context,name);
+    public Run(Context context, String name, BdspDB db) {
+        super(context,name,db);
         c = context;
     }
 
@@ -31,7 +32,7 @@ public class Run extends Column{
             prefEdit.commit();
         }
         if (!prefs.getString("lastDate", "").equals(Datestamp.getDateString("yyyy-MM-dd"))) {
-            Global.getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
+            getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();

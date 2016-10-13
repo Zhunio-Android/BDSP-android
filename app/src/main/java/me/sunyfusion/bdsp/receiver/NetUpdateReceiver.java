@@ -12,6 +12,7 @@ import org.json.JSONArray;
 
 import java.util.ArrayList;
 
+import me.sunyfusion.bdsp.state.Config;
 import me.sunyfusion.bdsp.tasks.UploadTask;
 
 /**
@@ -33,7 +34,7 @@ public class NetUpdateReceiver extends BroadcastReceiver {
                 netConnected = true;
                 Log.i("NET", "connected ");
                 try {
-                    AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask();
+                    AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(Config.SUBMIT_URL);
                     doUpload.execute();
                 }
                 catch(Exception e) {

@@ -28,11 +28,14 @@ import me.sunyfusion.bdsp.state.Global;
  * Created by jesse on 8/1/16.
  */
 public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
-    public UploadTask() {
-        super();
-    }
     BdspDB db = Global.getDb();
+    final String submitUrl;
     ArrayList<String> deleteQueue = new ArrayList<String>();
+    public UploadTask(String url) {
+        super();
+        submitUrl = url;
+    }
+
 
     @Override
     protected ArrayList<JSONArray> doInBackground(Void... voids) {
@@ -78,10 +81,10 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
     @Override
     protected void onPostExecute(ArrayList<JSONArray> j) {
         super.onPostExecute(j);
-        System.out.println(Config.SUBMIT_URL);
+        System.out.println(submitUrl);
         for(JSONArray jsonArray : j) {
             Log.d("JSON ARRAY", jsonArray.toString());
-            doHTTPpost(Config.SUBMIT_URL, jsonArray, null);
+            doHTTPpost(submitUrl, jsonArray, null);
         }
     }
 

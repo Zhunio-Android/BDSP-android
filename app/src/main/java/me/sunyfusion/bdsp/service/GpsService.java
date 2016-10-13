@@ -75,7 +75,7 @@ public class GpsService extends Service implements LocationListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(Global.getInstance() != null) {
-            tracker = new Tracker(Global.getContext(), Global.getConfig());
+            tracker = new Tracker(Global.getConfig());
         }
         t = new Timer();
         getWakelock();

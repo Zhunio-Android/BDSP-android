@@ -32,10 +32,10 @@ public abstract class Column {
      * @param context context passed in from calling method
      * @param colName name of column read in from configuration file
      */
-    public Column(Context context, String colName) {
+    public Column(Context context, String colName, BdspDB bdspDB) {
         c = context;
         columnName = colName;
-        db = Global.getDb();
+        db = bdspDB;
         db.addColumn(colName, "TEXT");
         LocalBroadcastManager.getInstance(c).registerReceiver(receiver, new IntentFilter("save-all-columns"));
     }
@@ -86,5 +86,8 @@ public abstract class Column {
      */
     public String getValue() { return value; }
     public Context getContext() { return c; }
+    protected BdspDB getDb() {
+        return db;
+    }
 
 }
