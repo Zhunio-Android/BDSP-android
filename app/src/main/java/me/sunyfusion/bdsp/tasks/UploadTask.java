@@ -21,7 +21,6 @@ import java.util.HashSet;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import me.sunyfusion.bdsp.db.BdspDB;
-import me.sunyfusion.bdsp.state.Config;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
@@ -40,7 +39,7 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
     @Override
     protected ArrayList<JSONArray> doInBackground(Void... voids) {
         ArrayList<JSONArray> jsonArrayList = new ArrayList<JSONArray>();
-        HashSet<ArrayList<String>> runAndDateList = db.getColumns(Global.getConfig().getRun().getColumnName(),"date");
+        HashSet<ArrayList<String>> runAndDateList = db.getColumns(Global.getConfig().getRun().getName(),"date");
         for(ArrayList<String> s : runAndDateList) {
             Object[] str = s.toArray();
             Cursor c = db.queueAll(str);
