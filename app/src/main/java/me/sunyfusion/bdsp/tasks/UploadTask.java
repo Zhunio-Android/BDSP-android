@@ -79,9 +79,14 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
     protected void onPostExecute(ArrayList<JSONArray> j) {
         super.onPostExecute(j);
         System.out.println(Config.SUBMIT_URL);
-        for(JSONArray jsonArray : j) {
-            Log.d("JSON ARRAY", jsonArray.toString());
-            doHTTPpost(Config.SUBMIT_URL, jsonArray, null);
+        if(Config.SUBMIT_URL.contains("idk=") && Config.SUBMIT_URL.contains("idv=") && Config.SUBMIT_URL.contains("table=")) {
+            for (JSONArray jsonArray : j) {
+                Log.d("JSON ARRAY", jsonArray.toString());
+                doHTTPpost(Config.SUBMIT_URL, jsonArray, null);
+            }
+        }
+        else {
+            Log.d("uploader", "URL NOT READY OR MALFORMED");
         }
     }
 

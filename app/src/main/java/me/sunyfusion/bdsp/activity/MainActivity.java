@@ -1,5 +1,6 @@
 package me.sunyfusion.bdsp.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,22 +8,27 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -31,6 +37,7 @@ import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.adapter.UniqueAdapter;
+import me.sunyfusion.bdsp.column.Run;
 import me.sunyfusion.bdsp.column.Unique;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
@@ -58,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final View.OnClickListener self = (View.OnClickListener) this;
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
                 .detectAll()
                 .penaltyLog()
@@ -65,9 +73,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .build());
         super.onCreate(savedInstanceState);
         Global.getInstance().init(this);
-        config = new Config(this);  // Stores all of the config info from build app.txt
+        Global.getInstance().setConfig(new Config(this));
+        config = Global.getInstance().getConfig();  // Stores all of the config info from build app.txt
         db = Global.getDb();
-        Global.getInstance().setConfig(config);
+        config.getRun().checkDate();
         ArrayList<Unique> uniques = config.getUniques();
         showIdEntry(config.getIdKey());
         setContentView(R.layout.activity_main);
@@ -75,7 +84,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(myToolbar);
         getSupportActionBar().setLogo(R.mipmap.logo);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
-        getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
+        getSupportActionBar().setSubtitle(config.getIdValue());
+        Button b = new Button(this);
+        b.setText("Out of Service");
+        b.setBackgroundColor(Color.RED);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                self.onClick(findViewById(R.id.submit));
+                stopService(new Intent(getApplicationContext(),GpsService.class));
+                finishAffinity();
+            }
+        });
+        getSupportActionBar().setCustomView(b, new ActionBar.LayoutParams(Gravity.RIGHT));
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemViewCacheSize(uniques.size());
@@ -111,7 +133,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_mode_close_button) {
-            finish();
+            stopService(new Intent(this,GpsService.class));
+            finishAffinity();
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -119,12 +143,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
-        ConnectivityManager cm =
-                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        NetUpdateReceiver.netConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
     }
 
     @Override

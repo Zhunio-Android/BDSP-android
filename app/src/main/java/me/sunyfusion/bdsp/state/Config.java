@@ -6,12 +6,18 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
+
+import org.json.JSONArray;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,7 +35,9 @@ import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.column.Unique;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.io.ReadFromInput;
+import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
 import me.sunyfusion.bdsp.service.GpsService;
+import me.sunyfusion.bdsp.tasks.UploadTask;
 
 /**
  * Created by deisingj1 on 8/4/2016.
@@ -164,7 +172,20 @@ public class Config {
             }
         }
         while (!Type.equals("endFile"));
+        ConnectivityManager cm =
+                (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        NetUpdateReceiver.netConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        if (NetUpdateReceiver.netConnected) {
+            try {
+                AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask();
+                doUpload.execute();
+            } catch (Exception e) {
+                Log.d("UPLOADER", "THAT DIDN'T WORK");
+            }
+        }
     }
 
     public void updateUrl() {

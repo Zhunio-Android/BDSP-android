@@ -1,9 +1,14 @@
 package me.sunyfusion.bdsp.column;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
+import me.sunyfusion.bdsp.activity.MainActivity;
+import me.sunyfusion.bdsp.service.GpsService;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
@@ -25,16 +30,23 @@ public class Run extends Column{
         SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         SharedPreferences.Editor prefEdit = prefs.edit();
         String date = Datestamp.getDateString("yyyy-MM-dd");
+        Log.d("BDSPDATE", date);
         if(prefs.getString("lastDate","").isEmpty()) {
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();
         }
         if (!prefs.getString("lastDate", "").equals(Datestamp.getDateString("yyyy-MM-dd"))) {
-            Global.getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
-            prefEdit.putString("lastDate",date);
-            prefEdit.putInt("run",1);
-            prefEdit.commit();
+            if(Datestamp.getDateString("HH:mm:ss").contains("00:00:0")) {
+                c.stopService(new Intent(c,GpsService.class));
+                ((Activity) c).finishAffinity();
+            }
+            else {
+                Global.getDb().deleteRun(prefs.getInt("run", 1), prefs.getString("lastDate", ""));
+                prefEdit.putString("lastDate", date);
+                prefEdit.putInt("run", 1);
+                prefEdit.commit();
+            }
         }
     }
     @Override

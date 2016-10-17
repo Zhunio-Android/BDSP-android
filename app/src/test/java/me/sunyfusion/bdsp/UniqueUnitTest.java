@@ -1,21 +1,17 @@
 package me.sunyfusion.bdsp;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.test.mock.MockContext;
+import android.support.v4.content.LocalBroadcastManager;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
-import me.sunyfusion.bdsp.column.Unique;
+import me.sunyfusion.bdsp.column.Column;
 import me.sunyfusion.bdsp.db.BdspDB;
-import me.sunyfusion.bdsp.state.Global;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -30,8 +26,8 @@ public class UniqueUnitTest {
     @Test
     public void unique_SetUniqueName_ReturnsTrue() {
         Context c = RuntimeEnvironment.application;
-        Global.getInstance().init(c);
-        Unique unique = new Unique(c, "TestUnique");
-        Assert.assertTrue("column name not set", unique.getColumnName().equals("TestUnique"));
+        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(c);
+        Column unique = new Column(lbm, Column.ColumnType.UNIQUE, "TestUnique", new BdspDB(c));
+        Assert.assertTrue("column name not set", unique.getName().equals("TestUnique"));
     }
 }

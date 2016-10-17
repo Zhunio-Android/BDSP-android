@@ -19,7 +19,9 @@
     <item
         android:id="@+id/action_mode_close_button"
         android:icon="@drawable/ic_clear_black_24dp"
+        android:minWidth="115dp"
         android:title="Close"
         android:orderInCategory="100"
         app:showAsAction="always" />
 </menu>
+

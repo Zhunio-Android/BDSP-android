@@ -61,6 +61,9 @@ public abstract class Column {
      * @param v The object to insert the column's value into
      */
     public void insertValue(ContentValues v) {
+        if(value.equals("")){
+            value = "0";
+        }
         v.put(columnName,value);
     }
 
