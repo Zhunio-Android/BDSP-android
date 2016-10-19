@@ -137,7 +137,7 @@ public class Config {
                     if (readFile.enabled()) {
                         checkGPSPermission();
                         LocInUse = true;
-                        latColumn = new L(c, readFile.getArg(2),getDb());
+                        latColumn = new Latitude(c, readFile.getArg(2),getDb());
                         lonColumn = new Longitude(c, readFile.getArg(3),getDb());
                     }
                     break;

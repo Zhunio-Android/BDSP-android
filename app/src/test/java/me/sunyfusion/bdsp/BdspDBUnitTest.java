@@ -32,7 +32,7 @@ public class BdspDBUnitTest {
     @Before
     public void setup() {
         c = RuntimeEnvironment.application;
-        db = new BdspDB();
+        db = new BdspDB(c);
         generator = new Random();
     }
     @After

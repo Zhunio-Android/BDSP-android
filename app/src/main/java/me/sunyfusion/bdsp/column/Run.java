@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.db.BdspDB;
+import me.sunyfusion.bdsp.state.Global;
 
 /**
  * Created by jesse on 5/5/16.
@@ -15,7 +16,7 @@ public class Run extends Column{
     Context c;
     public Run(Context context, String name, BdspDB db) {
 
-        super(LocalBroadcastManager.getInstance(c),ColumnType.UNIQUE,name,db);
+        super(LocalBroadcastManager.getInstance(context),ColumnType.UNIQUE,name,db);
         c = context;
     }
 
@@ -34,7 +35,7 @@ public class Run extends Column{
             prefEdit.commit();
         }
         if (!prefs.getString("lastDate", "").equals(Utils.getDateString("yyyy-MM-dd"))) {
-            getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
+            Global.getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();
