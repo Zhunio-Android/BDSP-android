@@ -9,27 +9,20 @@ import me.sunyfusion.bdsp.db.BdspDB;
  */
 public class Global {
     private Context context;
-    private static Global ourInstance = new Global();
-    private Config config;
-
     private static BdspDB dbHelper;
-
-
-    public static Global getInstance() {
-        return ourInstance;
-    }
-    public static Config getConfig() { return getInstance().config; }
+    private static Global ourInstance = new Global();
 
     private Global() {
 
     }
 
+    public static Global getInstance() {
+        return ourInstance;
+    }
+
     public void init(Context context) {
         this.context = context.getApplicationContext();
         dbHelper = new BdspDB(context);
-    }
-    public void setConfig(Config config) {
-        this.config = config;
     }
 
     public static BdspDB getDb() {

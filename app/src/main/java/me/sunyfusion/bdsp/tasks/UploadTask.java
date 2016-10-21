@@ -20,6 +20,7 @@ import java.util.HashSet;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
+import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.state.Global;
 
@@ -39,11 +40,8 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
     @Override
     protected ArrayList<JSONArray> doInBackground(Void... voids) {
         ArrayList<JSONArray> jsonArrayList = new ArrayList<JSONArray>();
-        HashSet<ArrayList<String>> runAndDateList = db.getColumns(Global.getConfig().getRun().getName(),"date");
-        for(ArrayList<String> s : runAndDateList) {
-            Object[] str = s.toArray();
-            Cursor c = db.queueAll(str);
-            JSONArray j = new JSONArray();
+            Cursor c = db.queueAll(null);
+            JSONArray j;
             JSONObject jsonObject;
             if (c.getCount() == 0)   //Does not submit if database is empty
                 return null;
@@ -52,6 +50,7 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
 
             int cCount = c.getColumnCount();
             while (!c.isAfterLast()) {
+                j = new JSONArray();
                 jsonObject = new JSONObject();
                 for (int i = 0; i < cCount; i++) {
                     if (!cNames[i].equals("unique_table_id"))
@@ -62,18 +61,12 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
                         }
                 }
                 j.put(jsonObject);
+                System.out.println(j);
+                jsonArrayList.add(j);
                 deleteQueue.add(c.getString(0));
                 c.moveToNext();
             }
-            JSONObject params = new JSONObject();
-            try {
-                params.put("data", j);
-            } catch (JSONException e) {
-                Log.d("BDSP", "JSONexception");
-            }
             c.close();
-            jsonArrayList.add(j);
-        }
         return jsonArrayList;
     }
 
@@ -81,9 +74,11 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
     protected void onPostExecute(ArrayList<JSONArray> j) {
         super.onPostExecute(j);
         System.out.println(submitUrl);
-        for(JSONArray jsonArray : j) {
-            Log.d("JSON ARRAY", jsonArray.toString());
-            doHTTPpost(submitUrl, jsonArray, null);
+        if(j != null) {
+            for (JSONArray jsonArray : j) {
+                Log.d("JSON ARRAY", jsonArray.toString());
+                doHTTPpost(submitUrl, jsonArray, null);
+            }
         }
     }
 

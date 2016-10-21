@@ -29,9 +29,9 @@ import org.json.JSONArray;
 
 import java.util.ArrayList;
 
+import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.adapter.UniqueAdapter;
-import me.sunyfusion.bdsp.column.Column;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
 import me.sunyfusion.bdsp.service.GpsService;
@@ -60,24 +60,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+        /*StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
                 .detectAll()
                 .penaltyLog()
                 .penaltyDeath()
-                .build());
+                .build());*/
         super.onCreate(savedInstanceState);
         Global.getInstance().init(this);
         config = new Config(this);  // Stores all of the config info from build app.txt
         db = Global.getDb();
         Global.getInstance().setConfig(config);
-        ArrayList<Column> uniques = config.getUniques();
+        ArrayList<String> uniques = config.getUniques();
         showIdEntry(config.getIdKey());
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setLogo(R.mipmap.logo);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
-        getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
+        getSupportActionBar().setSubtitle(config.getIdKey() + " : ");
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemViewCacheSize(uniques.size());
@@ -96,13 +96,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreateOptionsMenu(menu);
 
         gpsMenu = menu.getItem(1);
+        /*
         if (config.isLocationEnabled()) {
             gpsMenu.setVisible(true);
         }
+        */
         cameraMenu = menu.getItem(0);
-        if (config.isPhotoEnabled()) {
+        /*if (config.isPhotoEnabled()) {
             cameraMenu.setVisible(true);
-        }
+        }*/
         return true;
     }
 
@@ -168,10 +170,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          */
         switch (view.getId()) {
             case R.id.submit:
-                Intent intent = new Intent("save-all-columns");
-                ContentValues cv = new ContentValues();
-                intent.putExtra("cv", cv);
-                LocalBroadcastManager.getInstance(this).sendBroadcastSync(intent);
+                BdspRow.getInstance().send(getApplicationContext());
+                ContentValues cv = BdspRow.getInstance().getRow();
                 try {
                     db.insert(cv);
                 } catch (SQLiteException e) {
@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Log.d("UPLOADER", "THAT DIDN'T WORK");
                     }
                 }
+                BdspRow.getInstance().clear();
                 clearTextFields();
                 break;
             default:
@@ -231,8 +232,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (idTxt.getText().toString().equals("")) {
                     showIdEntry(id_key);
                 } else {
-                    config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
-                    getSupportActionBar().setSubtitle(config.getIdKey() + " : " + config.getIdValue());
+                    //config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
+                    BdspRow.setId(idTxt.getText().toString().replace(' ', '_'));
+                    getSupportActionBar().setSubtitle(config.getIdKey() + " : ");
                     config.updateUrl();
                 }
             }

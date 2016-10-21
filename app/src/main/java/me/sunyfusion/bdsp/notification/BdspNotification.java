@@ -17,7 +17,7 @@ public class BdspNotification {
         final Resources res = context.getResources();
         final Bitmap picture = BitmapFactory.decodeResource(res, R.mipmap.logo);
         final String ticker = "BDSP Started...";
-        final String title = "BDSP Active: ID #" + Global.getConfig().getIdValue();
+        final String title = "BDSP Active: ID #";
         final String text = "";
 
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(context)

@@ -13,29 +13,25 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
-import java.io.FileOutputStream;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
+import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.Utils;
-import me.sunyfusion.bdsp.column.Tracker;
 import me.sunyfusion.bdsp.exception.LocationManagerNullException;
 import me.sunyfusion.bdsp.notification.BdspNotification;
-import me.sunyfusion.bdsp.state.Config;
 import me.sunyfusion.bdsp.state.Global;
 
 public class GpsService extends Service implements LocationListener {
     private final IBinder mBinder = new bdspBinder();
-    Tracker tracker;
     String timeStarted;
     Timer t;
     PowerManager.WakeLock wl;  // wakelock
     LocationManager locationManager;
-    FileOutputStream outputStream;
     Location location;
 
     public GpsService() {
-        locationManager = (LocationManager) Global.getContext().getSystemService(Context.LOCATION_SERVICE);
     }
 
     //-------------------------------------------------------------------
@@ -52,12 +48,15 @@ public class GpsService extends Service implements LocationListener {
     }
     private void makeUseOfNewLocation(Location l) {
         location = l;
-        Config config = Global.getConfig();
-        config.getLatitude().setValue(String.valueOf(l.getLatitude()));
-        config.getLongitude().setValue(String.valueOf(l.getLongitude()));
     }
 
     public void startLocationUpdates() throws SecurityException,LocationManagerNullException {
+        try {
+            locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        }
+        catch(NullPointerException e) {
+            System.out.println(e.getMessage());
+        }
         if(locationManager != null) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
         }
@@ -75,9 +74,6 @@ public class GpsService extends Service implements LocationListener {
     //-------------------------------------------------------------------
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(Global.getInstance() != null) {
-            tracker = new Tracker(Global.getConfig());
-        }
         t = new Timer();
         getWakelock();
         try {
@@ -88,13 +84,14 @@ public class GpsService extends Service implements LocationListener {
         }
         timeStarted = Utils.getDateString("yyyy-MM-dd HH:mm:ss");
         Notification n = BdspNotification.notify(getApplicationContext(), timeStarted, 1);
-        if(Global.getConfig().isGpsTrackerEnabled()) {
+        if(true) {
             t.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
                     if (location != null) {
-                        tracker.insertPoint(location);
-                        System.out.println(location.getAccuracy());
+                        BdspRow.getInstance().append(BdspRow.ColumnNames.get(BdspRow.ColumnType.GEOMETRY),location.getLongitude() + "," + location.getLatitude() + " ");
+                        BdspRow.getInstance().attachLocation(location);
+                        //System.out.println(location.getAccuracy());
                     }
                 }
             }, 0, 1000);
@@ -109,12 +106,6 @@ public class GpsService extends Service implements LocationListener {
         wl.release();
         t.cancel();
         stopLocationUpdates();
-        try {
-            outputStream.close();
-        }
-        catch(Exception e) {
-            System.out.println(e.getMessage());
-        }
         super.onDestroy();
     }
 

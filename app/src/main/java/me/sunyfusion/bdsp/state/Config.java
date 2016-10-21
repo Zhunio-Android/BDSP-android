@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
@@ -20,13 +19,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
+import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.activity.MainActivity;
-import me.sunyfusion.bdsp.column.Column;
-import me.sunyfusion.bdsp.column.Datestamp;
-import me.sunyfusion.bdsp.column.Latitude;
-import me.sunyfusion.bdsp.column.Longitude;
-import me.sunyfusion.bdsp.column.Photo;
-import me.sunyfusion.bdsp.column.Run;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.io.ReadFromInput;
 import me.sunyfusion.bdsp.service.GpsService;
@@ -36,24 +30,13 @@ import me.sunyfusion.bdsp.service.GpsService;
  */
 public class Config {
 
+    public ArrayList<String> uniques = new ArrayList<>();
     public static String SUBMIT_URL = "update.php";
-
-    private Column latColumn, lonColumn, id;
-    String url;
-    private String id_key, id_value, email, table;
-    private Run run;
-    private Photo photo;
-    private Datestamp date;
-    private boolean LocInUse;
+    private String url;
+    private String id_key, email, table;
     private BdspDB db;
-
-    public boolean isGpsTrackerEnabled() {
-        return gpsTrackerEnabled;
-    }
-
-    boolean gpsTrackerEnabled = false;
     private String project;
-    ArrayList<Column> uniques = new ArrayList<>();
+
     Context c;
 
     public Config(Context context) {
@@ -61,7 +44,8 @@ public class Config {
         init();
         db = new BdspDB(c);
     }
-    //Currently not used, written to support updating configurations remotely, not finished
+
+    //TODO Currently not used, written to support updating configurations remotely, not finished
     public void getNewConfig() {
         AsyncHttpClient client = new AsyncHttpClient();
         client.get("https://example.com/file.png", new FileAsyncHttpResponseHandler(c) {
@@ -72,16 +56,18 @@ public class Config {
             @Override
             public void onFailure(int statusCode, Header[] header, Throwable t, File f) {
 
-
             }
         });
     }
-    public BdspDB getDb() {
+
+    private void addColumn(BdspRow.ColumnType type, String name) {
         if (db == null) {
             db = new BdspDB(c);
         }
-        return db;
+        db.addColumn(name,"TEXT");
+        BdspRow.ColumnNames.put(type,name);
     }
+
 
 
     private void init() {
@@ -93,7 +79,6 @@ public class Config {
             e.printStackTrace();
         }
         ReadFromInput readFile = new ReadFromInput(infile);
-        LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(c);
 
         do {
             try {
@@ -118,45 +103,51 @@ public class Config {
                     project = readFile.getArg(1);
                     break;
                 case "locOnSub":
-                    latColumn = new Column(lbm, Column.ColumnType.LATITUDE, readFile.getArg(2), getDb());
-                    lonColumn = new Column(lbm, Column.ColumnType.LONGITUDE, readFile.getArg(3),getDb());
+                    addColumn(BdspRow.ColumnType.LATITUDE, readFile.getArg(2));
+                    addColumn(BdspRow.ColumnType.LONGITUDE, readFile.getArg(3));
                     break;
                 case "email":
                     email = readFile.getArg(1);
                     break;
                 case "id":
+                    addColumn(BdspRow.ColumnType.ID,readFile.getArg(1));
                     id_key = readFile.getArg(1);
-                    id = new Column(lbm, Column.ColumnType.ID, id_key, getDb());
                     break;
                 case "photo":
                     if (readFile.enabled()) {
-                        photo = new Photo(c,readFile.getArg(2),getDb());
+                        //photo = new Photo(c,readFile.getArg(2),getDb());
                     }
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {
                         checkGPSPermission();
-                        LocInUse = true;
-                        latColumn = new Latitude(c, readFile.getArg(2),getDb());
-                        lonColumn = new Longitude(c, readFile.getArg(3),getDb());
+                        addColumn(BdspRow.ColumnType.LATITUDE,readFile.getArg(2));
+                        addColumn(BdspRow.ColumnType.LONGITUDE,readFile.getArg(3));
                     }
                     break;
                 case "gpsTracker":
-                    gpsTrackerEnabled = readFile.enabled();
-                    if (readFile.enabled())
+                    if (readFile.enabled()) {
+                        addColumn(BdspRow.ColumnType.GEOMETRY, readFile.getArg(2));
+                        addColumn(BdspRow.ColumnType.START,readFile.getArg(4));
+                        addColumn(BdspRow.ColumnType.END,readFile.getArg(5));
+                        BdspRow.getInstance().markStart();
                         checkGPSPermission();
+                    }
                     break;
                 case "unique":
-                    uniques.add(new Column(lbm, Column.ColumnType.UNIQUE, readFile.getArg(1),getDb()));
+                    addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
+                    uniques.add(readFile.getArg(1));
                     break;
                 case "datetime":
-                    date = new Datestamp(c,readFile.getArg(1),getDb());
+                    addColumn(BdspRow.ColumnType.DATE,readFile.getArg(1));
+                    BdspRow.ColumnNames.put(BdspRow.ColumnType.DATE,readFile.getArg(1));
                     break;
                 case "table":
                     table = readFile.getArg(1);
                     break;
                 case "run":
-                    run = new Run(c, readFile.getArg(2),getDb());
+                    addColumn(BdspRow.ColumnType.RUN,readFile.getArg(2));
+                    BdspRow.ColumnNames.put(BdspRow.ColumnType.RUN,readFile.getArg(2));
                     break;
                 default:
                     break;
@@ -167,40 +158,21 @@ public class Config {
     }
 
     public void updateUrl() {
-        if(!SUBMIT_URL.contains("?idk=") && !SUBMIT_URL.contains("&email=")) {
-            SUBMIT_URL += "?idk=" + id_key + "&idv=" + id_value + "&email=" + email + "&table=" + table;
+        if(!SUBMIT_URL.contains("?email=") && !SUBMIT_URL.contains("&table=")) {
+            SUBMIT_URL += "?email=" + email + "&table=" + table;
         }
         System.out.println(SUBMIT_URL);
     }
 
-    public void setIdValue(String idValue) {
-        id.setValue(idValue);
-        id_value = idValue;
-    }
     public String getProjectUrl() {
         return url + "projects/" + project;
     }
 
-    public Run getRun() {
-        return run;
-    }
-    public ArrayList<Column> getUniques() {
+    public ArrayList<String> getUniques() {
         return uniques;
     }
     public String getIdKey() {
         return id_key;
-    }
-    public String getIdValue() {
-        return id_value;
-    }
-    public Column getLatitude() { return latColumn; };
-    public Column getLongitude() { return lonColumn; };
-    public Column getId() { return id; }
-    public boolean isPhotoEnabled() {
-        return photo != null;
-    }
-    public boolean isLocationEnabled() {
-        return LocInUse;
     }
 
     public void checkGPSPermission() {
@@ -215,6 +187,11 @@ public class Config {
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MainActivity.MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
 
+            }
+            else {
+                if(!isServiceRunning(GpsService.class)) {
+                    Global.getContext().startService(new Intent(c, GpsService.class));
+                }
             }
         }
         else {
