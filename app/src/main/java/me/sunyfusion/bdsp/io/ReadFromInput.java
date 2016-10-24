@@ -22,14 +22,9 @@ public class ReadFromInput {
     }
 
     public void getNextLine() {
-
         do {
             Line = infile.nextLine();
-
-            // Skips blank lines and comments from the build file
         } while (Line.equals("") || Line.startsWith("//"));
-
-        // Gets the next useful line from the build file
         in = new Scanner(Line); // scans line
     }
 
@@ -37,12 +32,9 @@ public class ReadFromInput {
         // Resets variables to read the next line fresh.
         Type = null;
         answer = 0;
-
         if (in.hasNext()) {
-            Type = in.next(); // Gets the category and assigns to Type
-
-            if (in.hasNextInt()) // Checks for an answer, 1 = include, 0 = do not
-            {
+            Type = in.next();
+            if (in.hasNextInt()) {      // Checks for an answer, 1 = include, 0 = do not {
                 answer = in.nextInt();
             }
         }

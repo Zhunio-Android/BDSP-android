@@ -1,13 +1,10 @@
 // camera, 1, camera column
-
 camera 0 camera
 
 // gpsLoc 1/0, latitude column, longitude column
-
 // gpsLoc 0 latitude longitude
 
 // gpsTracker 1/0, column, frequency, manual/automatic
-
 gpsTracker 1 geometry 2000 start end
 
 // id, must be present or app will break, name of ID column

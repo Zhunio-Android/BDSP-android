@@ -15,6 +15,7 @@ import com.loopj.android.http.FileAsyncHttpResponseHandler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -22,27 +23,26 @@ import cz.msebera.android.httpclient.Header;
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.db.BdspDB;
+import me.sunyfusion.bdsp.exception.BdspConfigException;
 import me.sunyfusion.bdsp.io.ReadFromInput;
 import me.sunyfusion.bdsp.service.GpsService;
 
 /**
  * Created by deisingj1 on 8/4/2016.
  */
-public class Config {
+public class BdspConfig {
 
     public ArrayList<String> uniques = new ArrayList<>();
     public static String SUBMIT_URL = "update.php";
     private String url;
-    private String id_key, email, table;
+    private String id_key;
     private BdspDB db;
     private String project;
 
     Context c;
 
-    public Config(Context context) {
+    public BdspConfig(Context context) {
         c = context;   // Ties config to main activity
-        init();
-        db = new BdspDB(c);
     }
 
     //TODO Currently not used, written to support updating configurations remotely, not finished
@@ -68,15 +68,15 @@ public class Config {
         BdspRow.ColumnNames.put(type,name);
     }
 
-
-
-    private void init() {
+    public void init(InputStream file) throws BdspConfigException{
         String Type;
+        String table = "";
+        String email = "";
         Scanner infile = null;
         try {
-            infile = new Scanner(c.getAssets().open("buildApp.txt"));   // scans File
+            infile = new Scanner(file);   // scans File
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new BdspConfigException();
         }
         ReadFromInput readFile = new ReadFromInput(infile);
 
@@ -154,14 +154,14 @@ public class Config {
             }
         }
         while (!Type.equals("endFile"));
-
+        if(!email.isEmpty() && !table.isEmpty()) { updateUrl(email,table); }
+        else throw new BdspConfigException();
     }
 
-    public void updateUrl() {
+    private void updateUrl(String email, String table) {
         if(!SUBMIT_URL.contains("?email=") && !SUBMIT_URL.contains("&table=")) {
             SUBMIT_URL += "?email=" + email + "&table=" + table;
         }
-        System.out.println(SUBMIT_URL);
     }
 
     public String getProjectUrl() {

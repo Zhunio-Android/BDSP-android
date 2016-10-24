@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import org.json.JSONArray;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.BdspRow;
@@ -38,7 +39,7 @@ import me.sunyfusion.bdsp.adapter.UniqueAdapter;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
 import me.sunyfusion.bdsp.service.GpsService;
-import me.sunyfusion.bdsp.state.Config;
+import me.sunyfusion.bdsp.state.BdspConfig;
 import me.sunyfusion.bdsp.state.Global;
 import me.sunyfusion.bdsp.tasks.UploadTask;
 
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private Config config;
+    private BdspConfig bdspConfig;
     private BdspDB db;
 
     /**
@@ -71,9 +72,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final View.OnClickListener self = this;
         super.onCreate(savedInstanceState);
         Global.getInstance().init(this);
-        config = new Config(this);  // Stores all of the config info from build app.txt
+        bdspConfig = new BdspConfig(this);  // Stores all of the bdspConfig info from build app.txt
+        try { bdspConfig.init(this.getAssets().open("buildApp.txt")); }
+        catch(IOException e) {
+            System.out.println("Error in configuration");
+        }
         db = Global.getDb();
-        ArrayList<String> uniques = config.getUniques();
+        ArrayList<String> uniques = bdspConfig.getUniques();
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -94,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setCustomView(b, new ActionBar.LayoutParams(Gravity.RIGHT));
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
-        getSupportActionBar().setSubtitle(config.getIdKey() + " : ");
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemViewCacheSize(uniques.size());
@@ -114,12 +118,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         gpsMenu = menu.getItem(1);
         /*
-        if (config.isLocationEnabled()) {
+        if (bdspConfig.isLocationEnabled()) {
             gpsMenu.setVisible(true);
         }
         */
         cameraMenu = menu.getItem(0);
-        /*if (config.isPhotoEnabled()) {
+        /*if (bdspConfig.isPhotoEnabled()) {
             cameraMenu.setVisible(true);
         }*/
         return true;
@@ -145,7 +149,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onStart() {
         super.onStart();
         if(BdspRow.getId().isEmpty()) {
-            showIdEntry(config.getIdKey());
+            showIdEntry(bdspConfig.getIdKey());
+            getSupportActionBar().setSubtitle(bdspConfig.getIdKey() + " : ");
+
         }
 
         ConnectivityManager cm =
@@ -204,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if (NetUpdateReceiver.netConnected) {
                     try {
-                        AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(Config.SUBMIT_URL);
+                        AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(BdspConfig.SUBMIT_URL);
                         doUpload.execute();
                     } catch (Exception e) {
                         Log.d("UPLOADER", "THAT DIDN'T WORK");
@@ -257,11 +263,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (idTxt.getText().toString().equals("")) {
                     showIdEntry(id_key);
                 } else {
-                    //config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
+                    //bdspConfig.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     String id = idTxt.getText().toString().replace(' ', '_');
                     BdspRow.setId(id);
-                    getSupportActionBar().setSubtitle(config.getIdKey() + " : " + id );
-                    config.updateUrl();
+                    getSupportActionBar().setSubtitle(bdspConfig.getIdKey() + " : " + id );
                 }
             }
         });

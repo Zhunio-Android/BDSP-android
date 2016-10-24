@@ -21,7 +21,7 @@ import me.sunyfusion.bdsp.R;
 
 public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder> {
     /**
-     * Holds list of Unique objects created when Config.init was run
+     * Holds list of Unique objects created when BdspConfig.init was run
      */
     private ArrayList<String> uniqueList;
 
