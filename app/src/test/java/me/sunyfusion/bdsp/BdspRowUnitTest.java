@@ -1,7 +1,6 @@
 package me.sunyfusion.bdsp;
 
 import android.content.Context;
-import android.test.mock.MockContext;
 
 import org.junit.After;
 import org.junit.Before;
@@ -10,10 +9,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-
-import java.util.Random;
-
-import me.sunyfusion.bdsp.db.BdspDB;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -49,7 +44,7 @@ public class BdspRowUnitTest {
     //it should submit a ContentValues to the database
     @Test
     public void BsdpRow_submitContentValues() {
-        Context c = new MockContext();
+        Context c = RuntimeEnvironment.application;
         BdspRow r = new BdspRow();
         r.ColumnNames.put(BdspRow.ColumnType.ID,"id");
         r.ColumnNames.put(BdspRow.ColumnType.RUN,"run");

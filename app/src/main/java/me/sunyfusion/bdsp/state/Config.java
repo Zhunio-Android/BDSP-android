@@ -190,13 +190,13 @@ public class Config {
             }
             else {
                 if(!isServiceRunning(GpsService.class)) {
-                    Global.getContext().startService(new Intent(c, GpsService.class));
+                    c.startService(new Intent(c, GpsService.class));
                 }
             }
         }
         else {
             if(!isServiceRunning(GpsService.class)) {
-                Global.getContext().startService(new Intent(c, GpsService.class));
+                c.startService(new Intent(c, GpsService.class));
             }
         }
     }

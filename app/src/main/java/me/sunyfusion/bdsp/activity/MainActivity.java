@@ -7,21 +7,23 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
+import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.adapter.UniqueAdapter;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
@@ -65,17 +68,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .penaltyLog()
                 .penaltyDeath()
                 .build());*/
+        final View.OnClickListener self = this;
         super.onCreate(savedInstanceState);
         Global.getInstance().init(this);
         config = new Config(this);  // Stores all of the config info from build app.txt
         db = Global.getDb();
-        Global.getInstance().setConfig(config);
         ArrayList<String> uniques = config.getUniques();
-        showIdEntry(config.getIdKey());
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setLogo(R.mipmap.logo);
+        Button b = new Button(this);
+        b.setText("Out of Service");
+        b.setBackgroundColor(Color.RED);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                self.onClick(findViewById(R.id.submit));
+                stopService(new Intent(getApplicationContext(),GpsService.class));
+                BdspRow.getInstance().clear();
+                BdspRow.clearId();
+                finishAffinity();
+            }
+        });
+        getSupportActionBar().setCustomView(b, new ActionBar.LayoutParams(Gravity.RIGHT));
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         getSupportActionBar().setSubtitle(config.getIdKey() + " : ");
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
@@ -115,15 +132,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_mode_close_button) {
+            stopService(new Intent(getApplicationContext(),GpsService.class));
+            BdspRow.getInstance().clear();
+            BdspRow.clearId();
             finishAffinity();
-            System.exit(0);
         }
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public void onStart() {
         super.onStart();
+        if(BdspRow.getId().isEmpty()) {
+            showIdEntry(config.getIdKey());
+        }
+
         ConnectivityManager cm =
                 (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -139,8 +163,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onDestroy() {
-        stopService(new Intent(this,GpsService.class));
         super.onDestroy();
+        stopService(new Intent(this,GpsService.class));
     }
 
     /**
@@ -170,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          */
         switch (view.getId()) {
             case R.id.submit:
+                Utils.checkDate(this);
                 BdspRow.getInstance().send(getApplicationContext());
                 ContentValues cv = BdspRow.getInstance().getRow();
                 try {
@@ -233,8 +258,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     showIdEntry(id_key);
                 } else {
                     //config.setIdValue(idTxt.getText().toString().replace(' ', '_'));
-                    BdspRow.setId(idTxt.getText().toString().replace(' ', '_'));
-                    getSupportActionBar().setSubtitle(config.getIdKey() + " : ");
+                    String id = idTxt.getText().toString().replace(' ', '_');
+                    BdspRow.setId(id);
+                    getSupportActionBar().setSubtitle(config.getIdKey() + " : " + id );
                     config.updateUrl();
                 }
             }

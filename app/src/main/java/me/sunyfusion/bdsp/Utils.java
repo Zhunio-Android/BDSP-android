@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
-import me.sunyfusion.bdsp.state.Global;
-
 /**
  * Created by jesse on 10/13/16.
  */
@@ -30,7 +28,7 @@ public class Utils {
             prefEdit.commit();
         }
         if (!prefs.getString("lastDate", "").equals(Utils.getDateString("yyyy-MM-dd"))) {
-            Global.getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
+            //Global.getDb().deleteRun(prefs.getInt("run",1),prefs.getString("lastDate", ""));
             prefEdit.putString("lastDate",date);
             prefEdit.putInt("run",1);
             prefEdit.commit();
@@ -39,7 +37,7 @@ public class Utils {
     public static int increment(Context c) {
         SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
         SharedPreferences.Editor prefEdit = prefs.edit();
-        int run = prefs.getInt("run",0);
+        int run = prefs.getInt("run",1);
         prefEdit.putInt("run",run+1);
         prefEdit.commit();
         return run;

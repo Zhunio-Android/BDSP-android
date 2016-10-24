@@ -1,5 +1,6 @@
 package me.sunyfusion.bdsp.service;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
@@ -88,6 +89,12 @@ public class GpsService extends Service implements LocationListener {
             t.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
+                    if(Utils.getDateString("HH:mm:ss").contains("00:00:0")){
+                        stopService(new Intent(getApplicationContext(),GpsService.class));
+                        BdspRow.getInstance().clear();
+                        BdspRow.clearId();
+                        ((Activity) Global.getContext()).finishAffinity();
+                    }
                     if (location != null) {
                         BdspRow.getInstance().append(BdspRow.ColumnNames.get(BdspRow.ColumnType.GEOMETRY),location.getLongitude() + "," + location.getLatitude() + " ");
                         BdspRow.getInstance().attachLocation(location);
@@ -126,7 +133,7 @@ public class GpsService extends Service implements LocationListener {
     // Everything else
     //-------------------------------------------------------------------
     private void getWakelock() {
-        PowerManager pm = (PowerManager) Global.getContext().getSystemService(Context.POWER_SERVICE);
+        PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "GpsService");
         wl.acquire();
     }

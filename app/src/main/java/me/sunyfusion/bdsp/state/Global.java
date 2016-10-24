@@ -15,13 +15,12 @@ public class Global {
     private Global() {
 
     }
-
     public static Global getInstance() {
         return ourInstance;
     }
 
     public void init(Context context) {
-        this.context = context.getApplicationContext();
+        this.context = context;
         dbHelper = new BdspDB(context);
     }
 

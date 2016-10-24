@@ -18,7 +18,7 @@ public class BdspRow {
     final String kmlStart = "<LineString><tessellate>1</tessellate><coordinates>";
     final String kmlEnd = "</coordinates></LineString>";
 
-    private static String idv;
+    private static String idv = "";
     public static HashMap<ColumnType,String> ColumnNames = new HashMap<>();
     private static BdspRow ourInstance = new BdspRow();
 
@@ -104,6 +104,12 @@ public class BdspRow {
     }
     public static void setId(String s) {
         idv = s;
+    }
+    public static String getId() {
+        return idv;
+    }
+    public static void clearId() {
+        idv = "";
     }
     public void print() {
         System.out.println(row.toString());
