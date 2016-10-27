@@ -7,8 +7,7 @@
         android:icon="@drawable/ic_add_a_photo_black_24dp"
         android:title="Camera"
         android:orderInCategory="100"
-        app:showAsAction="ifRoom"
-        android:visible="false" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_gps_location"
         android:icon="@drawable/ic_my_location_black_24dp"

@@ -7,28 +7,30 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Color;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ImageView;
 
 import org.json.JSONArray;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setLogo(R.mipmap.logo);
+        /*
         Button b = new Button(this);
         b.setText("Out of Service");
         b.setBackgroundColor(Color.RED);
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
         getSupportActionBar().setCustomView(b, new ActionBar.LayoutParams(Gravity.RIGHT));
         getSupportActionBar().setDisplayShowCustomEnabled(true);
+        */
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
         mRecyclerView.setHasFixedSize(true);
@@ -123,9 +127,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         */
         cameraMenu = menu.getItem(0);
-        /*if (bdspConfig.isPhotoEnabled()) {
+        if (BdspRow.hasColumn(BdspRow.ColumnType.PHOTO)) {
             cameraMenu.setVisible(true);
-        }*/
+        }
         return true;
     }
 
@@ -135,11 +139,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_mode_close_button) {
-            stopService(new Intent(getApplicationContext(),GpsService.class));
-            BdspRow.getInstance().clear();
-            BdspRow.clearId();
-            finishAffinity();
+        switch(id) {
+            case R.id.action_mode_close_button:
+                stopService(new Intent(getApplicationContext(),GpsService.class));
+                BdspRow.getInstance().clear();
+                BdspRow.clearId();
+                finishAffinity();
+                break;
+            case R.id.action_camera:
+                dispatchTakePictureIntent();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -184,9 +193,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            Toast.makeText(this, "Img saved successfully", Toast.LENGTH_LONG).show();
+        switch(requestCode) {
+            case REQUEST_IMAGE_CAPTURE:
+                super.onActivityResult(requestCode, resultCode, data);
+                if (resultCode == RESULT_OK) {
+                    Bundle extras = data.getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    ((ImageView) findViewById(R.id.imageView)).setImageBitmap(imageBitmap);
+                }
+                break;
+            default:
+                break;
         }
     }
 
@@ -263,7 +280,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (idTxt.getText().toString().equals("")) {
                     showIdEntry(id_key);
                 } else {
-                    //bdspConfig.setIdValue(idTxt.getText().toString().replace(' ', '_'));
                     String id = idTxt.getText().toString().replace(' ', '_');
                     BdspRow.setId(id);
                     getSupportActionBar().setSubtitle(bdspConfig.getIdKey() + " : " + id );
@@ -294,6 +310,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             // other 'case' lines to check for other
             // permissions this app might request
+        }
+    }
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    String mCurrentPhotoPath;
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = Utils.getDateString("yyyyMMdd_HHmmss");
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
+        return image;
+    }
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                System.out.println(ex.getMessage());
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "me.sunyfusion.bdsp.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
         }
     }
 }

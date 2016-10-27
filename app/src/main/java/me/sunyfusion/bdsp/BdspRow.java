@@ -15,6 +15,7 @@ public class BdspRow {
     public enum ColumnType {
         DATE, ID, LATITUDE, LONGITUDE, PHOTO, RUN, GEOMETRY, START, END, UNIQUE
     }
+
     final String kmlStart = "<LineString><tessellate>1</tessellate><coordinates>";
     final String kmlEnd = "</coordinates></LineString>";
 
@@ -117,6 +118,9 @@ public class BdspRow {
     public void clear() {
         row = new ContentValues();
         BdspRow.getInstance().markStart();
+    }
+    public static boolean hasColumn(ColumnType col) {
+        return ColumnNames.containsKey(col);
     }
     public boolean markStart() {
         if(ColumnNames.containsKey(ColumnType.START)) {

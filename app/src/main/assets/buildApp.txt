@@ -1,38 +1,39 @@
 // camera, 1, camera column
-camera 0 camera
+camera 1 Photo
 
 // gpsLoc 1/0, latitude column, longitude column
 // gpsLoc 0 latitude longitude
 
 // gpsTracker 1/0, column, frequency, manual/automatic
-gpsTracker 1 geometry 2000 start end
+//gpsTracker 1 geometry 2000 start end
 
 // id, must be present or app will break, name of ID column
-id truckID
+id ID
 
 //run 0/1(enable disable) and name of column
-run 1 run
+//run 1 run
 
 //name of fusion table that will be written to (no spaces)
-table bdspTestTable
+table assetTest
 
 //email address of user that built the app, transactions will be authorized through this account
-email simonsj@newpaltz.edu
+email jett925@gmail.com
 
 //field that the app will put the current system time into
-datetime date
+//datetime date
 
 //base url of server that the app interacts with
 url http://www.sunyfusion.me/ft_test/
 
 //sets subdirectory of project folder that updated config will be read from
-project san_test
+project asset_test
 
 // unique options - "unique", type, name
-unique tons
+unique Quantity
+unique Thing
 
 //location (0/1 enable disable) included on pressing of submit button
-locOnSub 1 latitude longitude
+locOnSub 1 Latitude Longitude
 
 //EOF marker
 endFile

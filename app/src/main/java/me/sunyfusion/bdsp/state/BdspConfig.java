@@ -115,7 +115,7 @@ public class BdspConfig {
                     break;
                 case "photo":
                     if (readFile.enabled()) {
-                        //photo = new Photo(c,readFile.getArg(2),getDb());
+                        addColumn(BdspRow.ColumnType.PHOTO, readFile.getArg(2));
                     }
                     break;
                 case "gpsLoc":
