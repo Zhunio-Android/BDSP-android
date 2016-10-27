@@ -16,11 +16,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
-import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.state.Global;
 
@@ -28,7 +26,7 @@ import me.sunyfusion.bdsp.state.Global;
  * Created by jesse on 8/1/16.
  */
 public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
-    BdspDB db = Global.getDb();
+    private BdspDB db = Global.getDb();
     final String submitUrl;
     ArrayList<String> deleteQueue = new ArrayList<String>();
     public UploadTask(String url) {
@@ -39,7 +37,8 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
 
     @Override
     protected ArrayList<JSONArray> doInBackground(Void... voids) {
-        ArrayList<JSONArray> jsonArrayList = new ArrayList<JSONArray>();
+        if(db != null) {
+            ArrayList<JSONArray> jsonArrayList = new ArrayList<JSONArray>();
             Cursor c = db.queueAll(null);
             JSONArray j;
             JSONObject jsonObject;
@@ -67,17 +66,21 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
                 c.moveToNext();
             }
             c.close();
-        return jsonArrayList;
+            return jsonArrayList;
+        }
+        else return null;
     }
 
     @Override
     protected void onPostExecute(ArrayList<JSONArray> j) {
         super.onPostExecute(j);
-        System.out.println(submitUrl);
         if(j != null) {
-            for (JSONArray jsonArray : j) {
-                Log.d("JSON ARRAY", jsonArray.toString());
-                doHTTPpost(submitUrl, jsonArray, null);
+            System.out.println(submitUrl);
+            if (j != null) {
+                for (JSONArray jsonArray : j) {
+                    Log.d("JSON ARRAY", jsonArray.toString());
+                    doHTTPpost(submitUrl, jsonArray, null);
+                }
             }
         }
     }
