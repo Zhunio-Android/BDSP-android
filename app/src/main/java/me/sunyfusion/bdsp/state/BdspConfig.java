@@ -35,11 +35,11 @@ public class BdspConfig {
     public ArrayList<String> uniques = new ArrayList<>();
     public static String SUBMIT_URL = "update.php";
     private String url;
-    private String id_key;
+    private String id_key = "";
     private BdspDB db;
     private String project;
 
-    Context c;
+    private Context c;
 
     public BdspConfig(Context context) {
         c = context;   // Ties config to main activity
@@ -72,7 +72,7 @@ public class BdspConfig {
         String Type;
         String table = "";
         String email = "";
-        Scanner infile = null;
+        Scanner infile;
         try {
             infile = new Scanner(file);   // scans File
         } catch (Exception e) {
@@ -175,7 +175,7 @@ public class BdspConfig {
         return id_key;
     }
 
-    public void checkGPSPermission() {
+    private void checkGPSPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // Here, thisActivity is the current activity
             if (ContextCompat.checkSelfPermission(c,

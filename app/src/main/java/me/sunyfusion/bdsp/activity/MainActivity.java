@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -28,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 
 import java.io.File;
@@ -52,11 +52,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     MenuItem cameraMenu;
     MenuItem gpsMenu;
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+
     private BdspConfig bdspConfig;
     private BdspDB db;
+    private Uri photoURI;
 
     /**
      * Runs on startup, creates the layout when the activity is created.
@@ -66,12 +65,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        RecyclerView mRecyclerView;
+        RecyclerView.Adapter mAdapter;
+        RecyclerView.LayoutManager mLayoutManager;
+
         /*StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
                 .detectAll()
                 .penaltyLog()
                 .penaltyDeath()
                 .build());*/
-        final View.OnClickListener self = this;
         super.onCreate(savedInstanceState);
         Global.getInstance().init(this);
         bdspConfig = new BdspConfig(this);  // Stores all of the bdspConfig info from build app.txt
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(myToolbar);
         getSupportActionBar().setLogo(R.mipmap.logo);
         /*
+        final View.OnClickListener self = this;
         Button b = new Button(this);
         b.setText("Out of Service");
         b.setBackgroundColor(Color.RED);
@@ -160,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(BdspRow.getId().isEmpty()) {
             showIdEntry(bdspConfig.getIdKey());
             getSupportActionBar().setSubtitle(bdspConfig.getIdKey() + " : ");
-
         }
 
         ConnectivityManager cm =
@@ -197,9 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case REQUEST_IMAGE_CAPTURE:
                 super.onActivityResult(requestCode, resultCode, data);
                 if (resultCode == RESULT_OK) {
-                    Bundle extras = data.getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    ((ImageView) findViewById(R.id.imageView)).setImageBitmap(imageBitmap);
+                    ((ImageView) findViewById(R.id.imageView)).setImageURI(photoURI);
                 }
                 break;
             default:
@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NotNull String permissions[], int[] grantResults) {
 
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
@@ -305,7 +305,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     System.out.println("They said no!");
                 }
-                return;
             }
 
             // other 'case' lines to check for other
@@ -343,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
+                photoURI = FileProvider.getUriForFile(this,
                         "me.sunyfusion.bdsp.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);

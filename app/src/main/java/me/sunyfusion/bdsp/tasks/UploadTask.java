@@ -39,7 +39,14 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
     protected ArrayList<JSONArray> doInBackground(Void... voids) {
         if(db != null) {
             ArrayList<JSONArray> jsonArrayList = new ArrayList<JSONArray>();
-            Cursor c = db.queueAll(null);
+            Cursor c;
+            try {
+                c = db.queueAll(null);
+            }
+            catch(NullPointerException e) {
+                System.out.println("Failing upload gracefully");
+                return null;
+            }
             JSONArray j;
             JSONObject jsonObject;
             if (c.getCount() == 0)   //Does not submit if database is empty
