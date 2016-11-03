@@ -1,26 +1,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:orientation="horizontal"
-    android:background="@drawable/border">
+    android:padding="0dp"
+    android:orientation="vertical"
+    android:background="@drawable/border"
+    android:id="@+id/container">
 
-    <TextView
-        android:id="@+id/uniqueName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="unique"
-        android:textSize="16dp"
-        android:minWidth="140px"
-        android:maxLines="2"
-        android:singleLine="false"
-        android:maxWidth="140px" />
-
-    <EditText
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/uniqueValue"
-        android:singleLine="true"
-        android:hint=" " />
+        android:layout_height="match_parent"
+        android:id="@+id/textField">
+
+        <TextView
+            android:id="@+id/uniqueName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="unique"
+            android:textSize="16dp"
+            android:minWidth="140px"
+            android:maxLines="2"
+            android:singleLine="false"
+            android:maxWidth="140px" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/uniqueValue"
+            android:singleLine="true"
+            android:hint=" " />
+
+    </LinearLayout>
 
 </LinearLayout>

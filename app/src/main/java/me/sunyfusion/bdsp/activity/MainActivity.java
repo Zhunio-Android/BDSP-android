@@ -218,6 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.submit:
                 Utils.checkDate(this);
+                Utils.getPhotoList(this);
                 BdspRow.getInstance().send(getApplicationContext());
                 ContentValues cv = BdspRow.getInstance().getRow();
                 try {
@@ -249,6 +250,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * The viewgroup whose edittexts will be cleared
          */
+        ((ImageView) findViewById(R.id.imageView)).setImageResource(R.drawable.border);
         ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
         for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
             ViewGroup uniqueItemGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
@@ -324,7 +326,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ".jpg",         /* suffix */
                 storageDir      /* directory */
         );
-
+        boolean t = BdspRow.getInstance().put(BdspRow.ColumnNames.get(BdspRow.ColumnType.PHOTO),
+                "http://sunyfusion.me/projects/" + bdspConfig.table + "/" + image.getName()
+        );
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;

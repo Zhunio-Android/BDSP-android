@@ -9,16 +9,19 @@ import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
+import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.state.Global;
 
@@ -86,9 +89,13 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
             if (j != null) {
                 for (JSONArray jsonArray : j) {
                     Log.d("JSON ARRAY", jsonArray.toString());
-                    doHTTPpost(submitUrl, jsonArray, null);
+                    doRowUpload(submitUrl, jsonArray, null);
                 }
             }
+        }
+        File[] fileList = Utils.getPhotoList(Global.getContext());
+        for(File f : fileList) {
+            doImageUpload("http://sunyfusion.me/ft_test/photos.php", f);
         }
     }
 
@@ -96,7 +103,7 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
      * Creates and sends an HTTP post request to the server, which includes the image captured
      * from the getImage() method. Also adds the HTTP response from the server to the UI.
      */
-    private boolean doHTTPpost(String url, JSONArray jsonParams, Uri imgUri) {
+    private boolean doRowUpload(String url, JSONArray jsonParams, Uri imgUri) {
         final Context c = Global.getContext();
         AsyncHttpClient client = new AsyncHttpClient();
         final boolean status = false;
@@ -133,6 +140,51 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
                 Toast toast = Toast.makeText(c, "Failed " + statusCode, Toast.LENGTH_LONG);
+                toast.show();
+            }
+
+            @Override
+            public void onRetry(int retryNo) {
+                // called when request is retried
+            }
+        });
+        return status;
+    }
+    private boolean doImageUpload(final String url, final File fileToUpload) {
+        final Context c = Global.getContext();
+        AsyncHttpClient client = new AsyncHttpClient();
+        final boolean status = false;
+        RequestParams req = new RequestParams();
+        try {
+            req.put("photo", fileToUpload);
+            //TODO make this wrk off the config file
+            req.put("projectName", "assetTest");
+        }
+        catch(FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+        //post test
+        client.setBasicAuth("SUNY", "GreenTreeTables");
+        client.setTimeout(20000);
+        client.setMaxRetriesAndTimeout(0, 1);
+        client.post(url, req, new FileAsyncHttpResponseHandler(c) {
+
+            @Override
+            public void onStart() {
+                // called before request is started
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, File response) {
+                Toast toast = Toast.makeText(c, "Photo Success " + statusCode, Toast.LENGTH_LONG);
+                toast.show();
+                Log.i("UPLOAD", "SUCCESS");
+                Utils.deletePhoto(Global.getContext(), fileToUpload);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
+                Toast toast = Toast.makeText(c, "Photo Failed " + statusCode, Toast.LENGTH_LONG);
                 toast.show();
             }
 

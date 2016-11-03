@@ -1,5 +1,5 @@
-// camera, 1, camera column
-camera 1 Photo
+// photo, 1, camera column
+photo 1 Photo
 
 // gpsLoc 1/0, latitude column, longitude column
 // gpsLoc 0 latitude longitude
@@ -26,7 +26,7 @@ email jett925@gmail.com
 url http://www.sunyfusion.me/ft_test/
 
 //sets subdirectory of project folder that updated config will be read from
-project asset_test
+project assetTest
 
 // unique options - "unique", type, name
 unique Quantity

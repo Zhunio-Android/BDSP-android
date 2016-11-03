@@ -34,10 +34,11 @@ public class BdspConfig {
 
     public ArrayList<String> uniques = new ArrayList<>();
     public static String SUBMIT_URL = "update.php";
-    private String url;
+    public String url;
     private String id_key = "";
     private BdspDB db;
     private String project;
+    public String table = "";
 
     private Context c;
 
@@ -70,7 +71,7 @@ public class BdspConfig {
 
     public void init(InputStream file) throws BdspConfigException{
         String Type;
-        String table = "";
+
         String email = "";
         Scanner infile;
         try {
