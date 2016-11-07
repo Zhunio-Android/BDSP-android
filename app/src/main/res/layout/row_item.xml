@@ -9,8 +9,9 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/textField">
+        android:id="@+id/textField"
+        android:visibility="gone"
+        android:layout_height="44dp">
 
         <TextView
             android:id="@+id/uniqueName"
@@ -30,6 +31,27 @@
             android:singleLine="true"
             android:hint=" " />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:id="@+id/spinnerLayout"
+        android:visibility="gone"
+        android:layout_height="44dp">
+
+        <TextView
+            android:text="SpinnerTest"
+            android:layout_width="71dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinnerName"
+            android:textSize="16sp" />
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/spinner"
+            android:layout_weight="1" />
     </LinearLayout>
 
 </LinearLayout>

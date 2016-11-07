@@ -21,6 +21,8 @@ import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
 import me.sunyfusion.bdsp.BdspRow;
+import me.sunyfusion.bdsp.Unique;
+import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.exception.BdspConfigException;
@@ -32,7 +34,7 @@ import me.sunyfusion.bdsp.service.GpsService;
  */
 public class BdspConfig {
 
-    public ArrayList<String> uniques = new ArrayList<>();
+    public ArrayList<Unique> uniques = new ArrayList<>();
     public static String SUBMIT_URL = "update.php";
     public String url;
     private String id_key = "";
@@ -135,9 +137,18 @@ public class BdspConfig {
                         checkGPSPermission();
                     }
                     break;
-                case "unique":
+                case "textfield":
                     addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
-                    uniques.add(readFile.getArg(1));
+                    Unique u = new Unique("textfield");
+                    u.setText(readFile.getArg(1));
+                    uniques.add(u);
+                    break;
+                case "spinner":
+                    addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
+                    u = new Unique("spinner");
+                    u.setText(readFile.getArg(1));
+                    u.setArray(Utils.stringToArray(readFile.getArg(2)));
+                    uniques.add(u);
                     break;
                 case "datetime":
                     addColumn(BdspRow.ColumnType.DATE,readFile.getArg(1));
@@ -169,7 +180,7 @@ public class BdspConfig {
         return url + "projects/" + project;
     }
 
-    public ArrayList<String> getUniques() {
+    public ArrayList<Unique> getUniques() {
         return uniques;
     }
     public String getIdKey() {

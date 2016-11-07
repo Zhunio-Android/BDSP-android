@@ -25,12 +25,9 @@ email jett925@gmail.com
 //base url of server that the app interacts with
 url http://www.sunyfusion.me/ft_test/
 
-//sets subdirectory of project folder that updated config will be read from
-project assetTest
-
 // unique options - "unique", type, name
-unique Quantity
-unique Thing
+spinner Quantity [one,two,third,four]
+textfield Thing
 
 //location (0/1 enable disable) included on pressing of submit button
 locOnSub 1 Latitude Longitude

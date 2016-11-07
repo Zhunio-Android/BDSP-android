@@ -61,4 +61,7 @@ public class Utils {
         }
         return false;
     }
+    public static String[] stringToArray(String s) {
+        return s.substring(1, s.length()-1).split(",");
+    }
 }

@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
+import me.sunyfusion.bdsp.Unique;
 import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.adapter.UniqueAdapter;
 import me.sunyfusion.bdsp.db.BdspDB;
@@ -69,12 +71,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RecyclerView.Adapter mAdapter;
         RecyclerView.LayoutManager mLayoutManager;
 
-        /*StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .penaltyDeath()
-                .build());*/
         super.onCreate(savedInstanceState);
+
         Global.getInstance().init(this);
         bdspConfig = new BdspConfig(this);  // Stores all of the bdspConfig info from build app.txt
         try { bdspConfig.init(this.getAssets().open("buildApp.txt")); }
@@ -82,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             System.out.println("Error in configuration");
         }
         db = Global.getDb();
-        ArrayList<String> uniques = bdspConfig.getUniques();
+        ArrayList<Unique> uniques = bdspConfig.getUniques();
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -244,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Clears all editable text fields within a view object
+     * Clears all editable fields within the uniques view object
      */
     private void clearTextFields() {
         /**
@@ -253,10 +251,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ((ImageView) findViewById(R.id.imageView)).setImageResource(R.drawable.border);
         ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
         for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
-            ViewGroup uniqueItemGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
-            for(int j = 0; j < uniqueItemGroup.getChildCount(); j++) {
-                if (uniqueItemGroup.getChildAt(j) instanceof EditText) {
-                    ((EditText) uniqueItemGroup.getChildAt(j)).setText("");
+            ViewGroup containerGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
+            for(int j = 0; j < containerGroup.getChildCount(); j++) {
+                ViewGroup uniqueTypeGroup = (ViewGroup) containerGroup.getChildAt(j);
+                for(int k = 0; k < uniqueTypeGroup.getChildCount(); k++) {
+                    // THIS IS WHERE the methods of clearing each type of input go!
+                    if (uniqueTypeGroup.getChildAt(k) instanceof EditText) {
+                        ((EditText) uniqueTypeGroup.getChildAt(k)).setText("");
+                    }
+                    else if (uniqueTypeGroup.getChildAt(k) instanceof Spinner) {
+                        ((Spinner) uniqueTypeGroup.getChildAt(k)).setSelection(0);
+                    }
                 }
             }
         }

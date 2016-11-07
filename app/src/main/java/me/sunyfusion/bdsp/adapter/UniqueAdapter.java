@@ -6,13 +6,18 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
+import me.sunyfusion.bdsp.Unique;
+import me.sunyfusion.bdsp.state.Global;
 
 /**
  * @author Jesse Deisinger
@@ -23,7 +28,7 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
     /**
      * Holds list of Unique objects created when BdspConfig.init was run
      */
-    private ArrayList<String> uniqueList;
+    private ArrayList<Unique> uniqueList;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public View mView;
@@ -34,7 +39,7 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
         }
     }
 
-    public UniqueAdapter(ArrayList<String> myDataset) {
+    public UniqueAdapter(ArrayList<Unique> myDataset) {
         uniqueList = myDataset;
     }
 
@@ -42,7 +47,7 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
     public UniqueAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                        int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_layout, parent, false);
+                .inflate(R.layout.row_item, parent, false);
         ViewHolder vh = new ViewHolder(v);
         return vh;
     }
@@ -52,8 +57,31 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
         final int p = position;
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+        Unique unique = uniqueList.get(position);
+        switch(unique.getType()) {
+            case "textfield":
+                makeTextField(holder, unique);
+                break;
+            case "spinner":
+                makeSpinner(holder, unique);
+                break;
+            case "location":
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return uniqueList.size();
+    }
+
+    private boolean makeTextField(ViewHolder holder, Unique u) {
+        holder.mView.findViewById(R.id.textField).setVisibility(View.VISIBLE);
         final TextView t = (TextView) holder.mView.findViewById(R.id.uniqueName);
-        t.setText(uniqueList.get(position));
+        t.setText(u.getText());
+        holder.mView.findViewById(R.id.textField).setVisibility(View.VISIBLE);
         EditText e = (EditText) holder.mView.findViewById(R.id.uniqueValue);
         e.addTextChangedListener(new TextWatcher() {
             @Override
@@ -71,11 +99,28 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
                 BdspRow.getInstance().put(t.getText().toString(), s.toString());
             }
         });
+        return true;
     }
+    private boolean makeSpinner(ViewHolder holder, Unique u) {
+        holder.mView.findViewById(R.id.spinnerLayout).setVisibility(View.VISIBLE);
+        final TextView t = (TextView) holder.mView.findViewById(R.id.spinnerName);
+        t.setText(u.getText());
+        Spinner s = (Spinner) holder.mView.findViewById(R.id.spinner);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(Global.getContext(), android.R.layout.simple_spinner_item, u.getArray());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        s.setAdapter(adapter);
+        s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                BdspRow.getInstance().put(t.getText().toString(), parent.getItemAtPosition(position).toString());
+            }
 
-    @Override
-    public int getItemCount() {
-        return uniqueList.size();
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        return true;
     }
 }
 
