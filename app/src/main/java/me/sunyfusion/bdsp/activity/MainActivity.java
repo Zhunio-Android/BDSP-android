@@ -25,8 +25,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BdspConfig bdspConfig;
     private BdspDB db;
     private Uri photoURI;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    String mCurrentPhotoPath;
+
 
     /**
      * Runs on startup, creates the layout when the activity is created.
@@ -85,24 +88,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setLogo(R.mipmap.logo);
-        /*
-        final View.OnClickListener self = this;
-        Button b = new Button(this);
-        b.setText("Out of Service");
-        b.setBackgroundColor(Color.RED);
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                self.onClick(findViewById(R.id.submit));
-                stopService(new Intent(getApplicationContext(),GpsService.class));
-                BdspRow.getInstance().clear();
-                BdspRow.clearId();
-                finishAffinity();
-            }
-        });
-        getSupportActionBar().setCustomView(b, new ActionBar.LayoutParams(Gravity.RIGHT));
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        */
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
         mRecyclerView.setHasFixedSize(true);
@@ -120,17 +105,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         super.onCreateOptionsMenu(menu);
-
-        gpsMenu = menu.getItem(1);
-        /*
-        if (bdspConfig.isLocationEnabled()) {
-            gpsMenu.setVisible(true);
-        }
-        */
-        cameraMenu = menu.getItem(0);
-        if (BdspRow.hasColumn(BdspRow.ColumnType.PHOTO)) {
-            cameraMenu.setVisible(true);
-        }
         return true;
     }
 
@@ -146,9 +120,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 BdspRow.getInstance().clear();
                 BdspRow.clearId();
                 finishAffinity();
-                break;
-            case R.id.action_camera:
-                dispatchTakePictureIntent();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -197,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case REQUEST_IMAGE_CAPTURE:
                 super.onActivityResult(requestCode, resultCode, data);
                 if (resultCode == RESULT_OK) {
-                    ((ImageView) findViewById(R.id.imageView)).setImageURI(photoURI);
+                    //((ImageView) findViewById(R.id.imageView)).setImageURI(photoURI);
                 }
                 break;
             default:
@@ -241,6 +212,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /*Returns the corresponding view for a given label in the form
+        Use this to get the EditText box for a given labeled field
+        so you can write to it.
+     */
+    public View getView(String label) {
+        ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
+        for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
+            ViewGroup containerGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
+            System.out.println(i);
+            for(int j = 0; j < containerGroup.getChildCount(); j++) {
+                System.out.println(j);
+                ViewGroup uniqueTypeGroup = (ViewGroup) containerGroup.getChildAt(j);
+                for(int k = 0; k < uniqueTypeGroup.getChildCount(); k++) {
+                    System.out.println(k);
+                    TextView t = (TextView) uniqueTypeGroup.findViewById(R.id.uniqueName);
+                    if(t != null && t.getText().toString().equals(label)) {
+                        return uniqueTypeGroup.findViewById(R.id.uniqueValue);
+                    }
+                }
+            }
+        }
+        System.out.println("GETVIEW : Did not find");
+        return null;
+    }
+
     /**
      * Clears all editable fields within the uniques view object
      */
@@ -248,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         /**
          * The viewgroup whose edittexts will be cleared
          */
-        ((ImageView) findViewById(R.id.imageView)).setImageResource(R.drawable.border);
+        //((ImageView) findViewById(R.id.imageView)).setImageResource(R.drawable.border);
         ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
         for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
             ViewGroup containerGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
@@ -267,6 +263,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NotNull String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    System.out.println("They said yes!");
+                    startService(new Intent(MainActivity.this, GpsService.class));
+                } else {
+                    System.out.println("They said no!");
+                }
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
     /**
      * Creates and shows the dialog for ID entry on startup of the application
      * This method is called by onCreate after the configuration file has been read
@@ -297,30 +314,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         adb.show();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NotNull String permissions[], int[] grantResults) {
-
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    System.out.println("They said yes!");
-                    startService(new Intent(MainActivity.this, GpsService.class));
-                } else {
-                    System.out.println("They said no!");
-                }
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    String mCurrentPhotoPath;
-
+    //Image submission methods
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = Utils.getDateString("yyyyMMdd_HHmmss");
@@ -338,6 +332,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
     }
+
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {

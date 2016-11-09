@@ -122,6 +122,9 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
         });
         return true;
     }
+    private boolean makePhoto() {
+        return false;
+    }
 }
 
 
