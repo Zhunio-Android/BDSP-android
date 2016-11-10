@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.Unique;
+import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
@@ -64,6 +66,9 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
                 break;
             case "spinner":
                 makeSpinner(holder, unique);
+                break;
+            case "photo":
+                makePhoto(holder, unique);
                 break;
             case "location":
                 break;
@@ -122,7 +127,18 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
         });
         return true;
     }
-    private boolean makePhoto() {
+    private boolean makePhoto(ViewHolder holder, Unique u) {
+        holder.mView.findViewById(R.id.cameraView).setVisibility(View.VISIBLE);
+        TextView t = (TextView) holder.mView.findViewById(R.id.cameraText);
+        t.setText(u.getText());
+        ImageView p = (ImageView) holder.mView.findViewById(R.id.photoView);
+        p.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity) Global.getContext()).dispatchTakePictureIntent();
+            }
+        });
+
         return false;
     }
 }

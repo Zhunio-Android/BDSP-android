@@ -1,6 +1,3 @@
-// photo, 1, camera column
-photo 1 Photo
-
 // gpsLoc 1/0, latitude column, longitude column
 // gpsLoc 0 latitude longitude
 
@@ -26,8 +23,9 @@ email jett925@gmail.com
 url http://www.sunyfusion.me/ft_test/
 
 // unique options - "unique", type, name
-spinner Quantity [one,two,third,four]
+spinner Quantity [one,two,three,four]
 textfield Thing
+photo Photo
 
 //location (0/1 enable disable) included on pressing of submit button
 locOnSub 1 Latitude Longitude

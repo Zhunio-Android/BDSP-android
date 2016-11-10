@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -51,9 +52,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     // CONSTANTS
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-
-    MenuItem cameraMenu;
-    MenuItem gpsMenu;
 
     private BdspConfig bdspConfig;
     private BdspDB db;
@@ -168,7 +166,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case REQUEST_IMAGE_CAPTURE:
                 super.onActivityResult(requestCode, resultCode, data);
                 if (resultCode == RESULT_OK) {
-                    //((ImageView) findViewById(R.id.imageView)).setImageURI(photoURI);
+                    if(getView("Photo") != null) {
+                        ((ImageView) getView("Photo").findViewById(R.id.photoView)).setImageURI(photoURI);
+                    }
                 }
                 break;
             default:
@@ -222,13 +222,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             ViewGroup containerGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
             System.out.println(i);
             for(int j = 0; j < containerGroup.getChildCount(); j++) {
-                System.out.println(j);
                 ViewGroup uniqueTypeGroup = (ViewGroup) containerGroup.getChildAt(j);
                 for(int k = 0; k < uniqueTypeGroup.getChildCount(); k++) {
-                    System.out.println(k);
                     TextView t = (TextView) uniqueTypeGroup.findViewById(R.id.uniqueName);
                     if(t != null && t.getText().toString().equals(label)) {
-                        return uniqueTypeGroup.findViewById(R.id.uniqueValue);
+                        return uniqueTypeGroup;
+                    }
+                    t = (TextView) uniqueTypeGroup.findViewById(R.id.cameraText);
+                    if(t != null && t.getText().toString().equals(label)) {
+                        return uniqueTypeGroup;
+                    }
+                    t = (TextView) uniqueTypeGroup.findViewById(R.id.spinnerName);
+                    if(t != null && t.getText().toString().equals(label)) {
+                        return uniqueTypeGroup;
                     }
                 }
             }
@@ -257,6 +263,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     else if (uniqueTypeGroup.getChildAt(k) instanceof Spinner) {
                         ((Spinner) uniqueTypeGroup.getChildAt(k)).setSelection(0);
+                    }
+                    else if (uniqueTypeGroup.getChildAt(k) instanceof ImageView) {
+                        ((ImageView) uniqueTypeGroup.getChildAt(k)).setImageResource(R.drawable.ic_add_a_photo_black_24dp);
                     }
                 }
             }
@@ -333,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return image;
     }
 
-    private void dispatchTakePictureIntent() {
+    public void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go

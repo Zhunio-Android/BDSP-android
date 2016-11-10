@@ -82,7 +82,7 @@ public class BdspConfig {
             throw new BdspConfigException();
         }
         ReadFromInput readFile = new ReadFromInput(infile);
-
+        Unique u;
         do {
             try {
                 readFile.getNextLine();
@@ -117,9 +117,10 @@ public class BdspConfig {
                     id_key = readFile.getArg(1);
                     break;
                 case "photo":
-                    if (readFile.enabled()) {
-                        addColumn(BdspRow.ColumnType.PHOTO, readFile.getArg(2));
-                    }
+                    addColumn(BdspRow.ColumnType.PHOTO, readFile.getArg(1));
+                    u = new Unique("photo");
+                    u.setText(readFile.getArg(1));
+                    uniques.add(u);
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {
@@ -139,7 +140,7 @@ public class BdspConfig {
                     break;
                 case "textfield":
                     addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
-                    Unique u = new Unique("textfield");
+                    u = new Unique("textfield");
                     u.setText(readFile.getArg(1));
                     uniques.add(u);
                     break;
