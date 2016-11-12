@@ -1,5 +1,6 @@
 package me.sunyfusion.bdsp.adapter;
 
+import android.bluetooth.BluetoothAdapter;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -8,15 +9,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.Unique;
+import me.sunyfusion.bdsp.activity.MainActivity;
+import me.sunyfusion.bdsp.bluetooth.Constants;
+import me.sunyfusion.bdsp.bluetooth.ServerConnection;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
@@ -82,6 +88,27 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
         final TextView t = (TextView) holder.mView.findViewById(R.id.uniqueName);
         t.setText(u.getText());
         holder.mView.findViewById(R.id.textField).setVisibility(View.VISIBLE);
+        Button button = (Button) holder.mView.findViewById(R.id.button_bt_server);
+        button.setText(Constants.BUTTON_TEXT);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+                if (bluetoothAdapter != null) {
+                    if (!bluetoothAdapter.isEnabled()) {
+                        bluetoothAdapter.enable();
+                        Toast.makeText(Global.getContext(), Constants.ENABLED, Toast.LENGTH_SHORT)
+                                .show();
+                    } else {
+                        ServerConnection serverConnection = new ServerConnection();
+                        serverConnection.start();
+                    }
+                }
+                else {
+                    MainActivity.handler.obtainMessage(Constants.NO_BT_ADAPTER).sendToTarget();
+                }
+            }
+        });
         EditText e = (EditText) holder.mView.findViewById(R.id.uniqueValue);
         e.addTextChangedListener(new TextWatcher() {
             @Override
