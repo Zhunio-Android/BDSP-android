@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -40,6 +43,7 @@ import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.Unique;
 import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.adapter.UniqueAdapter;
+import me.sunyfusion.bdsp.bluetooth.Constants;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
 import me.sunyfusion.bdsp.service.GpsService;
@@ -353,5 +357,60 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
+    }
+
+    /**
+     * Handler allows Threads to communicate with and pass data to the main
+     * Thread (also referred to as UI thread). Used to display received Bluetooth
+     * data and handle potential errors.
+     */
+    public static final Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case Constants.WAITING_FOR_CLIENT:
+                    createAlertDialog(Constants.ALERT_TITLE, Constants.WAITING_MESSAGE);
+                    break;
+                case Constants.MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;
+                    String message = new String(readBuf, 0, msg.arg1);
+                    View view = ((MainActivity) Global.getContext()).getView("Thing");
+                    if (view != null)
+                        ((EditText)view).append(message);
+                    break;
+                case Constants.MESSAGE_READ_COMPLETE:
+                    Toast.makeText((MainActivity)Global.getContext(),
+                            Constants.READ_COMPLETE, Toast.LENGTH_SHORT).show();
+                    break;
+                case Constants.NO_BT_ADAPTER:
+                    createAlertDialog(Constants.ERROR_TITLE, Constants.ERROR_MESSAGE_01);
+                    break;
+                case Constants.ERROR:
+                    createAlertDialog(Constants.ERROR_TITLE, Constants.ERROR_MESSAGE_02);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    /**
+     * This method aids in the creation of custom alert dialogs to keep the user
+     * informed on the status of the program.
+     *
+     * @param title title displayed in alert dialog
+     * @param message message displayed in alert dialog
+     */
+    public static void createAlertDialog(String title, String message) {
+        new AlertDialog.Builder((MainActivity)Global.getContext())
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setCancelable(false)
+                .show();
     }
 }
