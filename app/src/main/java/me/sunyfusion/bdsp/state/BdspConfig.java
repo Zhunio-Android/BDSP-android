@@ -44,6 +44,7 @@ public class BdspConfig {
     private BdspDB db;
     private String project;
     public String table = "";
+    public boolean persistent_login = false;
 
     private Context c;
 
@@ -119,6 +120,7 @@ public class BdspConfig {
                 case "id":
                     addColumn(BdspRow.ColumnType.ID,readFile.getArg(1));
                     id_key = readFile.getArg(1);
+                    persistent_login = !readFile.getArg(2).equals("");
                     break;
                 case "photo":
                     addColumn(BdspRow.ColumnType.PHOTO, readFile.getArg(1));

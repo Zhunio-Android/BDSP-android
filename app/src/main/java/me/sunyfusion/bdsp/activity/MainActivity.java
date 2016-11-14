@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         try { bdspConfig = new BdspConfig(this, this.getAssets().open("buildApp.txt")); }
         catch(IOException e) {
             System.out.println("Error in configuration");
-            Toast.makeText(this,"ERROR IN PROJECT CONFIGURATION, EXITING", Toast.LENGTH_LONG);
+            Toast.makeText(this,"ERROR IN PROJECT CONFIGURATION, EXITING", Toast.LENGTH_LONG).show();
             finishAffinity();
         }
         ArrayList<Field> fields = bdspConfig.getFields();
@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void showIdEntry(final String id_key) {
         final EditText idTxt;
-
+        
         idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle(R.string.alert_login);

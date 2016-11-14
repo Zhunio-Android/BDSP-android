@@ -5,7 +5,7 @@
 //gpsTracker 1 geometry 2000 start end
 
 // id, must be present or app will break, name of ID column
-id ID
+id ID persistent
 
 //run 0/1(enable disable) and name of column
 //run 1 run
