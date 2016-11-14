@@ -24,7 +24,7 @@ url http://www.sunyfusion.me/ft_test/
 
 // unique options - "unique", type, name
 spinner Quantity [one,two,three,four]
-textfield Thing
+photo Thing
 photo Photo
 
 //location (0/1 enable disable) included on pressing of submit button

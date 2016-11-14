@@ -21,11 +21,14 @@ import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
 import me.sunyfusion.bdsp.BdspRow;
-import me.sunyfusion.bdsp.Unique;
 import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.exception.BdspConfigException;
+import me.sunyfusion.bdsp.fields.Camera;
+import me.sunyfusion.bdsp.fields.Dropdown;
+import me.sunyfusion.bdsp.fields.Field;
+import me.sunyfusion.bdsp.fields.Text;
 import me.sunyfusion.bdsp.io.ReadFromInput;
 import me.sunyfusion.bdsp.service.GpsService;
 
@@ -34,7 +37,7 @@ import me.sunyfusion.bdsp.service.GpsService;
  */
 public class BdspConfig {
 
-    public ArrayList<Unique> uniques = new ArrayList<>();
+    public ArrayList<Field> fields = new ArrayList<>();
     public static String SUBMIT_URL = "update.php";
     public String url;
     private String id_key = "";
@@ -44,8 +47,9 @@ public class BdspConfig {
 
     private Context c;
 
-    public BdspConfig(Context context) {
+    public BdspConfig(Context context, InputStream stream) throws BdspConfigException{
         c = context;   // Ties config to main activity
+        init(stream);
     }
 
     //TODO Currently not used, written to support updating configurations remotely, not finished
@@ -71,7 +75,7 @@ public class BdspConfig {
         BdspRow.ColumnNames.put(type,name);
     }
 
-    public void init(InputStream file) throws BdspConfigException{
+    private void init(InputStream file) throws BdspConfigException{
         String Type;
 
         String email = "";
@@ -82,7 +86,7 @@ public class BdspConfig {
             throw new BdspConfigException();
         }
         ReadFromInput readFile = new ReadFromInput(infile);
-        Unique u;
+        Field f;
         do {
             try {
                 readFile.getNextLine();
@@ -118,9 +122,8 @@ public class BdspConfig {
                     break;
                 case "photo":
                     addColumn(BdspRow.ColumnType.PHOTO, readFile.getArg(1));
-                    u = new Unique("photo");
-                    u.setText(readFile.getArg(1));
-                    uniques.add(u);
+                    f = new Camera(c, readFile.getArg(1));
+                    fields.add(f);
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {
@@ -140,16 +143,14 @@ public class BdspConfig {
                     break;
                 case "textfield":
                     addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
-                    u = new Unique("textfield");
-                    u.setText(readFile.getArg(1));
-                    uniques.add(u);
+                    f = new Text(c, readFile.getArg(1));
+                    fields.add(f);
                     break;
-                case "spinner":
+                case "dropdown":
                     addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
-                    u = new Unique("spinner");
-                    u.setText(readFile.getArg(1));
-                    u.setArray(Utils.stringToArray(readFile.getArg(2)));
-                    uniques.add(u);
+                    f = new Dropdown(c, readFile.getArg(1));
+                    ((Dropdown) f).setArray(Utils.stringToArray(readFile.getArg(2)));
+                    fields.add(f);
                     break;
                 case "datetime":
                     addColumn(BdspRow.ColumnType.DATE,readFile.getArg(1));
@@ -181,8 +182,8 @@ public class BdspConfig {
         return url + "projects/" + project;
     }
 
-    public ArrayList<Unique> getUniques() {
-        return uniques;
+    public ArrayList<Field> getFields() {
+        return fields;
     }
     public String getIdKey() {
         return id_key;
