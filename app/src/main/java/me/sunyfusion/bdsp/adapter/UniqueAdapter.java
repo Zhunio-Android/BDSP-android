@@ -1,6 +1,8 @@
 package me.sunyfusion.bdsp.adapter;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,9 +22,8 @@ import java.util.ArrayList;
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.Unique;
-import me.sunyfusion.bdsp.activity.MainActivity;
+import me.sunyfusion.bdsp.bluetooth.BluetoothConnection;
 import me.sunyfusion.bdsp.bluetooth.Constants;
-import me.sunyfusion.bdsp.bluetooth.ServerConnection;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
@@ -100,12 +101,19 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
                         Toast.makeText(Global.getContext(), Constants.ENABLED, Toast.LENGTH_SHORT)
                                 .show();
                     } else {
-                        ServerConnection serverConnection = new ServerConnection();
-                        serverConnection.start();
+                        new BluetoothConnection().execute();
                     }
                 }
                 else {
-                    MainActivity.handler.obtainMessage(Constants.NO_BT_ADAPTER).sendToTarget();
+                    new AlertDialog.Builder(Global.getContext())
+                            .setTitle(Constants.ERROR_TITLE)
+                            .setMessage(Constants.ERROR_MESSAGE_00)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) { }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setCancelable(false)
+                            .show();
                 }
             }
         });
