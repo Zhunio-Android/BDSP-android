@@ -17,6 +17,11 @@ import me.sunyfusion.bdsp.state.Global;
  */
 
 public class Dropdown implements Field {
+
+    final int containerId = R.id.dropdownView;
+    final int labelId = R.id.dropdownLabel;
+    final int valueId = R.id.dropdownValue;
+
     private String label = "";
     private String[] sArray;
     Context context;
@@ -35,10 +40,10 @@ public class Dropdown implements Field {
     }
 
     public boolean makeField(UniqueAdapter.ViewHolder holder) {
-        holder.mView.findViewById(R.id.spinnerLayout).setVisibility(View.VISIBLE);
-        final TextView t = (TextView) holder.mView.findViewById(R.id.spinnerName);
+        holder.mView.findViewById(containerId).setVisibility(View.VISIBLE);
+        final TextView t = (TextView) holder.mView.findViewById(labelId);
         t.setText(getLabel());
-        Spinner s = (Spinner) holder.mView.findViewById(R.id.spinner);
+        Spinner s = (Spinner) holder.mView.findViewById(valueId);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(Global.getContext(), android.R.layout.simple_spinner_item, getArray());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         s.setAdapter(adapter);

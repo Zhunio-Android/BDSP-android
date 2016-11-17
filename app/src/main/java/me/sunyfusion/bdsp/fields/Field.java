@@ -8,6 +8,8 @@ import me.sunyfusion.bdsp.adapter.UniqueAdapter;
 
 public interface Field {
     String label = "";
+    int labelId = 0;
+    int valueId = 0;
     String getLabel();
     boolean makeField(UniqueAdapter.ViewHolder holder);
 }

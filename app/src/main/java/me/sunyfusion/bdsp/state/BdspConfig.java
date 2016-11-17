@@ -25,6 +25,7 @@ import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.exception.BdspConfigException;
+import me.sunyfusion.bdsp.fields.Bluetooth;
 import me.sunyfusion.bdsp.fields.Camera;
 import me.sunyfusion.bdsp.fields.Dropdown;
 import me.sunyfusion.bdsp.fields.Field;
@@ -152,6 +153,11 @@ public class BdspConfig {
                     addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
                     f = new Dropdown(c, readFile.getArg(1));
                     ((Dropdown) f).setArray(Utils.stringToArray(readFile.getArg(2)));
+                    fields.add(f);
+                    break;
+                case "bluetooth":
+                    addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
+                    f = new Bluetooth(c, readFile.getArg(1));
                     fields.add(f);
                     break;
                 case "datetime":

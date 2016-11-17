@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void showIdEntry(final String id_key) {
         final EditText idTxt;
-        
+
         idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle(R.string.alert_login);

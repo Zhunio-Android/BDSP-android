@@ -15,16 +15,16 @@ import me.sunyfusion.bdsp.adapter.UniqueAdapter;
  * Created by deisingj1 on 11/7/2016.
  */
 
-public class Text implements Field {
+public class Bluetooth implements Field {
 
-    final int containerId = R.id.textboxView;
-    final int labelId = R.id.textboxLabel;
-    final int valueId = R.id.textboxValue;
+    final int containerId = R.id.bluetoothView;
+    final int labelId = R.id.bluetoothLabel;
+    final int valueId = R.id.bluetoothValue;
 
     private String label = "";
     private String[] sArray;
     Context context;
-    public Text(Context c, String l) {
+    public Bluetooth(Context c, String l) {
         context = c;
         label = l;
     }
