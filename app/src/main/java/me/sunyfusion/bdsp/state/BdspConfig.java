@@ -21,15 +21,12 @@ import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
 import me.sunyfusion.bdsp.BdspRow;
-import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.exception.BdspConfigException;
-import me.sunyfusion.bdsp.fields.Bluetooth;
 import me.sunyfusion.bdsp.fields.Camera;
-import me.sunyfusion.bdsp.fields.Dropdown;
 import me.sunyfusion.bdsp.fields.Field;
-import me.sunyfusion.bdsp.fields.Text;
+import me.sunyfusion.bdsp.fields.FieldFactory;
 import me.sunyfusion.bdsp.io.ReadFromInput;
 import me.sunyfusion.bdsp.service.GpsService;
 
@@ -144,22 +141,6 @@ public class BdspConfig {
                         checkGPSPermission();
                     }
                     break;
-                case "textfield":
-                    addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
-                    f = new Text(c, readFile.getArg(1));
-                    fields.add(f);
-                    break;
-                case "dropdown":
-                    addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
-                    f = new Dropdown(c, readFile.getArg(1));
-                    ((Dropdown) f).setArray(Utils.stringToArray(readFile.getArg(2)));
-                    fields.add(f);
-                    break;
-                case "bluetooth":
-                    addColumn(BdspRow.ColumnType.UNIQUE, readFile.getArg(1));
-                    f = new Bluetooth(c, readFile.getArg(1));
-                    fields.add(f);
-                    break;
                 case "datetime":
                     addColumn(BdspRow.ColumnType.DATE,readFile.getArg(1));
                     BdspRow.ColumnNames.put(BdspRow.ColumnType.DATE,readFile.getArg(1));
@@ -171,6 +152,11 @@ public class BdspConfig {
                     addColumn(BdspRow.ColumnType.RUN,readFile.getArg(2));
                     BdspRow.ColumnNames.put(BdspRow.ColumnType.RUN,readFile.getArg(2));
                     break;
+                case "textfield":
+                case "dropdown":
+                case "bluetooth":
+                    f = FieldFactory.build(c,readFile.getCurrentLine());
+                    fields.add(f);
                 default:
                     break;
             }

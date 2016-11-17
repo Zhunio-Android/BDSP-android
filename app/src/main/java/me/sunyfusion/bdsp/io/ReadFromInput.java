@@ -55,4 +55,8 @@ public class ReadFromInput {
         }
         else return "";
     }
+    public String[] getCurrentLine() {
+        String[] ls = Line.split(" ");
+        return ls;
+    }
 }
