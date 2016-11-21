@@ -27,7 +27,6 @@ dropdown Quantity [one,two,three,four]
 bluetooth Thing
 photo Photo
 
-
 //location (0/1 enable disable) included on pressing of submit button
 locOnSub 1 Latitude Longitude
 

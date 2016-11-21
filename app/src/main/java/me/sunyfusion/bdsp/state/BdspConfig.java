@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
@@ -74,6 +75,9 @@ public class BdspConfig {
     }
 
     private void init(InputStream file) throws BdspConfigException{
+
+        SharedPreferences prefs = c.getSharedPreferences("BDSP", Context.MODE_PRIVATE);
+        String id_value = prefs.getString("id", "");
         String Type;
 
         String email = "";
@@ -119,6 +123,9 @@ public class BdspConfig {
                     addColumn(BdspRow.ColumnType.ID,readFile.getArg(1));
                     id_key = readFile.getArg(1);
                     persistent_login = !readFile.getArg(2).equals("");
+                    if(persistent_login) {
+                        BdspRow.getInstance().setId(id_value);
+                    }
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {

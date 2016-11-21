@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
@@ -271,6 +272,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 } else {
                     String id = idTxt.getText().toString().replace(' ', '_');
                     BdspRow.setId(id);
+                    SharedPreferences prefs = getSharedPreferences("BDSP", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("id",id);
+                    editor.commit();
                     getSupportActionBar().setSubtitle(bdspConfig.getIdKey() + " : " + id );
                 }
             }
