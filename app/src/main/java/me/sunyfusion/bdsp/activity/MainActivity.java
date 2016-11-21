@@ -9,12 +9,8 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,24 +19,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
-import me.sunyfusion.bdsp.Unique;
 import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.adapter.UniqueAdapter;
-import me.sunyfusion.bdsp.db.BdspDB;
+import me.sunyfusion.bdsp.fields.Camera;
+import me.sunyfusion.bdsp.fields.Field;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
 import me.sunyfusion.bdsp.service.GpsService;
 import me.sunyfusion.bdsp.state.BdspConfig;
@@ -52,14 +46,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // CONSTANTS
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
-    MenuItem cameraMenu;
-    MenuItem gpsMenu;
 
     private BdspConfig bdspConfig;
-    private BdspDB db;
-    private Uri photoURI;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    String mCurrentPhotoPath;
+    ArrayList<Field> fields;
+    //String mCurrentPhotoPath;
 
 
     /**
@@ -77,13 +67,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
 
         Global.getInstance().init(this);
-        bdspConfig = new BdspConfig(this);  // Stores all of the bdspConfig info from build app.txt
-        try { bdspConfig.init(this.getAssets().open("buildApp.txt")); }
+        try { bdspConfig = new BdspConfig(this, this.getAssets().open("buildApp.txt")); }
         catch(IOException e) {
             System.out.println("Error in configuration");
+            Toast.makeText(this,"ERROR IN PROJECT CONFIGURATION, EXITING", Toast.LENGTH_LONG).show();
+            finishAffinity();
         }
-        db = Global.getDb();
-        ArrayList<Unique> uniques = bdspConfig.getUniques();
+        fields = bdspConfig.getFields();
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -91,12 +81,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getSupportActionBar().setDisplayUseLogoEnabled(true);
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setItemViewCacheSize(uniques.size());
+        mRecyclerView.setItemViewCacheSize(fields.size());
 
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new UniqueAdapter(uniques);
+        mAdapter = new UniqueAdapter(fields);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -165,10 +155,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode) {
-            case REQUEST_IMAGE_CAPTURE:
+            case Camera.REQUEST_IMAGE_CAPTURE:
                 super.onActivityResult(requestCode, resultCode, data);
                 if (resultCode == RESULT_OK) {
-                    //((ImageView) findViewById(R.id.imageView)).setImageURI(photoURI);
+                    if(getView(Camera.photoLabel) != null) {
+                        ((ImageView) getView(Camera.photoLabel).findViewById(Camera.valueId)).setImageURI(Camera.photoURI);
+                    }
                 }
                 break;
             default:
@@ -191,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 BdspRow.getInstance().send(getApplicationContext());
                 ContentValues cv = BdspRow.getInstance().getRow();
                 try {
-                    db.insert(cv);
+                    Global.getDb().insert(cv);
                 } catch (SQLiteException e) {
                     Log.d("Database", "ERROR inserting: " + e.toString());
                 }
@@ -217,20 +209,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         so you can write to it.
      */
     public View getView(String label) {
-        ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
-        for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
-            ViewGroup containerGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
-            System.out.println(i);
-            for(int j = 0; j < containerGroup.getChildCount(); j++) {
-                System.out.println(j);
-                ViewGroup uniqueTypeGroup = (ViewGroup) containerGroup.getChildAt(j);
-                for(int k = 0; k < uniqueTypeGroup.getChildCount(); k++) {
-                    System.out.println(k);
-                    TextView t = (TextView) uniqueTypeGroup.findViewById(R.id.uniqueName);
-                    if(t != null && t.getText().toString().equals(label)) {
-                        return uniqueTypeGroup.findViewById(R.id.uniqueValue);
-                    }
-                }
+        for(Field f : fields) {
+            if(f.getLabel().equals(label)) {
+                return f.getView();
             }
         }
         System.out.println("GETVIEW : Did not find");
@@ -238,28 +219,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
-     * Clears all editable fields within the uniques view object
+     * Clears all editable fields within the fields view object
      */
     private void clearTextFields() {
-        /**
-         * The viewgroup whose edittexts will be cleared
-         */
-        //((ImageView) findViewById(R.id.imageView)).setImageResource(R.drawable.border);
-        ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
-        for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
-            ViewGroup containerGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
-            for(int j = 0; j < containerGroup.getChildCount(); j++) {
-                ViewGroup uniqueTypeGroup = (ViewGroup) containerGroup.getChildAt(j);
-                for(int k = 0; k < uniqueTypeGroup.getChildCount(); k++) {
-                    // THIS IS WHERE the methods of clearing each type of input go!
-                    if (uniqueTypeGroup.getChildAt(k) instanceof EditText) {
-                        ((EditText) uniqueTypeGroup.getChildAt(k)).setText("");
-                    }
-                    else if (uniqueTypeGroup.getChildAt(k) instanceof Spinner) {
-                        ((Spinner) uniqueTypeGroup.getChildAt(k)).setSelection(0);
-                    }
-                }
-            }
+        for(Field f : fields) {
+            f.clearField();
         }
     }
 
@@ -293,9 +257,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void showIdEntry(final String id_key) {
         final EditText idTxt;
+
         idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setTitle("Login");
+        adb.setTitle(R.string.alert_login);
         adb.setMessage("Enter " + id_key);
         adb.setView(idTxt);
         adb.setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -315,43 +280,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //Image submission methods
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = Utils.getDateString("yyyyMMdd_HHmmss");
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-        boolean t = BdspRow.getInstance().put(BdspRow.ColumnNames.get(BdspRow.ColumnType.PHOTO),
-                "http://sunyfusion.me/projects/" + bdspConfig.table + "/" + image.getName()
-        );
-        // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
-        return image;
-    }
 
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                System.out.println(ex.getMessage());
-            }
-            // Continue only if the File was successfully created
-            if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,
-                        "me.sunyfusion.bdsp.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-            }
-        }
-    }
 }

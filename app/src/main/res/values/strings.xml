@@ -8,6 +8,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_close">CLOSE</string>
 
+    <string name="alert_login">Login: </string>
+
     <string name="bdsp_notification_title_template">BDSP: %1$s</string>
 
     <!-- TODO: remove this placeholder text -->

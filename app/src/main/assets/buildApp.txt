@@ -1,6 +1,3 @@
-// photo, 1, camera column
-photo 1 Photo
-
 // gpsLoc 1/0, latitude column, longitude column
 // gpsLoc 0 latitude longitude
 
@@ -8,10 +5,10 @@ photo 1 Photo
 //gpsTracker 1 geometry 2000 start end
 
 // id, must be present or app will break, name of ID column
-id ID
+id ID persistent
 
 //run 0/1(enable disable) and name of column
-//run 1 run
+run 1 run
 
 //name of fusion table that will be written to (no spaces)
 table assetTest
@@ -20,14 +17,16 @@ table assetTest
 email jett925@gmail.com
 
 //field that the app will put the current system time into
-//datetime date
+datetime date
 
 //base url of server that the app interacts with
 url http://www.sunyfusion.me/ft_test/
 
 // unique options - "unique", type, name
-spinner Quantity [one,two,third,four]
+dropdown Quantity [one,two,three,four]
 textfield Thing
+photo Photo
+
 
 //location (0/1 enable disable) included on pressing of submit button
 locOnSub 1 Latitude Longitude

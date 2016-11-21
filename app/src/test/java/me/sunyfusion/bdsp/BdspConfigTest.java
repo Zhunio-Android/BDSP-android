@@ -57,9 +57,6 @@ public class BdspConfigTest {
         }
         assertTrue(ex == null);
         assertTrue(config.getIdKey().equals("userId"));
-        assertTrue(config.getUniques().size()  == 3);
-        assertTrue(config.getUniques().get(0).equals("c1"));
-        assertTrue(config.getUniques().get(1).equals("c2"));
-        assertTrue(config.getUniques().get(2).equals("c3"));
+        assertTrue(config.getFields().size() == 3);
     }
 }

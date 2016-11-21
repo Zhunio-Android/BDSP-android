@@ -82,10 +82,10 @@ public class BdspRow {
                     put(ColumnNames.get(ColumnType.GEOMETRY), kmlStart + s + kmlEnd);
                     System.out.println(row.get(ColumnNames.get(ColumnType.GEOMETRY)));
                     break;
+                case DATE:
                 case END:
                     put(ColumnNames.get(column), Utils.getDateString("yyyy-MM-dd HH:mm:ss"));
                     break;
-                case PHOTO:
                 case LATITUDE:
                 case LONGITUDE:
                     break;
@@ -101,6 +101,11 @@ public class BdspRow {
         }
         else {
             return false;
+        }
+    }
+    public void addToKml(Location l) {
+        if(l != null && !idv.equals("") &&ColumnNames.containsKey(ColumnType.GEOMETRY)) {
+            BdspRow.getInstance().append(BdspRow.ColumnNames.get(BdspRow.ColumnType.GEOMETRY), l.getLongitude() + "," + l.getLatitude() + " ");
         }
     }
     public static void setId(String s) {

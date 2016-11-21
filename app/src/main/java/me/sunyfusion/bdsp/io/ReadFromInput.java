@@ -50,6 +50,13 @@ public class ReadFromInput {
 
     public String getArg(int arg) {
         String[] ls = Line.split(" ");
-        return ls[arg];
+        if(arg < ls.length) {
+            return ls[arg];
+        }
+        else return "";
+    }
+    public String[] getCurrentLine() {
+        String[] ls = Line.split(" ");
+        return ls;
     }
 }

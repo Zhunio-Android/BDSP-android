@@ -3,11 +3,16 @@ package me.sunyfusion.bdsp;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
+import android.view.View;
+import android.widget.EditText;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+
+import me.sunyfusion.bdsp.activity.MainActivity;
+import me.sunyfusion.bdsp.state.Global;
 
 /**
  * Created by jesse on 10/13/16.
@@ -63,5 +68,9 @@ public class Utils {
     }
     public static String[] stringToArray(String s) {
         return s.substring(1, s.length()-1).split(",");
+    }
+    public static void test() {
+        View v = ((MainActivity) Global.getContext()).getView("Thing");
+        if(v != null) ((EditText) v).setText("TEST !");
     }
 }
