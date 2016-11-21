@@ -135,5 +135,4 @@
             android:id="@+id/dropdownValue"
             android:layout_weight="1" />
     </LinearLayout>
-
 </LinearLayout>

@@ -59,4 +59,3 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
 
 }
 
-
