@@ -19,11 +19,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private BdspConfig bdspConfig;
-
+    ArrayList<Field> fields;
     //String mCurrentPhotoPath;
 
 
@@ -76,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this,"ERROR IN PROJECT CONFIGURATION, EXITING", Toast.LENGTH_LONG).show();
             finishAffinity();
         }
-        ArrayList<Field> fields = bdspConfig.getFields();
+        fields = bdspConfig.getFields();
         setContentView(R.layout.activity_main);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
@@ -162,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 super.onActivityResult(requestCode, resultCode, data);
                 if (resultCode == RESULT_OK) {
                     if(getView(Camera.photoLabel) != null) {
-                        ((ImageView) getView(Camera.photoLabel).findViewById(R.id.photoView)).setImageURI(Camera.photoURI);
+                        ((ImageView) getView(Camera.photoLabel).findViewById(Camera.valueId)).setImageURI(Camera.photoURI);
                     }
                 }
                 break;
@@ -212,26 +209,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         so you can write to it.
      */
     public View getView(String label) {
-        ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
-        for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
-            ViewGroup containerGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
-            System.out.println(i);
-            for(int j = 0; j < containerGroup.getChildCount(); j++) {
-                ViewGroup uniqueTypeGroup = (ViewGroup) containerGroup.getChildAt(j);
-                for(int k = 0; k < uniqueTypeGroup.getChildCount(); k++) {
-                    TextView t = (TextView) uniqueTypeGroup.findViewById(R.id.uniqueName);
-                    if(t != null && t.getText().toString().equals(label)) {
-                        return uniqueTypeGroup;
-                    }
-                    t = (TextView) uniqueTypeGroup.findViewById(R.id.cameraText);
-                    if(t != null && t.getText().toString().equals(label)) {
-                        return uniqueTypeGroup;
-                    }
-                    t = (TextView) uniqueTypeGroup.findViewById(R.id.spinnerName);
-                    if(t != null && t.getText().toString().equals(label)) {
-                        return uniqueTypeGroup;
-                    }
-                }
+        for(Field f : fields) {
+            if(f.getLabel().equals(label)) {
+                return f.getView();
             }
         }
         System.out.println("GETVIEW : Did not find");
@@ -242,28 +222,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * Clears all editable fields within the fields view object
      */
     private void clearTextFields() {
-        /**
-         * The viewgroup whose edittexts will be cleared
-         */
-        //((ImageView) findViewById(R.id.imageView)).setImageResource(R.drawable.border);
-        ViewGroup uniquesViewGroup = (ViewGroup) findViewById(R.id.uniques_view);
-        for(int i = 0; i < uniquesViewGroup.getChildCount(); i++) {
-            ViewGroup containerGroup = (ViewGroup) uniquesViewGroup.getChildAt(i);
-            for(int j = 0; j < containerGroup.getChildCount(); j++) {
-                ViewGroup uniqueTypeGroup = (ViewGroup) containerGroup.getChildAt(j);
-                for(int k = 0; k < uniqueTypeGroup.getChildCount(); k++) {
-                    // THIS IS WHERE the methods of clearing each type of input go!
-                    if (uniqueTypeGroup.getChildAt(k) instanceof EditText) {
-                        ((EditText) uniqueTypeGroup.getChildAt(k)).setText("");
-                    }
-                    else if (uniqueTypeGroup.getChildAt(k) instanceof Spinner) {
-                        ((Spinner) uniqueTypeGroup.getChildAt(k)).setSelection(0);
-                    }
-                    else if (uniqueTypeGroup.getChildAt(k) instanceof ImageView) {
-                        ((ImageView) uniqueTypeGroup.getChildAt(k)).setImageResource(R.drawable.ic_add_a_photo_black_24dp);
-                    }
-                }
-            }
+        for(Field f : fields) {
+            f.clearField();
         }
     }
 

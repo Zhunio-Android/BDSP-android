@@ -8,7 +8,7 @@
 id ID persistent
 
 //run 0/1(enable disable) and name of column
-//run 1 run
+run 1 run
 
 //name of fusion table that will be written to (no spaces)
 table assetTest
@@ -17,13 +17,13 @@ table assetTest
 email jett925@gmail.com
 
 //field that the app will put the current system time into
-//datetime date
+datetime date
 
 //base url of server that the app interacts with
 url http://www.sunyfusion.me/ft_test/
 
 // unique options - "unique", type, name
-spinner Quantity [one,two,three,four]
+dropdown Quantity [one,two,three,four]
 textfield Thing
 photo Photo
 

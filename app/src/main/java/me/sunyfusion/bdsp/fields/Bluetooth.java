@@ -23,6 +23,7 @@ public class Bluetooth implements Field {
 
     private String label = "";
     private String[] sArray;
+    private View thisView;
     Context context;
     public Bluetooth(Context c, String l) {
         context = c;
@@ -31,18 +32,19 @@ public class Bluetooth implements Field {
     public String getLabel() {
         return label;
     }
-    public String[] getArray() {
-        return sArray;
+
+    public View getView() {
+        return thisView;
     }
-    public void setArray(String[] array) {
-        sArray = array;
+    public void clearField() {
+        ((EditText) thisView.findViewById(valueId)).setText("");
     }
 
     public boolean makeField(UniqueAdapter.ViewHolder holder) {
+        thisView = holder.mView.findViewById(containerId);
         holder.mView.findViewById(containerId).setVisibility(View.VISIBLE);
         final TextView t = (TextView) holder.mView.findViewById(labelId);
         t.setText(getLabel());
-        holder.mView.findViewById(R.id.textField).setVisibility(View.VISIBLE);
         EditText e = (EditText) holder.mView.findViewById(valueId);
         e.addTextChangedListener(new TextWatcher() {
             @Override

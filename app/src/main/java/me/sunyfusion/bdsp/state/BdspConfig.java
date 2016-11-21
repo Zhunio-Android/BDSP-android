@@ -24,7 +24,6 @@ import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.exception.BdspConfigException;
-import me.sunyfusion.bdsp.fields.Camera;
 import me.sunyfusion.bdsp.fields.Field;
 import me.sunyfusion.bdsp.fields.FieldFactory;
 import me.sunyfusion.bdsp.io.ReadFromInput;
@@ -109,6 +108,7 @@ public class BdspConfig {
                     project = readFile.getArg(1);
                     break;
                 case "locOnSub":
+                    checkGPSPermission();
                     addColumn(BdspRow.ColumnType.LATITUDE, readFile.getArg(2));
                     addColumn(BdspRow.ColumnType.LONGITUDE, readFile.getArg(3));
                     break;
@@ -119,11 +119,6 @@ public class BdspConfig {
                     addColumn(BdspRow.ColumnType.ID,readFile.getArg(1));
                     id_key = readFile.getArg(1);
                     persistent_login = !readFile.getArg(2).equals("");
-                    break;
-                case "photo":
-                    addColumn(BdspRow.ColumnType.PHOTO, readFile.getArg(1));
-                    f = new Camera(c, readFile.getArg(1));
-                    fields.add(f);
                     break;
                 case "gpsLoc":
                     if (readFile.enabled()) {
@@ -152,6 +147,7 @@ public class BdspConfig {
                     addColumn(BdspRow.ColumnType.RUN,readFile.getArg(2));
                     BdspRow.ColumnNames.put(BdspRow.ColumnType.RUN,readFile.getArg(2));
                     break;
+                case "photo":
                 case "textfield":
                 case "dropdown":
                 case "bluetooth":

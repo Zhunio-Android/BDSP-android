@@ -22,7 +22,11 @@ public class FieldFactory {
     public static Field build(Context c, String[] desc) {
         Field f;
         addColumn(c, BdspRow.ColumnType.UNIQUE, desc[1]);
-        switch(desc[1]) {
+        switch(desc[0]) {
+            case "photo":
+                addColumn(c, BdspRow.ColumnType.PHOTO, desc[1]);
+                f = new Camera(c, desc[1]);
+                break;
             case "textfield":
                 f = new Text(c, desc[1]);
                 break;

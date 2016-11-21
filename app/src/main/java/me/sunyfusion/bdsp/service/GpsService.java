@@ -96,9 +96,8 @@ public class GpsService extends Service implements LocationListener {
                         ((Activity) Global.getContext()).finishAffinity();
                     }
                     if (location != null) {
-                        BdspRow.getInstance().append(BdspRow.ColumnNames.get(BdspRow.ColumnType.GEOMETRY),location.getLongitude() + "," + location.getLatitude() + " ");
+                        BdspRow.getInstance().addToKml(location);
                         BdspRow.getInstance().attachLocation(location);
-                        //System.out.println(location.getAccuracy());
                     }
                 }
             }, 0, 1000);

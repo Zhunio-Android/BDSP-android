@@ -22,6 +22,7 @@ public class Dropdown implements Field {
     final int labelId = R.id.dropdownLabel;
     final int valueId = R.id.dropdownValue;
 
+    private View thisView;
     private String label = "";
     private String[] sArray;
     Context context;
@@ -32,6 +33,12 @@ public class Dropdown implements Field {
     public String getLabel() {
         return label;
     }
+    public View getView() {
+        return thisView;
+    }
+    public void clearField() {
+        ((Spinner) thisView.findViewById(valueId)).setSelection(0);
+    }
     public String[] getArray() {
         return sArray;
     }
@@ -40,6 +47,7 @@ public class Dropdown implements Field {
     }
 
     public boolean makeField(UniqueAdapter.ViewHolder holder) {
+        thisView = holder.mView.findViewById(containerId);
         holder.mView.findViewById(containerId).setVisibility(View.VISIBLE);
         final TextView t = (TextView) holder.mView.findViewById(labelId);
         t.setText(getLabel());

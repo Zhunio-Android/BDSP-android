@@ -26,18 +26,17 @@ import me.sunyfusion.bdsp.adapter.UniqueAdapter;
 
 public class Camera implements Field {
 
-    final int containerId = R.id.cameraView;
-    final int labelId = R.id.cameraText;
-    final int valueId = R.id.cameraValue;
+    public static final int containerId = R.id.cameraView;
+    public static final int labelId = R.id.cameraLabel;
+    public static final int valueId = R.id.cameraValue;
 
     Context context;
     private String label = "";
+    private View thisView;
     public static Uri photoURI;
     public static String photoLabel;
     public static final int REQUEST_IMAGE_CAPTURE = 1;
-    public Camera(Context c) {
-        context = c;
-    }
+
     public Camera(Context c, String l) {
         context = c;
         label = l;
@@ -45,7 +44,16 @@ public class Camera implements Field {
 
     public String getLabel() { return label; }
 
+    public View getView() {
+        return thisView;
+    }
+
+    public void clearField() {
+        ((ImageView) thisView.findViewById(valueId)).setImageResource(R.drawable.ic_add_a_photo_black_24dp);
+    }
+
     public boolean makeField(UniqueAdapter.ViewHolder holder) {
+        thisView = holder.mView.findViewById(containerId);
         holder.mView.findViewById(containerId).setVisibility(View.VISIBLE);
         TextView t = (TextView) holder.mView.findViewById(labelId);
         t.setText(label);
