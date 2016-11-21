@@ -18,8 +18,6 @@ import me.sunyfusion.bdsp.activity.MainActivity;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
- * This class extends AsyncTask.
- *
  * It creates a server socket, and once a connection to a Bluetooth device
  * is accepted, it manages the connection by receiving data. Once all data has been
  * read, it is displayed via population into a text field within the UI thread.

@@ -24,7 +24,7 @@ url http://www.sunyfusion.me/ft_test/
 
 // unique options - "unique", type, name
 dropdown Quantity [one,two,three,four]
-textfield Thing
+bluetooth Thing
 photo Photo
 
 
