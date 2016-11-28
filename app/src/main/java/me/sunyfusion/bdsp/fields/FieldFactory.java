@@ -7,11 +7,17 @@ import me.sunyfusion.bdsp.Utils;
 import me.sunyfusion.bdsp.db.BdspDB;
 
 /**
- * Created by deisingj1 on 11/17/2016.
+ * Creates Fields based on input from config file
  */
-
 public class FieldFactory {
     private static BdspDB db;
+
+    /**
+     * Add column to database
+     * @param c
+     * @param type
+     * @param name
+     */
     private static void addColumn(Context c, BdspRow.ColumnType type, String name) {
         if (db == null) {
             db = new BdspDB(c);
@@ -19,6 +25,13 @@ public class FieldFactory {
         db.addColumn(name,"TEXT");
         BdspRow.ColumnNames.put(type,name);
     }
+
+    /**
+     * Creates a field based on the description provided
+     * @param c Context to use
+     * @param desc Description of the field to create from the config field
+     * @return
+     */
     public static Field build(Context c, String[] desc) {
         Field f;
         addColumn(c, BdspRow.ColumnType.UNIQUE, desc[1]);

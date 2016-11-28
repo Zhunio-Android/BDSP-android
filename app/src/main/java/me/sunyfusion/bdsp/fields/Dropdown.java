@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
-import me.sunyfusion.bdsp.adapter.UniqueAdapter;
+import me.sunyfusion.bdsp.adapter.FieldAdapter;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
@@ -46,7 +46,7 @@ public class Dropdown implements Field {
         sArray = array;
     }
 
-    public boolean makeField(UniqueAdapter.ViewHolder holder) {
+    public boolean makeField(FieldAdapter.ViewHolder holder) {
         thisView = holder.mView.findViewById(containerId);
         holder.mView.findViewById(containerId).setVisibility(View.VISIBLE);
         final TextView t = (TextView) holder.mView.findViewById(labelId);

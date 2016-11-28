@@ -15,7 +15,10 @@ import me.sunyfusion.bdsp.fields.Field;
  * @version 7.13.16
  */
 
-public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder> {
+/**
+ *  Allows fields to be inserted into the RecyclerView, helps to build the UI
+ */
+public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.ViewHolder> {
     /**
      * Holds list of Text objects created when BdspConfig.init was run
      */
@@ -30,13 +33,13 @@ public class UniqueAdapter extends RecyclerView.Adapter<UniqueAdapter.ViewHolder
         }
     }
 
-    public UniqueAdapter(ArrayList<Field> myDataset) {
+    public FieldAdapter(ArrayList<Field> myDataset) {
         fieldList = myDataset;
     }
 
     @Override
-    public UniqueAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                       int viewType) {
+    public FieldAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                      int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_item, parent, false);
         ViewHolder vh = new ViewHolder(v);

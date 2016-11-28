@@ -18,7 +18,7 @@ import java.io.IOException;
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.Utils;
-import me.sunyfusion.bdsp.adapter.UniqueAdapter;
+import me.sunyfusion.bdsp.adapter.FieldAdapter;
 
 /**
  * Created by deisingj1 on 11/14/2016.
@@ -26,11 +26,11 @@ import me.sunyfusion.bdsp.adapter.UniqueAdapter;
 
 public class Camera implements Field {
 
-    public static final int containerId = R.id.cameraView;
-    public static final int labelId = R.id.cameraLabel;
-    public static final int valueId = R.id.cameraValue;
+    public static final int containerId = R.id.cameraView;          //id of the top level LinearLayout
+    public static final int labelId = R.id.cameraLabel;             //id of the label
+    public static final int valueId = R.id.cameraValue;             //id of the value
 
-    Context context;
+    private Context context;
     private String label = "";
     private View thisView;
     public static Uri photoURI;
@@ -41,18 +41,31 @@ public class Camera implements Field {
         context = c;
         label = l;
     }
-
+    /**
+     * @return Label of the field
+     */
     public String getLabel() { return label; }
 
+    /**
+     * @return The view associated with this field
+     */
     public View getView() {
         return thisView;
     }
 
+    /**
+     * Reset the field
+     */
     public void clearField() {
         ((ImageView) thisView.findViewById(valueId)).setImageResource(R.drawable.ic_add_a_photo_black_24dp);
     }
 
-    public boolean makeField(UniqueAdapter.ViewHolder holder) {
+    /**
+     * Make and set up the field, showing the correct field
+     * @param holder The viewholder that contains the view to be inflated
+     * @return True if successful, false otherwise
+     */
+    public boolean makeField(FieldAdapter.ViewHolder holder) {
         thisView = holder.mView.findViewById(containerId);
         holder.mView.findViewById(containerId).setVisibility(View.VISIBLE);
         TextView t = (TextView) holder.mView.findViewById(labelId);
@@ -82,15 +95,13 @@ public class Camera implements Field {
                 //TODO Make assetTest set dynamically
                 "http://sunyfusion.me/projects/" + "assetTest" + "/" + image.getName()
         );
-        // Save a file: path for use with ACTION_VIEW intents
-        //mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         return image;
     }
+
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
+            File photoFile = null;                      // Create the File where the photo should go
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {

@@ -63,7 +63,7 @@ public class BdspRow {
     public ContentValues getRow() {
         return row;
     }
-    public boolean send(Context c) {
+    public boolean prepare(Context c) {
         addSpecialColumns(c);
         //clear();
         return true;

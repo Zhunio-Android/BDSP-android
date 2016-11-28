@@ -34,7 +34,7 @@ public class NetUpdateReceiver extends BroadcastReceiver {
                 netConnected = true;
                 Log.i("NET", "connected ");
                 try {
-                    AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(BdspConfig.SUBMIT_URL);
+                    AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(context, BdspConfig.SUBMIT_URL);
                     doUpload.execute();
                 }
                 catch(Exception e) {

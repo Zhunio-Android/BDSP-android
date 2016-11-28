@@ -20,7 +20,6 @@ import me.sunyfusion.bdsp.state.Global;
 
 public class BdspDB extends SQLiteOpenHelper
 {
-
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "Tasks.db";
     private static final String TABLE_NAME = "tasksTable";
@@ -29,7 +28,6 @@ public class BdspDB extends SQLiteOpenHelper
     public BdspDB(Context c)
     {
         super(c, DATABASE_NAME, null, DATABASE_VERSION);
-        //db = this.getWritableDatabase();
         self = this;
     }
     @Override

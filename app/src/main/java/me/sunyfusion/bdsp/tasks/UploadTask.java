@@ -26,102 +26,97 @@ import me.sunyfusion.bdsp.db.BdspDB;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
+ * Task that posts a list of JSONArrays to a given URL
  * Created by jesse on 8/1/16.
  */
 public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
-    private BdspDB db = Global.getDb();
-    final String submitUrl;
-    ArrayList<String> deleteQueue = new ArrayList<String>();
-    public UploadTask(String url) {
+    private BdspDB db = Global.getDb();                     //gets an instance of db from Global singleton
+    private Context context;
+    final String submitUrl;                                 //URL to post JSONArrays to
+    ArrayList<String> deleteQueue = new ArrayList<String>();    //Queue containing the IDs of database entries that have been successfully submitted
+
+    //Constructs an UploadTask that posts to specified URL using specified context
+    public UploadTask(Context c, String url) {
         super();
+        context = c;
         submitUrl = url;
     }
 
-
     @Override
     protected ArrayList<JSONArray> doInBackground(Void... voids) {
-        if(db != null) {
+        if(db != null) {                                                //check for null pointer
             ArrayList<JSONArray> jsonArrayList = new ArrayList<JSONArray>();
-            Cursor c;
+            Cursor records;
             try {
-                c = db.queueAll(null);
+                records = db.queueAll(null);                                  //gets a cursor to all records in the db
             }
             catch(NullPointerException e) {
                 System.out.println("Failing upload gracefully");
                 return null;
             }
-            JSONArray j;
+            JSONArray jsonArray;
             JSONObject jsonObject;
-            if (c.getCount() == 0)   //Does not submit if database is empty
-                return null;
-            c.moveToNext();
-            String[] cNames = c.getColumnNames();
+            if (records.getCount() == 0)                                      //Check if database is empty
+                return null;                                                  //if it is do nothing
+            records.moveToNext();                                             //Steps to first record in cursor
+            String[] cNames = records.getColumnNames();
 
-            int cCount = c.getColumnCount();
-            while (!c.isAfterLast()) {
-                j = new JSONArray();
+            int cCount = records.getColumnCount();
+            while (!records.isAfterLast()) {                                  //while there are records to process
+                jsonArray = new JSONArray();
                 jsonObject = new JSONObject();
-                for (int i = 0; i < cCount; i++) {
-                    if (!cNames[i].equals("unique_table_id"))
+                for (int i = 0; i < cCount; i++) {                      //for all columns in a record
+                    if (!cNames[i].equals("unique_table_id"))           //if they are not the PK
                         try {
-                            jsonObject.put(cNames[i], c.getString(i));
+                            jsonObject.put(cNames[i], records.getString(i));  //add the column to the JSON Object
                         } catch (JSONException e) {
                             Log.d("BDSP", "JSONexception");
                         }
                 }
-                j.put(jsonObject);
-                System.out.println(j);
-                jsonArrayList.add(j);
-                deleteQueue.add(c.getString(0));
-                c.moveToNext();
+                jsonArray.put(jsonObject);                                      //add the JSON Object to JSON Array;
+                jsonArrayList.add(jsonArray);                                   //add the JSON Array to the ArrayList
+                deleteQueue.add(records.getString(0));                        //queue that record for deletion by PK
+                records.moveToNext();                                         //go to the next record
             }
-            c.close();
+            records.close();                                                  //close the cursor (clean up)
             return jsonArrayList;
         }
         else return null;
     }
 
     @Override
-    protected void onPostExecute(ArrayList<JSONArray> j) {
-        super.onPostExecute(j);
-        if(j != null) {
-            System.out.println(submitUrl);
-            if (j != null) {
-                for (JSONArray jsonArray : j) {
-                    Log.d("JSON ARRAY", jsonArray.toString());
-                    doRowUpload(submitUrl, jsonArray, null);
-                }
+    protected void onPostExecute(ArrayList<JSONArray> jsonArrays) {
+        super.onPostExecute(jsonArrays);
+        if(jsonArrays != null) {                                                 //if the JSONArray List is not empty
+            for (JSONArray jsonArray : jsonArrays) {                            //For each JSONArray
+                doRowUpload(context, submitUrl, jsonArray, null);                        //Post it to the submitUrl
             }
         }
-        File[] fileList = Utils.getPhotoList(Global.getContext());
-        for(File f : fileList) {
-            doImageUpload("http://sunyfusion.me/ft_test/photos.php", f);
+        File[] fileList = Utils.getPhotoList(Global.getContext());              //Get a list of all photos taken
+        for(File f : fileList) {                                                //For each image
+            doImageUpload(context, "http://sunyfusion.me/ft_test/photos.php", f);        //Upload it to the URL
         }
     }
 
     /**
      * Creates and sends an HTTP post request to the server, which includes the image captured
-     * from the getImage() method. Also adds the HTTP response from the server to the UI.
+     * from the getImage() method. Also adds the HTTP response from the server to the UI. Uses
+     * the Android Async HTTP Library that can be found at http://loopj.com/android-async-http/
      */
-    private boolean doRowUpload(String url, JSONArray jsonParams, Uri imgUri) {
-        final Context c = Global.getContext();
+    private boolean doRowUpload(final Context c, String url, JSONArray jsonParams, Uri imgUri) {
         AsyncHttpClient client = new AsyncHttpClient();
         final boolean status = false;
         StringEntity entity = null;
-        //post test
-
-        if (imgUri != null) {
-            File myFile = new File(imgUri.getPath());
-        }
         try {
-            entity = new StringEntity(jsonParams.toString());
+            entity = new StringEntity(jsonParams.toString());                   //convert the jsonArray to something we can use
         } catch (Exception e) {
             System.out.println(e);
         }
-        client.setBasicAuth("SUNY", "GreenTreeTables");
+        //TODO move auth information to a file that is not on github, then change the auth info
+        client.setBasicAuth("SUNY", "GreenTreeTables");     //sets user and password for basic HTTP auth
         client.setTimeout(20000);
         client.setMaxRetriesAndTimeout(0, 1);
-        client.post(c, url, entity, "application/json", new FileAsyncHttpResponseHandler(c) {
+        client.post(c, url, entity, "application/json", new FileAsyncHttpResponseHandler(c) {       //posts entity to url as type json
 
             @Override
             public void onStart() {
@@ -130,17 +125,14 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File response) {
-                Toast toast = Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG);
-                toast.show();
+                Toast.makeText(c, "Success " + statusCode, Toast.LENGTH_LONG).show();               //show a toast that the submission was successful
                 Log.i("UPLOAD", "SUCCESS");
-                AsyncTask<ArrayList<String>,Void,Void> emptyQueue = new EmptyDeleteQueueTask();
-                emptyQueue.execute(deleteQueue);
+                new EmptyDeleteQueueTask().execute(deleteQueue);                                    //deletes successfully submitted records
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                Toast toast = Toast.makeText(c, "Failed " + statusCode, Toast.LENGTH_LONG);
-                toast.show();
+                Toast.makeText(c, "Failed " + statusCode, Toast.LENGTH_LONG).show();                //show error toast
             }
 
             @Override
@@ -150,21 +142,20 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
         });
         return status;
     }
-    private boolean doImageUpload(final String url, final File fileToUpload) {
-        final Context c = Global.getContext();
+    private boolean doImageUpload(final Context c, final String url, final File fileToUpload) {
         AsyncHttpClient client = new AsyncHttpClient();
         final boolean status = false;
         RequestParams req = new RequestParams();
         try {
-            req.put("photo", fileToUpload);
+            req.put("photo", fileToUpload);                                                         //add file to ReqParams
             //TODO make this wrk off the config file
-            req.put("projectName", "assetTest");
+            req.put("projectName", "assetTest");              //projectName specifies the folder the photo will be added to
         }
         catch(FileNotFoundException e) {
             System.out.println(e.getMessage());
         }
         //post test
-        client.setBasicAuth("SUNY", "GreenTreeTables");
+        client.setBasicAuth("SUNY", "GreenTreeTables");                                             //configure basic auth with server
         client.setTimeout(20000);
         client.setMaxRetriesAndTimeout(0, 1);
         client.post(url, req, new FileAsyncHttpResponseHandler(c) {
@@ -176,16 +167,14 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, File response) {
-                Toast toast = Toast.makeText(c, "Photo Success " + statusCode, Toast.LENGTH_LONG);
-                toast.show();
+                Toast.makeText(c, "Photo Success " + statusCode, Toast.LENGTH_LONG).show();         //show toast
                 Log.i("UPLOAD", "SUCCESS");
-                Utils.deletePhoto(Global.getContext(), fileToUpload);
+                Utils.deletePhoto(Global.getContext(), fileToUpload);                               //delete file from phone
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable e, File errorResponse) {
-                Toast toast = Toast.makeText(c, "Photo Failed " + statusCode, Toast.LENGTH_LONG);
-                toast.show();
+                Toast.makeText(c, "Photo Failed " + statusCode, Toast.LENGTH_LONG).show();
             }
 
             @Override

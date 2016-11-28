@@ -2,7 +2,7 @@ package me.sunyfusion.bdsp.fields;
 
 import android.view.View;
 
-import me.sunyfusion.bdsp.adapter.UniqueAdapter;
+import me.sunyfusion.bdsp.adapter.FieldAdapter;
 
 /**
  * Created by deisingj1 on 11/14/2016.
@@ -35,5 +35,5 @@ public interface Field {
      * @param holder The viewholder that contains the view to be inflated
      * @return true if successful, false if not successful
      */
-    boolean makeField(UniqueAdapter.ViewHolder holder);
+    boolean makeField(FieldAdapter.ViewHolder holder);
 }

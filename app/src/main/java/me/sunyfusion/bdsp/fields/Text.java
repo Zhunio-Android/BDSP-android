@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
-import me.sunyfusion.bdsp.adapter.UniqueAdapter;
+import me.sunyfusion.bdsp.adapter.FieldAdapter;
 
 /**
  * Created by deisingj1 on 11/7/2016.
@@ -39,7 +39,7 @@ public class Text implements Field {
         ((EditText) thisView.findViewById(valueId)).setText("");
     }
 
-    public boolean makeField(UniqueAdapter.ViewHolder holder) {
+    public boolean makeField(FieldAdapter.ViewHolder holder) {
         thisView = holder.mView.findViewById(containerId);
         holder.mView.findViewById(containerId).setVisibility(View.VISIBLE);
         final TextView t = (TextView) holder.mView.findViewById(labelId);

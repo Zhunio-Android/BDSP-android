@@ -58,7 +58,7 @@ public class BdspRowUnitTest {
         r.put(r.ColumnNames.get(BdspRow.ColumnType.PHOTO),"img.jpg");
         r.put(r.ColumnNames.get(BdspRow.ColumnType.LATITUDE),"100");
         r.put(r.ColumnNames.get(BdspRow.ColumnType.LONGITUDE),"20");
-        assertTrue(r.send(c));
+        assertTrue(r.prepare(c));
     }
     @Test
     public void BdspRow_appendValueToKey() {

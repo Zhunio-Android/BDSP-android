@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +31,7 @@ import java.util.ArrayList;
 import me.sunyfusion.bdsp.BdspRow;
 import me.sunyfusion.bdsp.R;
 import me.sunyfusion.bdsp.Utils;
-import me.sunyfusion.bdsp.adapter.UniqueAdapter;
+import me.sunyfusion.bdsp.adapter.FieldAdapter;
 import me.sunyfusion.bdsp.fields.Camera;
 import me.sunyfusion.bdsp.fields.Field;
 import me.sunyfusion.bdsp.receiver.NetUpdateReceiver;
@@ -42,16 +40,18 @@ import me.sunyfusion.bdsp.state.BdspConfig;
 import me.sunyfusion.bdsp.state.Global;
 import me.sunyfusion.bdsp.tasks.UploadTask;
 
+// Tim wore rubber bands on his wrist
+// For each item on his to-do list
+// But the more he forgot
+// The bigger it got
+// And now it's a big rubber fist
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     // CONSTANTS
-    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-
-
-    private BdspConfig bdspConfig;
-    ArrayList<Field> fields;
-    //String mCurrentPhotoPath;
-
+    public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;                        //used by GPS permissions dialog
+    private BdspConfig bdspConfig;                                                                  //stores config information
+    ArrayList<Field> fields;                                                                        //list of fields as read from config file
 
     /**
      * Runs on startup, creates the layout when the activity is created.
@@ -61,34 +61,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        RecyclerView mRecyclerView;
-        RecyclerView.Adapter mAdapter;
-        RecyclerView.LayoutManager mLayoutManager;
-
         super.onCreate(savedInstanceState);
-
         Global.getInstance().init(this);
-        try { bdspConfig = new BdspConfig(this, this.getAssets().open("buildApp.txt")); }
-        catch(IOException e) {
+
+        try { bdspConfig = new BdspConfig(this, this.getAssets().open("buildApp.txt")); }           //check to make sure there is a valid
+        catch(IOException e) {                                                                      //configuration
             System.out.println("Error in configuration");
             Toast.makeText(this,"ERROR IN PROJECT CONFIGURATION, EXITING", Toast.LENGTH_LONG).show();
             finishAffinity();
         }
-        fields = bdspConfig.getFields();
-        setContentView(R.layout.activity_main);
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
-        getSupportActionBar().setLogo(R.mipmap.logo);
-        getSupportActionBar().setDisplayUseLogoEnabled(true);
+
+        fields = bdspConfig.getFields();                                                            //get list of fields from configuration
+
+        setContentView(R.layout.activity_main);                                                     //start setting up UI
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);                                //if you want more information
+        setSupportActionBar(myToolbar);                                                             //about how this works
+        getSupportActionBar().setLogo(R.mipmap.logo);                                               //look up the android docs for
+        getSupportActionBar().setDisplayUseLogoEnabled(true);                                       //recyclerview
+        RecyclerView mRecyclerView;
+        RecyclerView.Adapter mAdapter;
+        RecyclerView.LayoutManager mLayoutManager;
         mRecyclerView = (RecyclerView) findViewById(R.id.uniques_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemViewCacheSize(fields.size());
-
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-        mAdapter = new UniqueAdapter(fields);
-        mRecyclerView.setAdapter(mAdapter);
+        mAdapter = new FieldAdapter(fields);
+        mRecyclerView.setAdapter(mAdapter);                                                         //end UI setup
     }
 
     @Override
@@ -155,12 +154,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case Camera.REQUEST_IMAGE_CAPTURE:
+        switch(requestCode) {                                                                       //on receiving activity result
+            case Camera.REQUEST_IMAGE_CAPTURE:                                                      //if Camera
                 super.onActivityResult(requestCode, resultCode, data);
                 if (resultCode == RESULT_OK) {
                     if(getView(Camera.photoLabel) != null) {
-                        ((ImageView) getView(Camera.photoLabel).findViewById(Camera.valueId)).setImageURI(Camera.photoURI);
+                        ((ImageView) getView(Camera.photoLabel).findViewById(Camera.valueId)).setImageURI(Camera.photoURI); //Save Image URI to row
                     }
                 }
                 break;
@@ -177,27 +176,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          * listeners for each object means that all onClick
          * actions are within one method, easier to debug
          */
-        switch (view.getId()) {
-            case R.id.submit:
-                Utils.checkDate(this);
-                Utils.getPhotoList(this);
-                BdspRow.getInstance().send(getApplicationContext());
-                ContentValues cv = BdspRow.getInstance().getRow();
+        switch (view.getId()) {                                                             //when click received
+            case R.id.submit:                                                               //if submit
+                Utils.checkDate(this);                                                      //check to see if run needs to be reset
+                Utils.getPhotoList(this);                                                   //get list of all photos
+                BdspRow.getInstance().prepare(getApplicationContext());                     //prepare row for submission
+                ContentValues cv = BdspRow.getInstance().getRow();                          //get object that will be submitted to phone database
                 try {
-                    Global.getDb().insert(cv);
+                    Global.getDb().insert(cv);                                              //insert CV into database
                 } catch (SQLiteException e) {
                     Log.d("Database", "ERROR inserting: " + e.toString());
                 }
-                if (NetUpdateReceiver.netConnected) {
+                if (NetUpdateReceiver.netConnected) {                                       //if the device is connected to the network
                     try {
-                        AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(BdspConfig.SUBMIT_URL);
-                        doUpload.execute();
+                        new UploadTask(this, BdspConfig.SUBMIT_URL).execute();              //do upload
                     } catch (Exception e) {
                         Log.d("UPLOADER", "THAT DIDN'T WORK");
                     }
                 }
-                BdspRow.getInstance().clear();
-                clearTextFields();
+                BdspRow.getInstance().clear();                                              //reinitialize the row, clear all fields
+                clearUIFields();                                                            //clear fields in UI
                 break;
             default:
                 System.out.println(view.getId());
@@ -205,9 +203,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    /*Returns the corresponding view for a given label in the form
-        Use this to get the EditText box for a given labeled field
-        so you can write to it.
+    /**
+     * Returns the corresponding view for a given label in the form
+     Use this to get the EditText box for a given labeled field
+     so you can write to it.
+     * @param label
+     * @return the view that corresponds with the label
      */
     public View getView(String label) {
         for(Field f : fields) {
@@ -222,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * Clears all editable fields within the fields view object
      */
-    private void clearTextFields() {
+    private void clearUIFields() {
         for(Field f : fields) {
             f.clearField();
         }
@@ -257,9 +258,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      *               used as the primary key when submitting a row into the database
      */
     private void showIdEntry(final String id_key) {
-        final EditText idTxt;
-
-        idTxt = new EditText(this);
+        final EditText idTxt = new EditText(this);
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle(R.string.alert_login);
         adb.setMessage("Enter " + id_key);
@@ -274,16 +273,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     BdspRow.setId(id);
                     SharedPreferences prefs = getSharedPreferences("BDSP", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("id",id);
+                    editor.putString("id", id);
                     editor.commit();
-                    getSupportActionBar().setSubtitle(bdspConfig.getIdKey() + " : " + id );
+                    getSupportActionBar().setSubtitle(bdspConfig.getIdKey() + " : " + id);
                 }
             }
         });
         adb.setCancelable(false);
         adb.show();
     }
-
-    //Image submission methods
-
 }
