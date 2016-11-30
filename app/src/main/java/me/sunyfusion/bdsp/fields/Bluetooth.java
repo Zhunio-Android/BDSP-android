@@ -27,7 +27,7 @@ public class Bluetooth implements Field {
 
     final int containerId = R.id.bluetoothView;             //id of the top level LinearLayout
     final int labelId = R.id.bluetoothLabel;                //id of the label
-    final int valueId = R.id.bluetoothValue;                //id of the view that contains the value
+    public static final int valueId = R.id.bluetoothValue;                //id of the view that contains the value
     final int buttonId = R.id.bluetoothButton;              //id of the button
 
     private String label = "";

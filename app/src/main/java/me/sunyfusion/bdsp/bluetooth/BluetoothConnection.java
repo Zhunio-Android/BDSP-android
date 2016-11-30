@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import me.sunyfusion.bdsp.activity.MainActivity;
+import me.sunyfusion.bdsp.fields.Bluetooth;
 import me.sunyfusion.bdsp.state.Global;
 
 /**
@@ -130,7 +132,7 @@ public class BluetoothConnection extends AsyncTask<Void, Integer, Integer> {
         cancelBTSocket();
         if (result == Constants.SUCCESS) {
             if (view != null) {
-                ((EditText) view).setText(output.toString());
+                ((EditText) view.findViewById(Bluetooth.valueId)).setText(output.toString());
             }
         }
     }
