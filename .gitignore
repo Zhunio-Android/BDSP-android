@@ -1,5 +1,5 @@
 .idea
 local.properties
 ..gitignore.swp
-
-
+.gradle/*
+*.iml
