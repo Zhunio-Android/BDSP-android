@@ -20,7 +20,7 @@ email jett925@gmail.com
 datetime date
 
 //base url of server that the app interacts with
-url http://www.sunyfusion.me/ft_test/
+url http://bd-sp.org:8080/node-builder/fusiontable/
 
 // unique options - "unique", type, name
 dropdown Quantity [one,two,three,four]
@@ -28,7 +28,7 @@ bluetooth Thing
 photo Photo
 
 //location (0/1 enable disable) included on pressing of submit button
-locOnSub 1 Latitude Longitude
+/locOnSub 1 Latitude Longitude
 
 //EOF marker
 endFile

@@ -93,7 +93,7 @@ public class Camera implements Field {
         );
         BdspRow.getInstance().put(label,
                 //TODO Make assetTest set dynamically
-                "http://sunyfusion.me/projects/" + "assetTest" + "/" + image.getName()
+                "http://bd-sp.org/projects/" + "assetTest" + "/" + image.getName()
         );
         return image;
     }

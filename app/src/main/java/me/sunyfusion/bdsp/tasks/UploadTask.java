@@ -94,7 +94,7 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
         }
         File[] fileList = Utils.getPhotoList(Global.getContext());              //Get a list of all photos taken
         for(File f : fileList) {                                                //For each image
-            doImageUpload(context, "http://sunyfusion.me/ft_test/photos.php", f);        //Upload it to the URL
+            doImageUpload(context, "http://bd-sp.org:8080/node-builder/photohandler", f);        //Upload it to the URL
         }
     }
 
