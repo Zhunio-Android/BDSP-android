@@ -14,13 +14,13 @@ run 1 run
 table assetTest
 
 //email address of user that built the app, transactions will be authorized through this account
-email jett925@gmail.com
+email zhunio.developer@gmail.com
 
 //field that the app will put the current system time into
 datetime date
 
 //base url of server that the app interacts with
-url http://bd-sp.org:8080/node-builder/fusiontable/
+url http://bd-sp.org/node-builder/fusiontable/
 
 // unique options - "unique", type, name
 dropdown Quantity [one,two,three,four]

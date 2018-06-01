@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.sunyfusion.bdsp">
+    package="org.bd_sp.bdsp">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -17,7 +17,7 @@
         android:logo="@mipmap/ic_launcher"
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity
-            android:name="me.sunyfusion.bdsp.activity.MainActivity"
+            android:name="org.bd_sp.bdsp.activity.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustPan"
@@ -29,19 +29,19 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="me.sunyfusion.bdsp.receiver.NetUpdateReceiver">
+        <receiver android:name="org.bd_sp.bdsp.receiver.NetUpdateReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
 
         <service
-            android:name=".service.GpsService"
+            android:name="org.bd_sp.bdsp.service.GpsService"
             android:enabled="true"
             android:exported="true" />
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="me.sunyfusion.bdsp.fileprovider"
+            android:authorities="org.bd_sp.bdsp.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
