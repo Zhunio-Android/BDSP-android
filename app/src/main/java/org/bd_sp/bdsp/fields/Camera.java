@@ -36,10 +36,12 @@ public class Camera implements Field {
     public static Uri photoURI;
     public static String photoLabel;
     public static final int REQUEST_IMAGE_CAPTURE = 1;
+    private String table;
 
-    public Camera(Context c, String l) {
+    public Camera(Context c, String l, String aTable) {
         context = c;
         label = l;
+        table = aTable;
     }
 
     /**
@@ -99,10 +101,10 @@ public class Camera implements Field {
         // Format
         String site = "http://bd-sp.org";
         String location = "/uploads";
-        String project = "/assetTest";
+        String project = "/" + table;
         BdspRow.getInstance().put(label,
                 //TODO Make assetTest set dynamically
-                site + location + "/" + image.getName()
+                site + location + project + "/" + image.getName()
         );
         return image;
     }
@@ -125,6 +127,7 @@ public class Camera implements Field {
                 photoLabel = this.label;
                 Log.d("photoURI", photoURI.toString());
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureIntent.putExtra("table", table);
                 ((Activity) context).startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }

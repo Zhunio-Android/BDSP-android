@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.FileAsyncHttpResponseHandler;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 import cz.msebera.android.httpclient.Header;
@@ -31,6 +33,8 @@ import org.bd_sp.bdsp.io.ReadFromInput;
 import org.bd_sp.bdsp.service.GpsService;
 
 /**
+ * Reads the /assetsbuildApp.txt located on the
+ *
  * Created by deisingj1 on 8/4/2016.
  */
 public class BdspConfig {
@@ -41,7 +45,10 @@ public class BdspConfig {
     private String id_key = "";
     private BdspDB db;
     private String project;
+
+    /** Contains table name */
     public String table = "";
+
     public boolean persistent_login = false;
 
     private Context c;
@@ -158,7 +165,11 @@ public class BdspConfig {
                 case "textfield":
                 case "dropdown":
                 case "bluetooth":
-                    f = FieldFactory.build(c,readFile.getCurrentLine());
+                    String[] currentLine = readFile.getCurrentLine();
+                    String[] newCurrentLine = Arrays.copyOf(currentLine, currentLine.length + 1);
+                    newCurrentLine[newCurrentLine.length - 1] = table;
+
+                    f = FieldFactory.build(c,newCurrentLine);
                     fields.add(f);
                 default:
                     break;

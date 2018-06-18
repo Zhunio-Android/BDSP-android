@@ -35,11 +35,14 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
     final String submitUrl;                                 //URL to post JSONArrays to
     ArrayList<String> deleteQueue = new ArrayList<String>();    //Queue containing the IDs of database entries that have been successfully submitted
 
+    private String table;
+
     //Constructs an UploadTask that posts to specified URL using specified context
-    public UploadTask(Context c, String url) {
+    public UploadTask(Context c, String url, String aTable) {
         super();
         context = c;
         submitUrl = url;
+        table = aTable;
     }
 
     @Override
@@ -149,7 +152,7 @@ public class UploadTask extends AsyncTask<Void, Void, ArrayList<JSONArray>> {
         try {
             req.put("photo", fileToUpload);                                                         //add file to ReqParams
             //TODO make this wrk off the config file
-            req.put("projectName", "assetTest");              //projectName specifies the folder the photo will be added to
+            req.put("projectName", table);              //projectName specifies the folder the photo will be added to
         }
         catch(FileNotFoundException e) {
             System.out.println(e.getMessage());

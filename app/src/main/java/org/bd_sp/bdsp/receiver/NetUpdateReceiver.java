@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -32,9 +33,14 @@ public class NetUpdateReceiver extends BroadcastReceiver {
         if (isConnected) {
             if(!netConnected) {
                 netConnected = true;
+
+                Bundle bundle = intent.getExtras();
+
+
                 Log.i("NET", "connected ");
                 try {
-                    AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(context, BdspConfig.SUBMIT_URL);
+                    String table = intent.getStringExtra("table");
+                    AsyncTask<Void, Void, ArrayList<JSONArray>> doUpload = new UploadTask(context, BdspConfig.SUBMIT_URL, table);
                     doUpload.execute();
                 }
                 catch(Exception e) {

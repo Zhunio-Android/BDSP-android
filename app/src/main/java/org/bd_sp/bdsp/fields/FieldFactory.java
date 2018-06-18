@@ -38,7 +38,7 @@ public class FieldFactory {
         switch(desc[0]) {
             case "photo":
                 addColumn(c, BdspRow.ColumnType.PHOTO, desc[1]);
-                f = new Camera(c, desc[1]);
+                f = new Camera(c, desc[1], desc[2]);
                 break;
             case "textfield":
                 f = new Text(c, desc[1]);

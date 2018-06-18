@@ -48,6 +48,9 @@ import org.bd_sp.bdsp.tasks.UploadTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    /** Tag for logging */
+    private static final String TAG = "MainActivity";
+
     // CONSTANTS
     public static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;                        //used by GPS permissions dialog
     private BdspConfig bdspConfig;                                                                  //stores config information
@@ -74,10 +77,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fields = bdspConfig.getFields();                                                            //get list of fields from configuration
 
         setContentView(R.layout.activity_main);                                                     //start setting up UI
+
+        // Set up ToolBar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);                                //if you want more information
         setSupportActionBar(myToolbar);                                                             //about how this works
         getSupportActionBar().setLogo(R.mipmap.logo);                                               //look up the android docs for
         getSupportActionBar().setDisplayUseLogoEnabled(true);                                       //recyclerview
+
+        // Set up RecyclerView
         RecyclerView mRecyclerView;
         RecyclerView.Adapter mAdapter;
         RecyclerView.LayoutManager mLayoutManager;
@@ -191,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 if (NetUpdateReceiver.netConnected) {                                       //if the device is connected to the network
                     try {
-                        new UploadTask(this, BdspConfig.SUBMIT_URL).execute();              //do upload
+                        new UploadTask(this, BdspConfig.SUBMIT_URL, bdspConfig.table).execute();              //do upload
                     } catch (Exception e) {
                         Log.d("UPLOADER", "THAT DIDN'T WORK");
                     }
